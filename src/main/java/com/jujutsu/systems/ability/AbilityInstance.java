@@ -26,9 +26,6 @@ public final class AbilityInstance {
     public AbilityInstance(RegistryEntry<AbilityType> type) {
         this.type = type;
         this.nbt = new NbtCompound();
-        //test
-        int a = 123;
-        a -= 123;
     }
 
     public void start(PlayerEntity player) {

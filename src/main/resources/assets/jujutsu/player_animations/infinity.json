@@ -1,0 +1,64 @@
+{
+    "name": "infinity",
+    "author": "goatee",
+    "description": "description",
+    "emote": {
+        "beginTick": 0,
+        "endTick": 160,
+        "stopTick": 160,
+        "isLoop": false,
+        "returnTick": 17,
+        "nsfw": false,
+        "degrees": false,
+        "moves": [
+            {
+                "tick": 10,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "leftArm": {
+                    "pitch": -1.481
+                }
+            },
+            {
+                "tick": 10,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "leftArm": {
+                    "yaw": -0.038
+                }
+            },
+            {
+                "tick": 10,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "leftArm": {
+                    "roll": -0.539
+                }
+            },
+            {
+                "tick": 3,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "leftArm": {
+                    "bend": 0
+                }
+            },
+            {
+                "tick": 17,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "leftArm": {
+                    "bend": -1.077
+                }
+            },
+            {
+                "tick": 3,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "leftArm": {
+                    "axis": 0
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,17 @@
+package com.jujutsu.entity.renderer;
+
+import com.jujutsu.entity.HollowPurpleEntity;
+import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.util.Identifier;
+
+public class HollowPurpleEntityRenderer extends EntityRenderer<HollowPurpleEntity> {
+    public HollowPurpleEntityRenderer(EntityRendererFactory.Context context) {
+        super(context);
+    }
+
+    @Override
+    public Identifier getTexture(HollowPurpleEntity entity) {
+        return null;
+    }
+}

@@ -1,0 +1,80 @@
+{
+    "name": "test",
+    "author": "goatee",
+    "description": "description",
+    "emote": {
+        "beginTick": 0,
+        "endTick": 57,
+        "stopTick": 91,
+        "isLoop": false,
+        "returnTick": 0,
+        "nsfw": false,
+        "degrees": false,
+        "moves": [
+            {
+                "tick": 1,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "head": {
+                    "pitch": 5.393
+                }
+            },
+            {
+                "tick": 15,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "head": {
+                    "pitch": 2.646
+                }
+            },
+            {
+                "tick": 15,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "head": {
+                    "yaw": 0
+                }
+            },
+            {
+                "tick": 15,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "head": {
+                    "roll": 0
+                }
+            },
+            {
+                "tick": 1,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "rightArm": {
+                    "pitch": -0.444
+                }
+            },
+            {
+                "tick": 1,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "rightArm": {
+                    "yaw": 0
+                }
+            },
+            {
+                "tick": 1,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "rightArm": {
+                    "roll": 0
+                }
+            },
+            {
+                "tick": 57,
+                "easing": "INOUTQUAD",
+                "turn": 0,
+                "rightArm": {
+                    "roll": 1.647
+                }
+            }
+        ]
+    }
+}

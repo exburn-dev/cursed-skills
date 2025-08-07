@@ -1,0 +1,43 @@
+package com.jujutsu.ability.active;
+
+import com.jujutsu.ability.passive.FierySoulPassiveAbility;
+import com.jujutsu.registry.ModAbilities;
+import com.jujutsu.systems.ability.AbilityInstance;
+import com.jujutsu.systems.ability.AbilityType;
+import com.jujutsu.systems.ability.IAbilitiesHolder;
+import com.jujutsu.systems.ability.PassiveAbility;
+import net.minecraft.entity.player.PlayerEntity;
+
+public class FierySoulSwitchAbility extends AbilityType {
+    public FierySoulSwitchAbility(int cooldownTime) {
+        super(cooldownTime, false);
+    }
+
+    @Override
+    public void start(PlayerEntity player, AbilityInstance instance) {
+        IAbilitiesHolder holder = (IAbilitiesHolder) player;
+
+        for(PassiveAbility passiveAbility: holder.getPassiveAbilities()) {
+            if(passiveAbility.getType() == ModAbilities.FIERY_SOUL) {
+                FierySoulPassiveAbility fierySoul = (FierySoulPassiveAbility) passiveAbility;
+
+                fierySoul.setEnabled(!fierySoul.isEnabled());
+            }
+        }
+    }
+
+    @Override
+    public void tick(PlayerEntity player, AbilityInstance instance) {
+
+    }
+
+    @Override
+    public void end(PlayerEntity player, AbilityInstance instance) {
+
+    }
+
+    @Override
+    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+        return instance.getUseTime() >= 5;
+    }
+}

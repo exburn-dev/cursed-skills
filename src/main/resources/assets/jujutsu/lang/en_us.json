@@ -1,0 +1,35 @@
+{
+  "item.jujutsu.rearm": "Rearm",
+  "item.jujutsu.allah_music_disc": "Allah",
+  "item.jujutsu.technique_scroll": "Technique Scroll",
+  "item.jujutsu.technique_scroll.press_shift": "Press [SHIFT] for more info",
+  "item.jujutsu.technique_scroll.stored_abilities": "Cursed Techniques:",
+
+  "itemGroup.jujutsu.main": "Jujutsu",
+
+  "ability.jujutsu.hollow_purple": "Hollow Purple",
+  "ability.jujutsu.infinity": "Infinity",
+  "ability.jujutsu.lapse_blue": "Lapse Blue",
+  "ability.jujutsu.reversal_red": "Reversal Red",
+  "ability.jujutsu.flash_punch": "Flash Punch",
+  "ability.jujutsu.wither_momentum": "Wither Momentum",
+  "ability.jujutsu.shadow_step": "Shadow Step",
+  "ability.jujutsu.phoenix_ash": "Phoenix Ash",
+  "ability.jujutsu.fiery_soul_switch": "Fiery Soul",
+  "ability.jujutsu.phoenix_fireball": "Phoenix Fireball",
+
+  "ability.jujutsu.hollow_purple.description": "OOh its like bruh and hmmm bruuh and it's so.... bruh, u know... like..... like very bruhy bruh, understand? if you don't - just GET OUT lmao lol kek stupid mf and you are an idiot ahahaha ahahahaha",
+  "ability.jujutsu.infinity.description": "Trash",
+  "ability.jujutsu.lapse_blue.description": "Garbage",
+
+  "screen.jujutsu.abilities_menu.abilities": "Abilities",
+  "screen.jujutsu.abilities_menu.ability_info": "Ability Info",
+  "screen.jujutsu.abilities_menu.description": "Description",
+  "screen.jujutsu.abilities_menu.bound_key": "Bound Key:",
+
+  "jukebox_song.jujutsu.allah": "ALLAH 3BL4N",
+
+  "death.attack.hollow_purple": "%s was incinerated by %s",
+
+  "toast.jujutsu.abilities_acquired.title": "Acquired %d new abilities: "
+}

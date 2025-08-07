@@ -1,0 +1,21 @@
+{
+  "music_disc.allah": {
+    "subtitle": "sounds.jujutsu.allah",
+    "sounds": [
+      "jujutsu:allah"
+    ]
+  },
+  "music_disc.allah_danger": {
+    "subtitle": "sounds.jujutsu.allah",
+    "sounds": [
+      "jujutsu:allah_danger"
+    ]
+  },
+  "effects.stun_applied": {
+    "subtitle": "sounds.jujutsu.stun",
+    "sounds": [
+      "jujutsu:stun_01",
+      "jujutsu:stun_02"
+    ]
+  }
+}

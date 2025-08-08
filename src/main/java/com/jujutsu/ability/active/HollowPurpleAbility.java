@@ -76,7 +76,7 @@ public class HollowPurpleAbility extends AbilityType {
     @Override
     public void end(PlayerEntity player, AbilityInstance instance) {
         Vec3d pos = player.getEyePos().add(0, 0.5, 0).add(player.getRotationVector().multiply(5));
-        if(instance.isCancelled()) {
+        if(instance.getStatus().isCancelled()) {
             player.getWorld().playSound(player, pos.x, pos.y, pos.z, SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.MASTER, 1f, 0.5f);
             return;
         }

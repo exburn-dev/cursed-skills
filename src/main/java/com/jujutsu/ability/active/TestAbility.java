@@ -22,7 +22,6 @@ public class TestAbility extends AbilityType {
 
         data = new TestAbilityData(data.radius() + 1);
         instance.setAbilityData(data);
-
     }
 
     @Override

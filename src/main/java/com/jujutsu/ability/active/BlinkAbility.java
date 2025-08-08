@@ -1,53 +1,47 @@
 package com.jujutsu.ability.active;
 
-import com.jujutsu.Jujutsu;
-import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.entity.BlinkMarkerEntity;
-import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
+import com.jujutsu.systems.ability.AbilityData;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilityType;
-import com.jujutsu.systems.ability.IPlayerJujutsuAbilitiesHolder;
-import com.jujutsu.util.ParticleUtils;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.*;
-import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Items;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockStateRaycastContext;
 import net.minecraft.world.RaycastContext;
-import org.joml.Vector3f;
-
-import java.util.List;
 
 public class BlinkAbility extends AbilityType {
+    public static final Codec<BlinkAbilityData> CODEc = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("markerId").forGetter(BlinkAbilityData::markerId),
+            Codec.DOUBLE.fieldOf("x").forGetter(BlinkAbilityData::x),
+            Codec.DOUBLE.fieldOf("y").forGetter(BlinkAbilityData::y),
+            Codec.DOUBLE.fieldOf("z").forGetter(BlinkAbilityData::z)
+    ).apply(instance, BlinkAbilityData::new));
+
     public BlinkAbility(int cooldownTime) {
         super(cooldownTime, true);
     }
 
     @Override
     public void start(PlayerEntity player, AbilityInstance instance) {
-        //BlinkMarkerEntity entity = new BlinkMarkerEntity(player.getWorld(), player.getUuid());
         BlinkMarkerEntity entity = new BlinkMarkerEntity(player.getWorld(), player.getUuid());
-        //entity.setFuse(500);
-        //entity.setPickupDelay(500);
-//        entity.setAiDisabled(true);
         entity.setPosition(player.getPos());
 
         player.getWorld().spawnEntity(entity);
-        instance.getNbt().putInt("markerId", entity.getId());
+
+        BlinkAbilityData data = new BlinkAbilityData(entity.getId(), entity.getX(), entity.getY(), entity.getZ());
+        instance.setAbilityData(data);
     }
 
     @Override
     public void tick(PlayerEntity player, AbilityInstance instance) {
+        BlinkAbilityData data = instance.getAbilityData(BlinkAbilityData.class, () -> (BlinkAbilityData) getInitialData());
         Vec3d pos = player.getEyePos();
         Vec3d vec = player.getRotationVector();
         Vec3d blinkPos = pos.add(vec.multiply(instance.getUseTime() * 0.5));
@@ -72,32 +66,27 @@ public class BlinkAbility extends AbilityType {
 //            }
 //        }
 
-        instance.getNbt().putDouble("posX", blinkPos.x);
-        instance.getNbt().putDouble("posY", blinkPos.y);
-        instance.getNbt().putDouble("posZ", blinkPos.z);
-
 //        Vector3f color1 = new Vector3f(0.25f, 0.25f, 1);
 //        ParticleEffect particle1 = new ColoredSparkParticleEffect(13, 0.95f,
 //                new ColoredSparkParticleEffect.ColorTransition(color1, new Vector3f(0.5f, 0, 1)), 0, 0.1f, 50);
 //
 //        ParticleUtils.createCyl(particle1, blinkPos, player.getWorld(), 20, 0.5f, 0.1f);
-        Entity entity = player.getWorld().getEntityById(instance.getNbt().getInt("markerId"));
+        Entity entity = player.getWorld().getEntityById(data.markerId());
         if(entity instanceof BlinkMarkerEntity marker) {
             double markerSpeed = 0.15;
             Vec3d markerVelocity = blinkPos.subtract(marker.getPos()).multiply(markerSpeed);
             //marker.setPosition(marker.getX(), blinkPos.y, marker.getZ());
             marker.setVelocity(markerVelocity);
         }
+        instance.setAbilityData(new BlinkAbilityData(data.markerId(), blinkPos.getX(), blinkPos.getY(), blinkPos.getZ()));
     }
 
     @Override
     public void end(PlayerEntity player, AbilityInstance instance) {
-        double x = instance.getNbt().getDouble("posX");
-        double y = instance.getNbt().getDouble("posY");
-        double z = instance.getNbt().getDouble("posZ");
-        player.setPos(x, y, z);
+        BlinkAbilityData data = instance.getAbilityData(BlinkAbilityData.class, () -> (BlinkAbilityData) getInitialData());
+        player.setPos(data.x, data.y, data.z);
 
-        Entity entity = player.getWorld().getEntityById(instance.getNbt().getInt("markerId"));
+        Entity entity = player.getWorld().getEntityById(data.markerId());
         if(entity instanceof BlinkMarkerEntity marker) {
             marker.remove(Entity.RemovalReason.KILLED);
         }
@@ -107,4 +96,16 @@ public class BlinkAbility extends AbilityType {
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
         return instance.getUseTime() >= 200;
     }
+
+    @Override
+    public AbilityData getInitialData() {
+        return new BlinkAbilityData(0, 0, 0, 0);
+    }
+
+    @Override
+    public Codec<? extends AbilityData> getCodec() {
+        return CODEc;
+    }
+
+    public record BlinkAbilityData(int markerId, double x, double y, double z) implements AbilityData { }
 }

@@ -51,14 +51,13 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
 
             instance.tick(player);
 
-            if(!instance.isRunning() || instance.isFinished(player) || instance.isCancelled()) {
-                if(instance.isRunning()) instance.end(player);
-
-                if(instance.getCooldownTime() <= 0) {
-                    toRemove.add(slot);
-                    instance.onRemoved();
-                    jujutsu$syncAbilitiesToClient();
-                }
+            if((instance.getStatus().isRunning() && instance.isFinished(player)) || instance.getStatus().isCancelled()) {
+                instance.endAbility(player);
+            }
+            else if(instance.getStatus().onCooldown() && instance.getCooldownTime() <= 0) {
+                toRemove.add(slot);
+                instance.endCooldown();
+                jujutsu$syncAbilitiesToClient();
             }
         }
         abilities.runningAbilities().removeAll(toRemove);
@@ -102,8 +101,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
             }
         }
     }
-
-
 
     @Inject(method = "getMovementSpeed", at = @At("HEAD"), cancellable = true)
     private void getMovementSpeed(CallbackInfoReturnable<Float> cir) {
@@ -190,7 +187,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     public boolean isRunning(AbilityType type) {
         for(int i = 0; i < abilities.runningAbilities().size(); i++) {
             AbilityInstance instance = abilities.abilities().get(abilities.runningAbilities().get(i));
-            if(instance.getType() == type && instance.isRunning()) {
+            if(instance.getType() == type && instance.getStatus().isRunning()) {
                 return true;
             }
         }
@@ -200,7 +197,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     @Override
     public boolean onCooldown(AbilitySlot slot) {
         AbilityInstance instance = abilities.abilities().get(slot);
-        return !instance.isRunning() && abilities.runningAbilities().contains(slot);
+        return instance.getStatus().onCooldown();
     }
 
     @Override

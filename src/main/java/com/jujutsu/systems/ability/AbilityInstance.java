@@ -5,14 +5,10 @@ import com.jujutsu.registry.JujutsuRegistries;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.util.Identifier;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -23,25 +19,57 @@ public final class AbilityInstance {
     private final AbilityType type;
     private AbilityData abilityData;
 
-    private NbtCompound nbt;
+    private AbilityStatus status = AbilityStatus.NONE;
     private int useTime;
     private int cooldownTime;
-    private boolean isRunning;
-    private boolean isCancelled;
 
     public AbilityInstance(AbilityType type) {
         this.type = type;
-        this.nbt = new NbtCompound();
         abilityData = type.getInitialData();
     }
 
-    private AbilityInstance(AbilityType type, AbilityData data, int useTime, int cooldownTime, boolean isRunning, boolean isCancelled) {
+    private AbilityInstance(AbilityType type, AbilityData data, int useTime, int cooldownTime, AbilityStatus status) {
         this.type = type;
         this.abilityData = data;
         this.useTime = useTime;
         this.cooldownTime = cooldownTime;
-        this.isRunning = isRunning;
-        this.isCancelled = isCancelled;
+        this.status = status;
+    }
+
+    public void start(PlayerEntity player) {
+        if(!status.isNone()) return;
+
+        type.start(player, this);
+        status = AbilityStatus.RUNNING;
+    }
+
+    public void tick(PlayerEntity player) {
+        if(status.isRunning()) {
+            type.tick(player, this);
+            useTime++;
+        }
+        else if(status.onCooldown()) {
+            cooldown();
+        }
+    }
+
+    public void endAbility(PlayerEntity player) {
+        if(!isFinished(player) && !type.isCancelable()) return;
+
+        type.end(player, this);
+        status = AbilityStatus.ON_COOLDOWN;
+        cooldownTime = type.getCooldownTime(player, this);
+    }
+
+    public void endCooldown() {
+        useTime = 0;
+        status = AbilityStatus.NONE;
+    }
+
+    public void cancel() {
+        if(type.isCancelable() && status.isRunning()) {
+            status = AbilityStatus.CANCELLED;
+        }
     }
 
     public void setAbilityData(AbilityData abilityData) {
@@ -54,55 +82,16 @@ public final class AbilityInstance {
                 : fallback.get();
     }
 
-    public void start(PlayerEntity player) {
-        if(isRunning || cooldownTime > 0) return;
-        type.start(player, this);
-        isRunning = true;
-    }
-
-    public void tick(PlayerEntity player) {
-        if(isRunning) {
-            type.tick(player, this);
-            useTime++;
-        }
-        else if(cooldownTime > 0) {
-            cooldown();
-        }
-    }
-
-    public void end(PlayerEntity player) {
-        if(!isFinished(player) && !type.isCancelable()) return;
-
-        type.end(player, this);
-        isRunning = false;
-        cooldownTime = type.getCooldownTime(player, this);
-    }
-
-    public void onRemoved() {
-        useTime = 0;
-        isCancelled = false;
-    }
-
-    public void cancel() {
-        if(type.isCancelable()) {
-            this.isCancelled = true;
-        }
-    }
-
     public boolean isFinished(PlayerEntity player) {
         return this.type.isFinished(player, this);
     }
 
-    public boolean isCancelled() {
-        return isCancelled;
-    }
-
-    public boolean isRunning() {
-        return this.isRunning;
-    }
-
     public void cooldown() {
         if(cooldownTime > 0) cooldownTime--;
+    }
+
+    public AbilityStatus getStatus() {
+        return status;
     }
 
     public int getUseTime() {
@@ -121,17 +110,13 @@ public final class AbilityInstance {
         return this.type;
     }
 
-    public NbtCompound getNbt() {
-        return this.nbt;
-    }
+    public void getNbt() {
 
-    private void setNbt(NbtCompound nbt) {
-        this.nbt = nbt;
     }
 
     @Override
     public String toString() {
-        return String.format("type: %s, cooldown: %s, isRunning: %s, useTime: %s", type.getName().getString(), getCooldownTime(), isRunning, getUseTime());
+        return String.format("type: %s, cooldown: %s, status: %s, useTime: %s", type.getName().getString(), getCooldownTime(), getStatus(), getUseTime());
     }
 
     static {
@@ -150,13 +135,17 @@ public final class AbilityInstance {
                 AbilityData data = dataCodec.parse(dynamic.get("data").orElseEmptyMap())
                         .result()
                         .orElse(null);
+                if(data == null) {
+                    data = AbilityData.NoData.EMPTY;
+                }
 
                 int cooldownTime = dynamic.get("cooldownTime").asInt(0);
                 int useTime = dynamic.get("useTime").asInt(0);
-                boolean isRunning = dynamic.get("isRunning").asBoolean(false);
-                boolean isCancelled = dynamic.get("isCancelled").asBoolean(false);
+                AbilityStatus status = AbilityStatus.CODEC.parse(dynamic.get("status").orElseEmptyMap())
+                        .result()
+                        .orElse(AbilityStatus.NONE);
 
-                return DataResult.success(new Pair<>(new AbilityInstance(type, data, useTime, cooldownTime, isRunning, isCancelled), input));
+                return DataResult.success(new Pair<>(new AbilityInstance(type, data, useTime, cooldownTime, status), input));
             }
 
             @Override
@@ -170,8 +159,7 @@ public final class AbilityInstance {
                 builder.add("type", ops.createString(typeId.toString()));
                 builder.add("cooldownTime", ops.createInt(instance.cooldownTime));
                 builder.add("useTime", ops.createInt(instance.useTime));
-                builder.add("isRunning", ops.createBoolean(instance.isRunning));
-                builder.add("isCancelled", ops.createBoolean(instance.isCancelled));
+                builder.add("status", ops.createInt(instance.status.getId()));
 
                 Codec<AbilityData> dataCodec = (Codec<AbilityData>) instance.type.getCodec();
                 DataResult<T> encodedData = dataCodec.encodeStart(ops, instance.abilityData);

@@ -1,10 +1,13 @@
 package com.jujutsu.ability.active;
 
+import com.jujutsu.systems.ability.AbilityData;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilityType;
 import com.jujutsu.systems.ability.ClientData;
 import com.jujutsu.entity.ReversalRedEntity;
 import com.jujutsu.util.HandAnimationUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderTickCounter;
@@ -18,6 +21,10 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
 public class ReversalRedAbility extends AbilityType {
+    public static final Codec<ReversalRedAbilityData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("entityId").forGetter(ReversalRedAbilityData::entityId)
+    ).apply(instance, ReversalRedAbilityData::new));
+
     public ReversalRedAbility(int cooldownTime) {
         super(cooldownTime, true, new ClientData(ReversalRedAbility::renderHand, ReversalRedAbility::renderHud));
     }
@@ -29,12 +36,12 @@ public class ReversalRedAbility extends AbilityType {
         entity.setPosition(player.getPos());
         player.getWorld().spawnEntity(entity);
 
-        instance.getNbt().putInt("entityId", entity.getId());
+        instance.setAbilityData(new ReversalRedAbilityData(entity.getId()));
     }
 
     @Override
     public void tick(PlayerEntity player, AbilityInstance instance) {
-        ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(instance.getNbt().getInt("entityId"));
+        ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(getData(instance).entityId());
         if(entity == null) return;
 
         Vec3d vec = player.getPos().add(player.getRotationVector(player.getPitch(), player.getYaw() - 25).multiply(0.75).add(0, 1.5, 0));
@@ -44,15 +51,13 @@ public class ReversalRedAbility extends AbilityType {
 
     @Override
     public void end(PlayerEntity player, AbilityInstance instance) {
-        ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(instance.getNbt().getInt("entityId"));
+        ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(getData(instance).entityId());
         if(entity == null) return;
 
         entity.setCharging(false);
         entity.setPitch(player.getPitch());
         entity.setYaw(player.getYaw());
         entity.addVelocity(entity.getRotationVector().multiply( 0.4f + (2f - 0.4f) / 100 * entity.getChargeTime() ));
-
-        instance.getNbt().remove("entityId");
     }
 
     @Override
@@ -102,4 +107,20 @@ public class ReversalRedAbility extends AbilityType {
 
         return true;
     }
+
+    private ReversalRedAbilityData getData(AbilityInstance instance) {
+        return instance.getAbilityData(ReversalRedAbilityData.class, () -> (ReversalRedAbilityData) getInitialData());
+    }
+
+    @Override
+    public AbilityData getInitialData() {
+        return new ReversalRedAbilityData(0);
+    }
+
+    @Override
+    public Codec<? extends AbilityData> getCodec() {
+        return CODEC;
+    }
+
+    public record ReversalRedAbilityData(int entityId) implements AbilityData {}
 }

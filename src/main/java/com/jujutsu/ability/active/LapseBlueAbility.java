@@ -1,11 +1,14 @@
 package com.jujutsu.ability.active;
 
 import com.jujutsu.entity.ReversalRedEntity;
+import com.jujutsu.systems.ability.AbilityData;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilityType;
 import com.jujutsu.systems.ability.ClientData;
 import com.jujutsu.entity.LapseBlueEntity;
 import com.jujutsu.util.HandAnimationUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
@@ -18,6 +21,10 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
 public class LapseBlueAbility extends AbilityType {
+    public static final Codec<LapseBlueAbilityData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("entityId").forGetter(LapseBlueAbilityData::entityId)
+    ).apply(instance, LapseBlueAbilityData::new));
+
     public LapseBlueAbility(int cooldownTime) {
         super(cooldownTime, true, new ClientData.Builder().addAnimation(LapseBlueAbility::renderHand).build());
     }
@@ -28,12 +35,14 @@ public class LapseBlueAbility extends AbilityType {
         entity.setPosition(player.getPos());
         player.getWorld().spawnEntity(entity);
 
-        instance.getNbt().putInt("entityId", entity.getId());
+        instance.setAbilityData(new LapseBlueAbilityData(entity.getId()));
     }
 
     @Override
     public void tick(PlayerEntity player, AbilityInstance instance) {
-        LapseBlueEntity entity = (LapseBlueEntity) player.getWorld().getEntityById(instance.getNbt().getInt("entityId"));
+        LapseBlueAbilityData data = getData(instance);
+
+        LapseBlueEntity entity = (LapseBlueEntity) player.getWorld().getEntityById(data.entityId());
         if(entity == null) return;
 
         Vec3d vec = player.getPos().add(player.getRotationVector(player.getPitch(), player.getYaw() - 25).multiply(0.75).add(0, 1.5, 0));
@@ -43,17 +52,16 @@ public class LapseBlueAbility extends AbilityType {
 
     @Override
     public void end(PlayerEntity player, AbilityInstance instance) {
-        if (instance.isCancelled() || player.getWorld().isClient()) return;
+        if (instance.getStatus().isCancelled() || player.getWorld().isClient()) return;
 
-        LapseBlueEntity entity = (LapseBlueEntity) player.getWorld().getEntityById(instance.getNbt().getInt("entityId"));
+        LapseBlueAbilityData data = getData(instance);
+        LapseBlueEntity entity = (LapseBlueEntity) player.getWorld().getEntityById(data.entityId());
         if(entity == null) return;
 
         entity.setCharging(false);
         entity.setPitch(player.getPitch());
         entity.setYaw(player.getYaw());
         entity.addVelocity(entity.getRotationVector().multiply( 0.4f + (2f - 0.4f) / 100 * entity.getChargeTime() ));
-
-        instance.getNbt().remove("entityId");
     }
 
     @Override
@@ -83,4 +91,20 @@ public class LapseBlueAbility extends AbilityType {
         matrices.pop();
         return true;
     }
+
+    private LapseBlueAbilityData getData(AbilityInstance instance) {
+        return instance.getAbilityData(LapseBlueAbilityData.class, () -> (LapseBlueAbilityData) getInitialData());
+    }
+
+    @Override
+    public AbilityData getInitialData() {
+        return new LapseBlueAbilityData(0);
+    }
+
+    @Override
+    public Codec<? extends AbilityData> getCodec() {
+        return CODEC;
+    }
+
+    public record LapseBlueAbilityData(int entityId) implements AbilityData {}
 }

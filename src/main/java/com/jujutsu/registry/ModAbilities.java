@@ -15,7 +15,6 @@ public class ModAbilities {
     public static final AbilityType INFINITY = registerAbilityType("infinity", new InfinityAbility(1000));
     public static final AbilityType LAPSE_BLUE = registerAbilityType("lapse_blue", new LapseBlueAbility(600));
     public static final AbilityType REVERSAL_RED = registerAbilityType("reversal_red", new ReversalRedAbility(600));
-    public static final AbilityType FLASH_PUNCH = registerAbilityType("flash_punch", new FlashPunchAbility(300));
     public static final AbilityType SHADOW_STEP = registerAbilityType("shadow_step", new ShadowStepAbility(140));
     public static final AbilityType BLINK = registerAbilityType("blink", new BlinkAbility(600));
     public static final AbilityType PHOENIX_ASH = registerAbilityType("phoenix_ash", new PhoenixAshAbility(4000));

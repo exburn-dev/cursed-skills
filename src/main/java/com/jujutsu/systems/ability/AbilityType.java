@@ -13,6 +13,7 @@ import java.util.Optional;
 public abstract class AbilityType {
     public static final Codec<AbilityType> CODEC = JujutsuRegistries.ABILITY_TYPE.getCodec();
     public static final Codec<RegistryEntry<AbilityType>> ENTRY_CODEC = JujutsuRegistries.ABILITY_TYPE.getEntryCodec();
+    private static final Codec<AbilityData> DATA_CODEC = Codec.unit(AbilityData.EMPTY);
 
     private final int cooldownTime;
     private final boolean cancelable;
@@ -45,6 +46,14 @@ public abstract class AbilityType {
     public abstract void end(PlayerEntity player, AbilityInstance instance);
     public abstract boolean isFinished(PlayerEntity player, AbilityInstance instance);
 
+    public AbilityData getInitialData() {
+        return AbilityData.EMPTY;
+    }
+
+    public Codec<? extends AbilityData> getCodec() {
+        return DATA_CODEC;
+    }
+
     public Style getStyle() {
         return Style.EMPTY;
     }
@@ -63,6 +72,6 @@ public abstract class AbilityType {
     }
 
     public AbilityInstance getDefaultInstance() {
-        return new AbilityInstance(JujutsuRegistries.ABILITY_TYPE.getEntry(this));
+        return new AbilityInstance(this);
     }
 }

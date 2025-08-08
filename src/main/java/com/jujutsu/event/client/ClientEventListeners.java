@@ -22,7 +22,7 @@ public class ClientEventListeners {
                 AbilityInstance instance = holder.getAbilityInstance(slot);
                 if(!instance.isRunning()) continue;
 
-                ClientData clientData = instance.getType().value().getClientData();
+                ClientData clientData = instance.getType().getClientData();
                 if(clientData != null && clientData.animation() != null) {
                     boolean rendered = clientData.animation().render(matrices, vertexConsumers, instance, player, playerEntityRenderer, equipProgress, swingProgress, light);
                     if(rendered) {

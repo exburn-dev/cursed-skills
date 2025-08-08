@@ -88,7 +88,7 @@ public class AbilityCooldownRenderer {
             fillHorizontalGradient(context, x, y, x + 20, y + height, 0x005A5AEE, 0x485A5AEE);
             fillHorizontalGradient(context, x + width, y, x + width + 20, y + height, 0x485A5AEE, 0x005A5AEE);
 
-            context.drawCenteredTextWithShadow(textRenderer, Text.empty().append(instance.getType().value().getName())
+            context.drawCenteredTextWithShadow(textRenderer, Text.empty().append(instance.getType().getName())
                     .append(Text.literal(String.format(" - %s", cooldownInSeconds))), x + 10 + width / 2, y - 2 + height / 2, 0x00FFFFFF);
         }
 
@@ -114,7 +114,7 @@ public class AbilityCooldownRenderer {
         private int getBiggestWidth() {
             int width = 10;
             for(int i = 0; i < stack.size(); i++) {
-                int length = textRenderer.getWidth(instance.getType().value().getName());
+                int length = textRenderer.getWidth(instance.getType().getName());
                 if(length > width) {
                     width += length;
                 }

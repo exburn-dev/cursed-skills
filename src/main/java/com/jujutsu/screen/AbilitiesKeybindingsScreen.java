@@ -55,7 +55,7 @@ public class AbilitiesKeybindingsScreen extends Screen {
             AbilityKeyBinding binding = ModKeybindings.abilityBindings.get(i);
             AbilityInstance instance = holder.getAbilityInstance(binding.getAbilitySlot());
             if (instance == null) continue;
-            width = Math.max(width, textRenderer.getWidth(instance.getType().value().getName()));
+            width = Math.max(width, textRenderer.getWidth(instance.getType().getName()));
         }
         width += 5;
 
@@ -86,10 +86,10 @@ public class AbilitiesKeybindingsScreen extends Screen {
 
             context.drawCenteredTextWithShadow(textRenderer, Text.translatable("screen.jujutsu.abilities_menu.ability_info"),  centerX, y1, 0xFFFFFF);
             if(activeButton != null) {
-                AbilityType type = activeButton.instance.getType().value();
+                AbilityType type = activeButton.instance.getType();
                 context.drawCenteredTextWithShadow(textRenderer, type.getName().copyContentOnly().setStyle(type.getStyle()), centerX, y1 + 10, 0xFFFFFF);
 
-                TextColor textColor = activeButton.instance.getType().value().getStyle().getColor();
+                TextColor textColor = activeButton.instance.getType().getStyle().getColor();
                 int color = textColor != null ? ColorHelper.Argb.getArgb(255, ColorHelper.Argb.getRed(textColor.getRgb()), ColorHelper.Argb.getGreen(textColor.getRgb()), ColorHelper.Argb.getBlue(textColor.getRgb())) : 0xFFFFFFFF;
                 context.fill(centerX - textRenderer.getWidth(type.getName()) / 2 - 16, y1 + textRenderer.fontHeight + 11, centerX + textRenderer.getWidth(type.getName()) / 2 + 16, y1 + textRenderer.fontHeight + 12, color);
 
@@ -341,7 +341,7 @@ public class AbilitiesKeybindingsScreen extends Screen {
         }
 
         private Optional<Text> getDescription() {
-            return activeButton == null ? Optional.empty() : Optional.of(activeButton.instance.getType().value().getDescription());
+            return activeButton == null ? Optional.empty() : Optional.of(activeButton.instance.getType().getDescription());
         }
 
         private int getCollapseButtonX() {
@@ -393,7 +393,7 @@ public class AbilitiesKeybindingsScreen extends Screen {
 
             context.drawGuiTexture(backgroundTexture, getX(), getY(), 0, getWidth(), getHeight());
 
-            context.drawCenteredTextWithShadow(client.textRenderer, instance.getType().value().getName(), getX() + getWidth() / 2, getY() + getHeight() / 2 - client.textRenderer.fontHeight / 2 + (isSelected ? 2 : 0), 0xFFFFFF);
+            context.drawCenteredTextWithShadow(client.textRenderer, instance.getType().getName(), getX() + getWidth() / 2, getY() + getHeight() / 2 - client.textRenderer.fontHeight / 2 + (isSelected ? 2 : 0), 0xFFFFFF);
         }
 
         @Override

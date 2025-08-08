@@ -160,7 +160,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
         if(!abilities.abilities().containsKey(slot) || !abilities.runningAbilities().contains(slot)) return;
 
         AbilityInstance instance = abilities.abilities().get(slot);
-        if(instance.getType().value().isCancelable()) {
+        if(instance.getType().isCancelable()) {
             instance.cancel();
             jujutsu$syncAbilitiesToClient();
         }
@@ -190,7 +190,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     public boolean isRunning(AbilityType type) {
         for(int i = 0; i < abilities.runningAbilities().size(); i++) {
             AbilityInstance instance = abilities.abilities().get(abilities.runningAbilities().get(i));
-            if(instance.getType().value() == type && instance.isRunning()) {
+            if(instance.getType() == type && instance.isRunning()) {
                 return true;
             }
         }

@@ -23,7 +23,7 @@ public class AbilitiesHudRenderer {
             AbilityInstance instance = holder.getAbilityInstance(slot);
             if(!instance.isRunning()) continue;
 
-            ClientData clientData = instance.getType().value().getClientData();
+            ClientData clientData = instance.getType().getClientData();
             if(clientData != null && clientData.overlay() != null) {
                 clientData.overlay().render(context, counter, instance);
             }

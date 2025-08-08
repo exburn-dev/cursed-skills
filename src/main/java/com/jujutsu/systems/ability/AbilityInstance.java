@@ -110,10 +110,6 @@ public final class AbilityInstance {
         return this.type;
     }
 
-    public void getNbt() {
-
-    }
-
     @Override
     public String toString() {
         return String.format("type: %s, cooldown: %s, status: %s, useTime: %s", type.getName().getString(), getCooldownTime(), getStatus(), getUseTime());

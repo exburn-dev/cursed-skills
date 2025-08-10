@@ -1,6 +1,7 @@
 {
   "item.jujutsu.rearm": "Rearm",
   "item.jujutsu.allah_music_disc": "Allah",
+  "item.jujutsu.snus_music_disc": "Snus",
   "item.jujutsu.technique_scroll": "Technique Scroll",
   "item.jujutsu.technique_scroll.press_shift": "Press [SHIFT] for more info",
   "item.jujutsu.technique_scroll.stored_abilities": "Cursed Techniques:",
@@ -28,10 +29,12 @@
   "screen.jujutsu.abilities_menu.bound_key": "Bound Key:",
 
   "jukebox_song.jujutsu.allah": "ALLAH 3BL4N",
+  "jukebox_song.jujutsu.snus": "SNUS",
 
   "death.attack.hollow_purple": "%s was incinerated by %s",
 
   "sounds.jujutsu.phoenix_fireball_cast": "Fireball casted",
+  "sounds.jujutsu.hit_impact": "Hit impact",
 
   "toast.jujutsu.abilities_acquired.title": "Acquired %d new abilities: "
 }

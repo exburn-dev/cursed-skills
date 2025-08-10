@@ -5,6 +5,12 @@
       "jujutsu:allah"
     ]
   },
+  "music_disc.snus": {
+    "subtitle": "sounds.jujutsu.snus",
+    "sounds": [
+      "jujutsu:snus"
+    ]
+  },
   "music_disc.allah_danger": {
     "subtitle": "sounds.jujutsu.allah",
     "sounds": [
@@ -15,6 +21,12 @@
     "subtitle": "sounds.jujutsu.phoenix_fireball_cast",
     "sounds": [
       "jujutsu:phoenix_fireball_cast"
+    ]
+  },
+  "hit_impact": {
+    "subtitle": "sounds.jujutsu.hit_impact",
+    "sounds": [
+      "jujutsu:hit_impact"
     ]
   },
   "effects.stun_applied": {

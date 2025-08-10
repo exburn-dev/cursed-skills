@@ -71,6 +71,7 @@ public class ModItemGroups {
             itemGroup.add(fireScroll);
 
             itemGroup.add(ModItems.ALLAH_MUSIC_DISC);
+            itemGroup.add(ModItems.SNUS_MUSIC_DISC);
         });
     }
 }

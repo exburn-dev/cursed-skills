@@ -145,7 +145,10 @@ public class HollowPurpleEntity extends Entity {
     }
 
     private DamageSource getDamageSource(ServerWorld serverWorld) {
-        return new DamageSource(serverWorld.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(ModDamageTypes.HOLLOW_PURPLE));
+        Optional<UUID> ownerUUID = getOwner();
+        return ownerUUID.map(
+                value -> new DamageSource(serverWorld.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(ModDamageTypes.HOLLOW_PURPLE), this, getWorld().getPlayerByUuid(value)))
+                .orElseGet(() -> new DamageSource(serverWorld.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(ModDamageTypes.HOLLOW_PURPLE), this));
     }
 
     static {

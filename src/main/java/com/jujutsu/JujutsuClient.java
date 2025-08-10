@@ -1,9 +1,6 @@
 package com.jujutsu;
 
-import com.jujutsu.client.hud.AbilitiesHudRenderer;
-import com.jujutsu.client.hud.AbilityCooldownRenderer;
-import com.jujutsu.client.hud.BuffIconsRenderer;
-import com.jujutsu.client.hud.ShaderUtils;
+import com.jujutsu.client.hud.*;
 import com.jujutsu.client.particle.ColoredSparkParticle;
 import com.jujutsu.client.particle.HollowPurpleParticle;
 import com.jujutsu.client.particle.LapseBlueCoreParticle;
@@ -49,6 +46,7 @@ public class JujutsuClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(AbilitiesHudRenderer::render);
         HudRenderCallback.EVENT.register(AbilityCooldownRenderer::render);
         HudRenderCallback.EVENT.register(BuffIconsRenderer::render);
+        HudRenderCallback.EVENT.register(FlashSystemHudRenderer::render);
 
         EntityModelLayerRegistry.registerModelLayer(BlinkMarkerModel.MODEL_LAYER, BlinkMarkerModel::getTexturedModelData);
 

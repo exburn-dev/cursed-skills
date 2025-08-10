@@ -1,7 +1,9 @@
 package com.jujutsu.ability.active;
 
 import com.jujutsu.Jujutsu;
+import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
+import com.jujutsu.network.payload.ShowScreenFlashPayload;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilityType;
 import com.jujutsu.systems.ability.ClientData;
@@ -9,6 +11,7 @@ import com.jujutsu.entity.HollowPurpleEntity;
 import com.jujutsu.systems.animation.PlayerAnimations;
 import com.jujutsu.util.HandAnimationUtils;
 import com.jujutsu.util.ParticleUtils;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
@@ -84,6 +87,8 @@ public class HollowPurpleAbility extends AbilityType {
         player.getWorld().playSound(player, pos.x, pos.y, pos.z, SoundEvents.ITEM_TOTEM_USE, SoundCategory.MASTER, 1, 0.5f);
         if(player.getWorld().isClient()) return;
         player.getWorld().playSound(player, pos.x, pos.y, pos.z, SoundEvents.ITEM_TOTEM_USE, SoundCategory.MASTER, 1, 0.5f);
+
+        ServerPlayNetworking.send((ServerPlayerEntity) player, new ShowScreenFlashPayload(new FlashSystemHudRenderer.FlashData(5, 5, 20, 0.5f, 0xa75fde)));
     }
 
     @Override

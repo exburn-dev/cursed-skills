@@ -3,6 +3,7 @@ package com.jujutsu.network;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.animation.IAnimatedPlayer;
 import com.jujutsu.client.hud.BuffIconsRenderer;
+import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.toast.AbilitiesAcquiredToast;
 import com.jujutsu.network.payload.*;
 import com.jujutsu.systems.ability.IAbilitiesHolder;
@@ -28,7 +29,8 @@ public class ModNetworkConstants {
     public static final Identifier ABILITIES_ACQUIRED_ID = Jujutsu.getId("abilities_acquired");
     public static final Identifier PLAY_CLIENT_SOUND_ID = Jujutsu.getId("play_client_sound");
     public static final Identifier PLAY_ANIMATION_ID = Jujutsu.getId("play_animation");
-    public static final Identifier SYNC_BUFFS_FOR_DISPLAYING = Jujutsu.getId("sync_buffs");
+    public static final Identifier SYNC_BUFFS_FOR_DISPLAYING_ID = Jujutsu.getId("sync_buffs");
+    public static final Identifier SHOW_SCREEN_FLASH_ID = Jujutsu.getId("show_screen_flash");
 
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(AbilityKeyPressedPayload.ID, AbilityKeyPressedPayload.CODEC);
@@ -38,6 +40,7 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(PlayClientSoundPayload.ID, PlayClientSoundPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(PlayAnimationPayload.ID, PlayAnimationPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncBuffsForDisplaying.ID, SyncBuffsForDisplaying.CODEC);
+        PayloadTypeRegistry.playS2C().register(ShowScreenFlashPayload.ID, ShowScreenFlashPayload.CODEC);
     }
 
     public static void registerServerReceivers() {
@@ -87,6 +90,10 @@ public class ModNetworkConstants {
 
         ClientPlayNetworking.registerGlobalReceiver(SyncBuffsForDisplaying.ID, (payload, context) -> {
             BuffIconsRenderer.setBuffs(payload.buffs());
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(ShowScreenFlashPayload.ID, (payload, context) -> {
+            FlashSystemHudRenderer.addFlashData(payload.flashData());
         });
     }
 }

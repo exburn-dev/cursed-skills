@@ -24,6 +24,7 @@ public class ShaderUtils {
     public static ShaderProgram testShader;
     public static ShaderProgram shader;
     public static ShaderProgram stunShader;
+    public static ShaderProgram vignetteShader;
 
     private static Framebuffer effectFramebuffer;
 
@@ -33,11 +34,11 @@ public class ShaderUtils {
         shader = new ShaderProgram(factory, "reload_circle", VertexFormats.POSITION_TEXTURE);
 
         stunShader = new ShaderProgram(factory, "stun_screen_effect", VertexFormats.POSITION_TEXTURE);
+        vignetteShader = new ShaderProgram(factory, "vignette", VertexFormats.POSITION_TEXTURE);
         effectFramebuffer = new SimpleFramebuffer(client.getFramebuffer().textureWidth, client.getFramebuffer().textureHeight, true, MinecraftClient.IS_SYSTEM_MAC);
     }
 
     public static void renderReloadCircle(DrawContext context, MatrixStack ms, float x, float y, float size, float progress, float innerRadius, Identifier texture, Vector3f color) {
-        Supplier<ShaderProgram> testShaderSup = () -> testShader;
         Supplier<ShaderProgram> shaderSup = () -> shader;
 
         RenderSystem.setShaderTexture(0, texture);
@@ -122,10 +123,54 @@ public class ShaderUtils {
         RenderSystem.enableDepthTest();
     }
 
+    public static void renderVignette(float strength, float r, float g, float b) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null || stunShader == null) return;
+
+        RenderSystem.assertOnRenderThread();
+        effectFramebuffer.beginWrite(true); // Перенаправляем вывод в текстуру
+        client.getFramebuffer().draw(client.getFramebuffer().textureWidth, client.getFramebuffer().textureHeight, false);
+
+        client.getFramebuffer().beginWrite(true); // Вернёмся обратно в обычный экран
+
+        Window window = client.getWindow();
+        int w = window.getScaledWidth();
+        int h = window.getScaledHeight();
+
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
+        RenderSystem.setShaderTexture(0, effectFramebuffer.getColorAttachment());
+        RenderSystem.setShader(() -> vignetteShader);
+
+        vignetteShader.getUniform("VignetteStrength").set(strength);
+        vignetteShader.getUniform("Color").set(new float[]{r, g, b});
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+
+        buffer.vertex(0, 0, 0).texture(0, 0);
+        buffer.vertex(0, h, 0).texture(0, 1);
+        buffer.vertex(w, h, 0).texture(1, 1);
+        buffer.vertex(w, 0, 0).texture(1, 0);
+
+        BufferRenderer.drawWithGlobalProgram(buffer.end());
+
+        RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+    }
+
     public static void reload(ResourceManager manager) throws IOException {
         if (stunShader != null) {
             stunShader.close();
             stunShader = null;
+        }
+        if (vignetteShader != null) {
+            vignetteShader.close();
+            vignetteShader = null;
         }
         init(manager);
     }

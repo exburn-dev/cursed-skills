@@ -89,15 +89,17 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     @Inject(method = "applyDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;modifyAppliedDamage(Lnet/minecraft/entity/damage/DamageSource;F)F", shift = At.Shift.AFTER), cancellable = true)
     private void applyDamage(DamageSource source, float amount, CallbackInfo ci) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        if(entity.isPlayer() && entity instanceof IAbilitiesHolder abilitiesHolder
-                && abilitiesHolder.getAbilityInstance(AbilitySlot.ABILITY_SLOT_ON_DEATH) != null && !onCooldown(AbilitySlot.ABILITY_SLOT_ON_DEATH)) {
-            if(entity.getHealth() - amount <= 0f) {
-                Entity attacker = source.getAttacker();
+        if(entity.isPlayer()) {
+            IAbilitiesHolder abilitiesHolder = (IAbilitiesHolder) entity;
+            if (abilitiesHolder.getAbilityInstance(AbilitySlot.ABILITY_SLOT_ON_DEATH) != null && !onCooldown(AbilitySlot.ABILITY_SLOT_ON_DEATH)) {
+                if (entity.getHealth() - amount <= 0f) {
+                    Entity attacker = source.getAttacker();
 
-                AbilitySlot.ABILITY_SLOT_ON_DEATH.activate(abilitiesHolder);
-                AbilityEvents.ON_PREVENT_DYING.invoker().interact((PlayerEntity) entity, attacker, amount);
+                    AbilitySlot.ABILITY_SLOT_ON_DEATH.activate(abilitiesHolder);
+                    AbilityEvents.ON_PREVENT_DYING.invoker().interact((PlayerEntity) entity, attacker, amount);
 
-                ci.cancel();
+                    ci.cancel();
+                }
             }
         }
     }

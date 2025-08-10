@@ -2,9 +2,13 @@ package com.jujutsu.ability.active;
 
 import com.jujutsu.entity.PhoenixFireballEntity;
 import com.jujutsu.registry.ModEntityTypes;
+import com.jujutsu.registry.ModSounds;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilityType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 
 public class PhoenixFireballAbility extends AbilityType {
     public PhoenixFireballAbility(int cooldownTime) {
@@ -13,12 +17,16 @@ public class PhoenixFireballAbility extends AbilityType {
 
     @Override
     public void start(PlayerEntity player, AbilityInstance instance) {
-        PhoenixFireballEntity entity = new PhoenixFireballEntity(ModEntityTypes.PHOENIX_FIREBALL, player.getWorld());
+        if(player.getWorld().isClient()) return;
+
+        PhoenixFireballEntity entity = new PhoenixFireballEntity(player.getWorld(), player.getUuid());
         entity.setPosition(player.getEyePos());
         entity.setYaw(player.getYaw());
         entity.setPitch(player.getPitch());
 
         player.getWorld().spawnEntity(entity);
+
+        player.getWorld().playSound(null, player.getX(), player.getY(), player.getZ(), RegistryEntry.of(ModSounds.PHOENIX_FIREBALL_CAST), SoundCategory.MASTER, 3, 1, 0);
     }
 
     @Override

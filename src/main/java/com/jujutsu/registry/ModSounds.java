@@ -10,6 +10,7 @@ import net.minecraft.sound.SoundEvent;
 
 public class ModSounds {
     public static final SoundEvent STUN_APPLIED = registerSound("effects.stun_applied", SoundEvent.of(Jujutsu.getId("effects.stun_applied")));
+    public static final SoundEvent PHOENIX_FIREBALL_CAST = registerSound("abilities.phoenix_fireball_cast", SoundEvent.of(Jujutsu.getId("abilities.phoenix_fireball_cast")));
 
     public static final SoundEvent ALLAH_MUSIC_DISC = registerSound("music_disc.allah", SoundEvent.of(Jujutsu.getId("music_disc.allah")));
     public static final SoundEvent ALLAH_DANGER_MUSIC_DISC = registerSound("music_disc.allah_danger", SoundEvent.of(Jujutsu.getId("music_disc.allah_danger")));

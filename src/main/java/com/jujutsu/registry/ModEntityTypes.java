@@ -22,7 +22,7 @@ public class ModEntityTypes {
             EntityType.Builder.<BlinkMarkerEntity>create(BlinkMarkerEntity::new, SpawnGroup.MISC).dimensions(0.25f, 0.25f).trackingTickInterval(10).build());
 
     public static final EntityType<PhoenixFireballEntity> PHOENIX_FIREBALL = registerEntityType("phoenix_fireball",
-            EntityType.Builder.<PhoenixFireballEntity>create(PhoenixFireballEntity::new, SpawnGroup.MISC).dimensions(0.25f, 0.25f).build());
+            EntityType.Builder.<PhoenixFireballEntity>create(PhoenixFireballEntity::new, SpawnGroup.MISC).dimensions(1f, 1f).build());
 
     private static <T extends Entity> EntityType<T> registerEntityType(String name, EntityType<T> type) {
         return Registry.register(Registries.ENTITY_TYPE, Jujutsu.getId(name), type);

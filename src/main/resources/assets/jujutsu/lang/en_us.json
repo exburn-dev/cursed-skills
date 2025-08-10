@@ -31,5 +31,7 @@
 
   "death.attack.hollow_purple": "%s was incinerated by %s",
 
+  "sounds.jujutsu.phoenix_fireball_cast": "Fireball casted",
+
   "toast.jujutsu.abilities_acquired.title": "Acquired %d new abilities: "
 }

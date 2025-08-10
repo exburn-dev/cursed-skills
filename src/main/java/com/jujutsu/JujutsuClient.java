@@ -6,6 +6,7 @@ import com.jujutsu.client.particle.HollowPurpleParticle;
 import com.jujutsu.client.particle.LapseBlueCoreParticle;
 import com.jujutsu.client.particle.LapseBlueLightningParticle;
 import com.jujutsu.entity.model.BlinkMarkerModel;
+import com.jujutsu.entity.model.PhoenixFireballModel;
 import com.jujutsu.entity.renderer.*;
 import com.jujutsu.event.client.ClientEventListeners;
 import com.jujutsu.network.ModNetworkConstants;
@@ -49,6 +50,7 @@ public class JujutsuClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(FlashSystemHudRenderer::render);
 
         EntityModelLayerRegistry.registerModelLayer(BlinkMarkerModel.MODEL_LAYER, BlinkMarkerModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(PhoenixFireballModel.MODEL_LAYER, PhoenixFireballModel::getTexturedModelData);
 
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(
                 new SimpleSynchronousResourceReloadListener() {

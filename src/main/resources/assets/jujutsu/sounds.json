@@ -11,6 +11,12 @@
       "jujutsu:allah_danger"
     ]
   },
+  "abilities.phoenix_fireball_cast": {
+    "subtitle": "sounds.jujutsu.phoenix_fireball_cast",
+    "sounds": [
+      "jujutsu:phoenix_fireball_cast"
+    ]
+  },
   "effects.stun_applied": {
     "subtitle": "sounds.jujutsu.stun",
     "sounds": [

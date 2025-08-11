@@ -3,12 +3,16 @@ package com.jujutsu.network;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.animation.IAnimatedPlayer;
 import com.jujutsu.client.hud.BuffIconsRenderer;
+import com.jujutsu.client.hud.ColorModifierHudRenderer;
 import com.jujutsu.client.hud.CrosshairMarkRenderer;
 import com.jujutsu.client.hud.FlashSystemHudRenderer;
+import com.jujutsu.client.keybind.AdditionalInputSystem;
 import com.jujutsu.client.toast.AbilitiesAcquiredToast;
 import com.jujutsu.network.payload.*;
-import com.jujutsu.systems.ability.IAbilitiesHolder;
-import com.jujutsu.systems.ability.IPlayerJujutsuAbilitiesHolder;
+import com.jujutsu.systems.ability.AbilityInstance;
+import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
+import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.screen.HandTransformSettingScreen;
 import com.jujutsu.systems.animation.AnimationData;
 import dev.kosmx.playerAnim.api.IPlayable;
@@ -25,6 +29,8 @@ import net.minecraft.world.World;
 
 public class ModNetworkConstants {
     public static final Identifier ABILITY_KEY_PRESSED_ID = Jujutsu.getId("ability_key_pressed");
+    public static final Identifier ADDITIONAL_INPUT_PRESSED_ID = Jujutsu.getId("additional_input_pressed");
+
     public static final Identifier SYNC_PLAYER_ABILITIES_ID = Jujutsu.getId("sync_player_abilities");
     public static final Identifier OPEN_HAND_SETTING_SCREEN_ID = Jujutsu.getId("open_hand_setting_screen");
     public static final Identifier ABILITIES_ACQUIRED_ID = Jujutsu.getId("abilities_acquired");
@@ -33,9 +39,13 @@ public class ModNetworkConstants {
     public static final Identifier SYNC_BUFFS_FOR_DISPLAYING_ID = Jujutsu.getId("sync_buffs");
     public static final Identifier SHOW_SCREEN_FLASH_ID = Jujutsu.getId("show_screen_flash");
     public static final Identifier SHOW_CROSSHAIR_MARK_ID = Jujutsu.getId("show_crosshair_mark");
+    public static final Identifier SHOW_SCREEN_COLOR_MODIFIER_ID = Jujutsu.getId("show_screen_color_modifier");
+    public static final Identifier SYNC_ABILITY_ADDITIONAL_INPUT_ID = Jujutsu.getId("sync_ability_additional_input");
 
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(AbilityKeyPressedPayload.ID, AbilityKeyPressedPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(AdditionalInputPressedPayload.ID, AdditionalInputPressedPayload.CODEC);
+
         PayloadTypeRegistry.playS2C().register(SyncPlayerAbilitiesPayload.ID, SyncPlayerAbilitiesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenHandSettingScreenPayload.ID, OpenHandSettingScreenPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(AbilitiesAcquiredPayload.ID, AbilitiesAcquiredPayload.CODEC);
@@ -44,6 +54,8 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(SyncBuffsForDisplaying.ID, SyncBuffsForDisplaying.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowScreenFlashPayload.ID, ShowScreenFlashPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowCrosshairMarkPayload.ID, ShowCrosshairMarkPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(ShowScreenColorModifierPayload.ID, ShowScreenColorModifierPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncAbilityAdditionalInputPayload.ID, SyncAbilityAdditionalInputPayload.CODEC);
     }
 
     public static void registerServerReceivers() {
@@ -55,6 +67,17 @@ public class ModNetworkConstants {
             }
             else {
                 payload.abilitySlot().activate(holder);
+            }
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(AdditionalInputPressedPayload.ID, (payload, context) -> {
+            IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
+
+            for(AbilitySlot slot: holder.getRunningSlots()) {
+                AbilityInstance instance = holder.getAbilityInstance(slot);
+                if(instance.getStatus().isWaiting() && instance.checkAdditionalInput(payload.additionalInput())) {
+                    break;
+                }
             }
         });
     }
@@ -101,6 +124,14 @@ public class ModNetworkConstants {
 
         ClientPlayNetworking.registerGlobalReceiver(ShowCrosshairMarkPayload.ID, (payload, context) -> {
             CrosshairMarkRenderer.addMarkData(payload.markData());
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(ShowScreenColorModifierPayload.ID, (payload, context) -> {
+            ColorModifierHudRenderer.addColorModifier(payload.colorModifier());
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(SyncAbilityAdditionalInputPayload.ID, (payload, context) -> {
+            AdditionalInputSystem.addAdditionalInput(payload.additionalInput());
         });
     }
 }

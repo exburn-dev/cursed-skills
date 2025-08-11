@@ -5,7 +5,7 @@ import com.jujutsu.client.keybind.AbilityKeyBinding;
 import com.jujutsu.client.keybind.ModKeybindings;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilityType;
-import com.jujutsu.systems.ability.IAbilitiesHolder;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;

@@ -1,12 +1,15 @@
 package com.jujutsu.systems.ability;
 
 import com.jujutsu.network.NbtPacketCodec;
+import com.jujutsu.network.payload.SyncAbilityAdditionalInputPayload;
 import com.jujutsu.registry.JujutsuRegistries;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 import java.util.Optional;
@@ -20,6 +23,7 @@ public final class AbilityInstance {
     private AbilityData abilityData;
 
     private AbilityStatus status = AbilityStatus.NONE;
+    private AbilityAdditionalInput additionalInput = null;
     private int useTime;
     private int cooldownTime;
 
@@ -48,6 +52,9 @@ public final class AbilityInstance {
             type.tick(player, this);
             useTime++;
         }
+        else if (status.isWaiting()) {
+            type.tick(player, this);
+        }
         else if(status.onCooldown()) {
             cooldown();
         }
@@ -59,6 +66,7 @@ public final class AbilityInstance {
         type.end(player, this);
         status = AbilityStatus.ON_COOLDOWN;
         cooldownTime = type.getCooldownTime(player, this);
+        additionalInput = null;
     }
 
     public void endCooldown() {
@@ -70,6 +78,28 @@ public final class AbilityInstance {
         if(type.isCancelable() && status.isRunning()) {
             status = AbilityStatus.CANCELLED;
         }
+    }
+
+    public void setAdditionalInput(PlayerEntity player, AbilityAdditionalInput additionalInput) {
+        if(this.additionalInput == null) {
+            this.additionalInput = additionalInput;
+            syncAdditionalInput(player);
+        }
+    }
+
+    private void syncAdditionalInput(PlayerEntity player) {
+        ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncAbilityAdditionalInputPayload(this.additionalInput));
+    }
+
+    public boolean checkAdditionalInput(AbilityAdditionalInput additionalInput) {
+        if(this.additionalInput == null) return true;
+        boolean correctInput = this.additionalInput.keyCode() == additionalInput.keyCode() && this.additionalInput.mouseButton() == additionalInput.mouseButton();
+        if(correctInput) {
+            this.status = AbilityStatus.RUNNING;
+            this.additionalInput = null;
+        }
+
+        return correctInput;
     }
 
     public void setAbilityData(AbilityData abilityData) {

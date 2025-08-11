@@ -1,22 +1,18 @@
 package com.jujutsu.ability.passive;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.network.payload.PlayClientSoundPayload;
 import com.jujutsu.registry.ModAbilities;
-import com.jujutsu.systems.ability.PassiveAbility;
-import com.jujutsu.systems.ability.PassiveAbilityType;
+import com.jujutsu.systems.ability.passive.PassiveAbility;
+import com.jujutsu.systems.ability.passive.PassiveAbilityType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Pair;

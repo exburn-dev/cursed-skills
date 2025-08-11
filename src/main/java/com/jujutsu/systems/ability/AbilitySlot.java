@@ -1,13 +1,12 @@
 package com.jujutsu.systems.ability;
 
 import com.jujutsu.Jujutsu;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.util.Identifier;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class AbilitySlot {

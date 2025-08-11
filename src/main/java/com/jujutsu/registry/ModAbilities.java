@@ -4,10 +4,10 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.passive.FierySoulPassiveAbility;
 import com.jujutsu.ability.passive.WitherMomentumPassiveAbility;
 import com.jujutsu.systems.ability.AbilityType;
-import com.jujutsu.systems.ability.PassiveAbility;
+import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.ability.active.*;
 import com.jujutsu.ability.passive.SpeedPassiveAbility;
-import com.jujutsu.systems.ability.PassiveAbilityType;
+import com.jujutsu.systems.ability.passive.PassiveAbilityType;
 import net.minecraft.registry.Registry;
 
 public class ModAbilities {
@@ -20,6 +20,7 @@ public class ModAbilities {
     public static final AbilityType PHOENIX_ASH = registerAbilityType("phoenix_ash", new PhoenixAshAbility(4000));
     public static final AbilityType PHOENIX_FIREBALL = registerAbilityType("phoenix_fireball", new PhoenixFireballAbility(300));
     public static final AbilityType FIERY_SOUL_SWITCH = registerAbilityType("fiery_soul_switch", new FierySoulSwitchAbility(20));
+    public static final AbilityType TEST_ABILITY = registerAbilityType("test_ability", new TestAbility(100));
 
     public static final PassiveAbilityType<?> SPEED_PASSIVE_ABILITY = registerPassiveAbilityType("speed", new PassiveAbilityType<>(SpeedPassiveAbility.CODEC));
     public static final PassiveAbilityType<?> WITHER_MOMENTUM = registerPassiveAbilityType("wither_momentum", new PassiveAbilityType<>(WitherMomentumPassiveAbility.CODEC));

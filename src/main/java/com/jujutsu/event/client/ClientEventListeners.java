@@ -4,7 +4,7 @@ import com.jujutsu.registry.ModAbilities;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilitySlot;
 import com.jujutsu.systems.ability.ClientData;
-import com.jujutsu.systems.ability.IAbilitiesHolder;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.item.IBorderTooltipItem;
 import com.jujutsu.screen.HandTransformSettingScreen;
 import com.jujutsu.util.HandAnimationUtils;

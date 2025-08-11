@@ -1,12 +1,8 @@
 package com.jujutsu.systems.buff;
 
 import com.google.common.collect.ImmutableList;
-import com.jujutsu.Jujutsu;
 import com.jujutsu.network.NbtPacketCodec;
-import com.jujutsu.systems.ability.PlayerJujutsuAbilities;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
@@ -18,7 +14,6 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
-import java.util.Optional;
 
 public class Buff {
     public static final Codec<Buff> CODEC;

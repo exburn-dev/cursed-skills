@@ -1,7 +1,6 @@
-package com.jujutsu.systems.ability;
+package com.jujutsu.systems.ability.passive;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.jujutsu.network.NbtPacketCodec;
 import com.jujutsu.registry.JujutsuRegistries;
@@ -13,9 +12,6 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Pair;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 public abstract class PassiveAbility {
     //public static final Codec<RegistryEntry<PassiveAbility>> ENTRY_CODEC = JujutsuRegistries.PASSIVE_ABILITY_TYPE.getEntryCodec();

@@ -23,6 +23,18 @@
       "jujutsu:phoenix_fireball_cast"
     ]
   },
+  "abilities.shadow_step_cast": {
+    "subtitle": "sounds.jujutsu.shadow_step_cast",
+    "sounds": [
+      "jujutsu:shadow_step_cast"
+    ]
+  },
+  "abilities.shadow_step_end": {
+    "subtitle": "sounds.jujutsu.shadow_step_end",
+    "sounds": [
+      "jujutsu:shadow_step_end"
+    ]
+  },
   "hit_impact": {
     "subtitle": "sounds.jujutsu.hit_impact",
     "sounds": [

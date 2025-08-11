@@ -7,8 +7,9 @@ import net.minecraft.network.codec.PacketCodec;
 public enum AbilityStatus {
     NONE(0),
     RUNNING(1),
-    ON_COOLDOWN(2),
-    CANCELLED(3);
+    WAITING(2),
+    ON_COOLDOWN(3),
+    CANCELLED(4);
 
     public static final Codec<AbilityStatus> CODEC;
     public static final PacketCodec<RegistryByteBuf, AbilityStatus> PACKET_CODEC;
@@ -32,6 +33,10 @@ public enum AbilityStatus {
 
     public boolean isRunning() {
         return this == RUNNING;
+    }
+
+    public boolean isWaiting() {
+        return this == WAITING;
     }
 
     public boolean onCooldown() {

@@ -4,8 +4,8 @@ import com.jujutsu.ability.passive.FierySoulPassiveAbility;
 import com.jujutsu.registry.ModAbilities;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilityType;
-import com.jujutsu.systems.ability.IAbilitiesHolder;
-import com.jujutsu.systems.ability.PassiveAbility;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
+import com.jujutsu.systems.ability.passive.PassiveAbility;
 import net.minecraft.entity.player.PlayerEntity;
 
 public class FierySoulSwitchAbility extends AbilityType {

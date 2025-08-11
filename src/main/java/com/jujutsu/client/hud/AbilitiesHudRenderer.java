@@ -3,7 +3,7 @@ package com.jujutsu.client.hud;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilitySlot;
 import com.jujutsu.systems.ability.ClientData;
-import com.jujutsu.systems.ability.IAbilitiesHolder;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;

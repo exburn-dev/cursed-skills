@@ -2,8 +2,7 @@ package com.jujutsu.registry;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.systems.ability.AbilityType;
-import com.jujutsu.systems.ability.PassiveAbility;
-import com.jujutsu.systems.ability.PassiveAbilityType;
+import com.jujutsu.systems.ability.passive.PassiveAbilityType;
 import com.jujutsu.systems.buff.BuffCancellingConditionType;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;

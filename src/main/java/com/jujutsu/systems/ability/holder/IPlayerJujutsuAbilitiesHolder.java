@@ -1,4 +1,4 @@
-package com.jujutsu.systems.ability;
+package com.jujutsu.systems.ability.holder;
 
 public interface IPlayerJujutsuAbilitiesHolder {
     PlayerJujutsuAbilities getAbilities();

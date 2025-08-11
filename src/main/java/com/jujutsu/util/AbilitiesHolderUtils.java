@@ -1,8 +1,8 @@
 package com.jujutsu.util;
 
 import com.jujutsu.systems.ability.AbilitySlot;
-import com.jujutsu.systems.ability.IAbilitiesHolder;
-import com.jujutsu.systems.ability.PassiveAbility;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
+import com.jujutsu.systems.ability.passive.PassiveAbility;
 import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.Iterator;

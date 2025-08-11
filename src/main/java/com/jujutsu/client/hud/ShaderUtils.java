@@ -21,36 +21,36 @@ import java.io.IOException;
 import java.util.function.Supplier;
 
 public class ShaderUtils {
-    public static ShaderProgram testShader;
-    public static ShaderProgram shader;
+    public static ShaderProgram reloadCircleShader;
     public static ShaderProgram stunShader;
     public static ShaderProgram vignetteShader;
+    public static ShaderProgram colorModifierShader;
 
     private static Framebuffer effectFramebuffer;
 
     public static void init(ResourceFactory factory) throws IOException {
         MinecraftClient client = MinecraftClient.getInstance();
-        testShader = new ShaderProgram(factory, "test", VertexFormats.POSITION_TEXTURE);
-        shader = new ShaderProgram(factory, "reload_circle", VertexFormats.POSITION_TEXTURE);
+        reloadCircleShader = new ShaderProgram(factory, "reload_circle", VertexFormats.POSITION_TEXTURE);
 
         stunShader = new ShaderProgram(factory, "stun_screen_effect", VertexFormats.POSITION_TEXTURE);
         vignetteShader = new ShaderProgram(factory, "vignette", VertexFormats.POSITION_TEXTURE);
+        colorModifierShader = new ShaderProgram(factory, "color_modifier", VertexFormats.POSITION_TEXTURE);
         effectFramebuffer = new SimpleFramebuffer(client.getFramebuffer().textureWidth, client.getFramebuffer().textureHeight, true, MinecraftClient.IS_SYSTEM_MAC);
     }
 
     public static void renderReloadCircle(DrawContext context, MatrixStack ms, float x, float y, float size, float progress, float innerRadius, Identifier texture, Vector3f color) {
-        Supplier<ShaderProgram> shaderSup = () -> shader;
+        Supplier<ShaderProgram> shaderSup = () -> reloadCircleShader;
 
         RenderSystem.setShaderTexture(0, texture);
 
-        if(shader.getUniform("Progress") != null && shader.getUniform("Resolution") != null && shader.getUniform("Color") != null && shader.getUniform("InnerRadius") != null) {
-            shader.getUniform("Progress").set(progress);
-            shader.getUniform("Resolution").set(new float[]{ size, size });
-            shader.getUniform("Color").set(new float[]{ color.x, color.y, color.z });
-            shader.getUniform("InnerRadius").set(innerRadius);
+        if(reloadCircleShader.getUniform("Progress") != null && reloadCircleShader.getUniform("Resolution") != null && reloadCircleShader.getUniform("Color") != null && reloadCircleShader.getUniform("InnerRadius") != null) {
+            reloadCircleShader.getUniform("Progress").set(progress);
+            reloadCircleShader.getUniform("Resolution").set(new float[]{ size, size });
+            reloadCircleShader.getUniform("Color").set(new float[]{ color.x, color.y, color.z });
+            reloadCircleShader.getUniform("InnerRadius").set(innerRadius);
         }
 
-        shader.addSampler("Sampler0", texture);
+        reloadCircleShader.addSampler("Sampler0", texture);
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -128,10 +128,10 @@ public class ShaderUtils {
         if (client.player == null || stunShader == null) return;
 
         RenderSystem.assertOnRenderThread();
-        effectFramebuffer.beginWrite(true); // Перенаправляем вывод в текстуру
+        effectFramebuffer.beginWrite(true);
         client.getFramebuffer().draw(client.getFramebuffer().textureWidth, client.getFramebuffer().textureHeight, false);
 
-        client.getFramebuffer().beginWrite(true); // Вернёмся обратно в обычный экран
+        client.getFramebuffer().beginWrite(true);
 
         Window window = client.getWindow();
         int w = window.getScaledWidth();
@@ -163,7 +163,53 @@ public class ShaderUtils {
         RenderSystem.enableDepthTest();
     }
 
+    public static void renderColorModifier(float strength, float brightness, float r, float g, float b) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null || stunShader == null) return;
+
+        RenderSystem.assertOnRenderThread();
+        effectFramebuffer.beginWrite(true);
+        client.getFramebuffer().draw(client.getFramebuffer().textureWidth, client.getFramebuffer().textureHeight, false);
+
+        client.getFramebuffer().beginWrite(true);
+
+        Window window = client.getWindow();
+        int w = window.getScaledWidth();
+        int h = window.getScaledHeight();
+
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
+        RenderSystem.setShaderTexture(0, effectFramebuffer.getColorAttachment());
+        RenderSystem.setShader(() -> colorModifierShader);
+
+        colorModifierShader.getUniform("Strength").set(strength);
+        colorModifierShader.getUniform("BrightnessStrength").set(brightness);
+        colorModifierShader.getUniform("Color").set(new float[]{r, g, b});
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+
+        buffer.vertex(0, 0, 0).texture(0, 0);
+        buffer.vertex(0, h, 0).texture(0, 1);
+        buffer.vertex(w, h, 0).texture(1, 1);
+        buffer.vertex(w, 0, 0).texture(1, 0);
+        //12222212222
+
+        BufferRenderer.drawWithGlobalProgram(buffer.end());
+
+        RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+    }
+
     public static void reload(ResourceManager manager) throws IOException {
+        if (reloadCircleShader != null) {
+            reloadCircleShader.close();
+            reloadCircleShader = null;
+        }
         if (stunShader != null) {
             stunShader.close();
             stunShader = null;
@@ -171,6 +217,10 @@ public class ShaderUtils {
         if (vignetteShader != null) {
             vignetteShader.close();
             vignetteShader = null;
+        }
+        if (colorModifierShader != null) {
+            colorModifierShader.close();
+            colorModifierShader = null;
         }
         init(manager);
     }

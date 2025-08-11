@@ -37,14 +37,6 @@ public class BuffIconsRenderer {
         if(client == null || client.player == null) return;
         float tickDelta = counter.getTickDelta(false);
 
-        if(ShaderUtils.testShader == null) {
-            try {
-                ShaderUtils.init(client.getResourceManager());
-            } catch (IOException e) {
-                Jujutsu.LOGGER.error("Error initializing shader ", e);
-            }
-        }
-
         int panelHeight = buffs.size() * iconSize + (buffs.size() - 1) * iconGap;
         int x = context.getScaledWindowWidth() - 30;
         int y = context.getScaledWindowHeight() / 2 - panelHeight / 2;

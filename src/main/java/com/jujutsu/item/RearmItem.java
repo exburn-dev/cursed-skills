@@ -1,15 +1,8 @@
 package com.jujutsu.item;
 
-import com.google.common.collect.ImmutableList;
-import com.jujutsu.Jujutsu;
-import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilitySlot;
-import com.jujutsu.systems.ability.IAbilitiesHolder;
-import com.jujutsu.systems.buff.Buff;
-import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

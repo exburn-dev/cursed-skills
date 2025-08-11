@@ -1,6 +1,6 @@
 package com.jujutsu.network.payload;
 
-import com.jujutsu.systems.ability.PlayerJujutsuAbilities;
+import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
 import com.jujutsu.network.ModNetworkConstants;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;

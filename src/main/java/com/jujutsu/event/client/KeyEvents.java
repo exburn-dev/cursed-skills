@@ -31,6 +31,32 @@ public final class KeyEvents {
             }
     );
 
+    public static final Event<MouseButtonPressedCallback> MOUSE_BUTTON_PRESSED_EVENT = EventFactory.createArrayBacked(MouseButtonPressedCallback.class,
+            (listeners) -> (client, button) -> {
+                for(MouseButtonPressedCallback listener: listeners) {
+                    ActionResult result = listener.interact(client, button);
+
+                    if(result != ActionResult.PASS) {
+                        return result;
+                    }
+                }
+                return ActionResult.PASS;
+            }
+    );
+
+    public static final Event<MouseButtonReleasedCallback> MOUSE_BUTTON_RELEASED_EVENT = EventFactory.createArrayBacked(MouseButtonReleasedCallback.class,
+            (listeners) -> (client, button) -> {
+                for(MouseButtonReleasedCallback listener: listeners) {
+                    ActionResult result = listener.interact(client, button);
+
+                    if(result != ActionResult.PASS) {
+                        return result;
+                    }
+                }
+                return ActionResult.PASS;
+            }
+    );
+
     @FunctionalInterface
     public interface KeyPressedCallback {
         ActionResult interact(MinecraftClient client, int keyCode, int scanCode);
@@ -39,5 +65,15 @@ public final class KeyEvents {
     @FunctionalInterface
     public interface KeyReleasedCallback {
         ActionResult interact(MinecraftClient client, int keyCode, int scanCode);
+    }
+
+    @FunctionalInterface
+    public interface MouseButtonPressedCallback {
+        ActionResult interact(MinecraftClient client, int button);
+    }
+
+    @FunctionalInterface
+    public interface MouseButtonReleasedCallback {
+        ActionResult interact(MinecraftClient client, int button);
     }
 }

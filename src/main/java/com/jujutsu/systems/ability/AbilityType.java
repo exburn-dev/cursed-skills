@@ -7,6 +7,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 

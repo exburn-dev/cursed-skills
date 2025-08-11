@@ -35,6 +35,8 @@
 
   "sounds.jujutsu.phoenix_fireball_cast": "Fireball casted",
   "sounds.jujutsu.hit_impact": "Hit impact",
+  "sounds.jujutsu.shadow_step_cast": "Shadow step cast",
+  "sounds.jujutsu.shadow_step_end": "Shadow step end",
 
   "toast.jujutsu.abilities_acquired.title": "Acquired %d new abilities: "
 }

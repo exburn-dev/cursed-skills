@@ -2,7 +2,7 @@ package com.jujutsu.client.hud;
 
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilitySlot;
-import com.jujutsu.systems.ability.IAbilitiesHolder;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -10,12 +10,10 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumers;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec2f;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;

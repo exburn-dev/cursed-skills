@@ -1,9 +1,11 @@
-package com.jujutsu.systems.ability;
+package com.jujutsu.systems.ability.holder;
 
 
 import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.buff.BuffHashMapStorage;
+import com.jujutsu.systems.ability.AbilityInstance;
+import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;

@@ -2,7 +2,7 @@ package com.jujutsu.component;
 
 import com.jujutsu.systems.ability.AbilitySlot;
 import com.jujutsu.systems.ability.AbilityType;
-import com.jujutsu.systems.ability.PassiveAbility;
+import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.registry.JujutsuRegistries;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

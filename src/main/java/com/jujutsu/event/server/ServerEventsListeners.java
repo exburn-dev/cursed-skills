@@ -3,10 +3,10 @@ package com.jujutsu.event.server;
 import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.passive.SpeedPassiveAbility;
-import com.jujutsu.systems.ability.IAbilitiesHolder;
-import com.jujutsu.systems.ability.IPlayerJujutsuAbilitiesHolder;
-import com.jujutsu.systems.ability.PassiveAbility;
-import com.jujutsu.systems.ability.PlayerJujutsuAbilities;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
+import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
+import com.jujutsu.systems.ability.passive.PassiveAbility;
+import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
 import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
 import com.jujutsu.util.IOldPosHolder;
@@ -16,17 +16,11 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.message.MessageType;
-import net.minecraft.network.message.SentMessage;
-import net.minecraft.network.message.SignedMessage;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Box;
 
 import java.util.List;
-import java.util.Optional;
 
 public class ServerEventsListeners {
     public static void register() {

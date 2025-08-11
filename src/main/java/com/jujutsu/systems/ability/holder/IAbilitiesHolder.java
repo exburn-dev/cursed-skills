@@ -1,4 +1,9 @@
-package com.jujutsu.systems.ability;
+package com.jujutsu.systems.ability.holder;
+
+import com.jujutsu.systems.ability.AbilityInstance;
+import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.AbilityType;
+import com.jujutsu.systems.ability.passive.PassiveAbility;
 
 import java.util.List;
 

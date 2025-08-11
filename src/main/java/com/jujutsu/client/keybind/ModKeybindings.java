@@ -1,7 +1,6 @@
 package com.jujutsu.client.keybind;
 
 import com.jujutsu.systems.ability.AbilitySlot;
-import com.jujutsu.systems.ability.PlayerJujutsuAbilities;
 import com.jujutsu.event.client.KeyEvents;
 import com.jujutsu.network.payload.AbilityKeyPressedPayload;
 import com.jujutsu.screen.AbilitiesKeybindingsScreen;
@@ -35,7 +34,7 @@ public class ModKeybindings {
         });
 
         KeyEvents.KEY_PRESSED_EVENT.register((client, key, scanCode) -> {
-            if (client.currentScreen != null) return ActionResult.PASS;
+            if (client.currentScreen != null || !AdditionalInputSystem.isEmpty()) return ActionResult.PASS;
 
             for(AbilityKeyBinding binding: abilityBindings) {
                 if(binding.matchesKey(key, scanCode) && (!wasPressed.containsKey(binding) || !wasPressed.get(binding))) {
@@ -49,7 +48,7 @@ public class ModKeybindings {
         });
 
         KeyEvents.KEY_RELEASED_EVENT.register((client, key, scanCode) -> {
-            if (client.currentScreen != null) return ActionResult.PASS;
+            if (client.currentScreen != null || !AdditionalInputSystem.isEmpty()) return ActionResult.PASS;
 
             for(AbilityKeyBinding binding: abilityBindings) {
                 if(binding.matchesKey(key, scanCode)) {

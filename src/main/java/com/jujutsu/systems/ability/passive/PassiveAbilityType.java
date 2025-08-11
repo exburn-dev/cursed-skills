@@ -1,4 +1,4 @@
-package com.jujutsu.systems.ability;
+package com.jujutsu.systems.ability.passive;
 
 import com.mojang.serialization.MapCodec;
 

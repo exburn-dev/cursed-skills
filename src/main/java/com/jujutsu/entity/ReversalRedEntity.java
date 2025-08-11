@@ -2,7 +2,9 @@ package com.jujutsu.entity;
 
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.registry.ModEntityTypes;
+import com.jujutsu.registry.ModSounds;
 import com.jujutsu.util.ParticleUtils;
+import com.jujutsu.util.VisualEffectUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -10,14 +12,19 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleEffect;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.TypeFilter;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -38,21 +45,18 @@ public class ReversalRedEntity extends Entity {
     private static final TrackedData<Optional<UUID>> OWNER_UUID;
     private static final TrackedData<Integer> CHARGE_TIME;
     private boolean isCharging = true;
-    private int explosionTicks = 0;
 
     @Override
     public void tick() {
         super.tick();
-        if(explosionTicks > 0) {
-            explode();
-            return;
+
+        HitResult result = ProjectileUtil.getCollision(this, entity -> (getOwnerUuid().isEmpty() || entity.getUuid() != getOwnerUuid().get()));
+        if(result.getType() != HitResult.Type.MISS && !isCharging) {
+            explode(result);
         }
 
         this.move(MovementType.SELF, this.getVelocity());
-        this.setVelocity(this.getVelocity().multiply(isCharging ? 0.8 : 0.9));
-        if (this.isOnGround()) {
-            this.setVelocity(this.getVelocity().multiply(0.7, -0.5, 0.7));
-        }
+        this.setVelocity(this.getVelocity().multiply(isCharging ? 0.8 : 0.98));
 
         render();
         if(getWorld().isClient()) return;
@@ -62,12 +66,7 @@ public class ReversalRedEntity extends Entity {
         }
 
         if(getVelocity().length() <= 0.02 && !isCharging) {
-            explode();
-        }
-
-        HitResult result = ProjectileUtil.getCollision(this, entity -> (getOwnerUuid().isEmpty() || entity.getUuid() != getOwnerUuid().get()));
-        if(result.getType() != HitResult.Type.MISS) {
-            explode();
+            explode(null);
         }
     }
 
@@ -84,42 +83,47 @@ public class ReversalRedEntity extends Entity {
         //ParticleUtils.createCyl(particle, getPos(), getWorld(), 20, 2.5f, 0.1f);
     }
 
-    private void explode() {
-        explosionTicks++;
-        setVelocity(this.getVelocity().multiply(0.2));
+    private void explode(@Nullable HitResult hitResult) {
+        setVelocity(Vec3d.ZERO);
+
+        if(hitResult != null && hitResult.getType() == HitResult.Type.ENTITY) {
+            Entity entity = ((EntityHitResult) hitResult).getEntity();
+            entity.damage(this.getDamageSources().explosion(this, this), 0.6f * getChargeTime());
+
+            showOnHitEffectsToOwner();
+        }
 
         List<Entity> entities = getWorld().getEntitiesByType(TypeFilter.instanceOf(Entity.class), Box.of(getPos(), 14, 14, 14), entity -> entity.getType() != ModEntityTypes.REVERSAL_RED && (getOwnerUuid().isEmpty() || !entity.getUuid().equals(this.getOwnerUuid().get())));
-        if(explosionTicks < 15) {
-            for(Entity entity: entities) {
-                double distance = entity.distanceTo(this);
-                if(distance > 7 || entity.getUuid() == getOwnerUuid().get()) continue;
-                if(distance < 0.2) {
-                    distance = 0;
-                }
+        for(Entity entity: entities) {
+            double distance = entity.distanceTo(this);
+            if(distance > 7) continue;
 
-                Vec3d vec = getPos().subtract(entity.getPos()).normalize().multiply(distance * 0.075);
-                entity.addVelocity(vec);
-            }
+            float power = 2 * getChargeTime() * 0.01f;
+            Vec3d vec = entity.getPos().subtract(getPos()).normalize().multiply(power, power * 0.5, power);
+            vec = new Vec3d(vec.x, Math.abs(vec.y), vec.z);
+            entity.addVelocity(vec);
+            entity.damage(this.getDamageSources().explosion(this, this), 1 + 0.2f * getChargeTime());
         }
-        else {
-            for(Entity entity: entities) {
-                double distance = entity.distanceTo(this);
-                if(distance > 7) continue;
+        remove(RemovalReason.KILLED);
+    }
 
-                float power = 2 * getChargeTime() * 0.01f;
-                Vec3d vec = entity.getPos().subtract(getPos()).normalize().multiply(power, power * 0.5, power);
-                vec = new Vec3d(vec.x, Math.abs(vec.y), vec.z);
-                entity.addVelocity(vec);
-                entity.damage(this.getDamageSources().explosion(this, this), 1 + (40f / 100f) * getChargeTime());
-            }
-            remove(RemovalReason.KILLED);
-        }
+    private void showOnHitEffectsToOwner() {
+        if(getOwnerUuid().isEmpty() || getWorld().isClient()) return;
+
+        PlayerEntity player = getWorld().getPlayerByUuid(getOwnerUuid().get());
+        if(player == null) return;
+
+        player.playSoundToPlayer(ModSounds.HIT_IMPACT, SoundCategory.MASTER, 1, 1);
+
+        if(getWorld().isClient()) return;
+        VisualEffectUtils.sendScreenFlash((ServerPlayerEntity) player, 3, 5, 5, 0.35f, 0xffffff);
+        VisualEffectUtils.sendCrosshairMarkData((ServerPlayerEntity) player, 3, 5, 5, 0xffffff);
     }
 
     @Override
     protected void onBlockCollision(BlockState state) {
         if(!isCharging && !state.isAir()) {
-            explode();
+            explode(null);
         }
         super.onBlockCollision(state);
     }

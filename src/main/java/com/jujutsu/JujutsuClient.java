@@ -1,6 +1,7 @@
 package com.jujutsu;
 
 import com.jujutsu.client.hud.*;
+import com.jujutsu.client.keybind.AdditionalInputSystem;
 import com.jujutsu.client.particle.ColoredSparkParticle;
 import com.jujutsu.client.particle.HollowPurpleParticle;
 import com.jujutsu.client.particle.LapseBlueCoreParticle;
@@ -36,6 +37,7 @@ public class JujutsuClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntityTypes.PHOENIX_FIREBALL, PhoenixFireballRenderer::new);
 
         ModKeybindings.register();
+        AdditionalInputSystem.register();
         ClientEventListeners.register();
         ModNetworkConstants.registerClientReceivers();
 
@@ -49,6 +51,7 @@ public class JujutsuClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(BuffIconsRenderer::render);
         HudRenderCallback.EVENT.register(FlashSystemHudRenderer::render);
         HudRenderCallback.EVENT.register(CrosshairMarkRenderer::render);
+        HudRenderCallback.EVENT.register(ColorModifierHudRenderer::render);
 
         EntityModelLayerRegistry.registerModelLayer(BlinkMarkerModel.MODEL_LAYER, BlinkMarkerModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(PhoenixFireballModel.MODEL_LAYER, PhoenixFireballModel::getTexturedModelData);

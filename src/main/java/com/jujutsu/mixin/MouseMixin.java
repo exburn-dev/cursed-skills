@@ -1,6 +1,7 @@
 package com.jujutsu.mixin;
 
 import com.jujutsu.event.client.CameraEvents;
+import com.jujutsu.event.client.KeyEvents;
 import com.jujutsu.event.server.PlayerBonusEvents;
 import com.jujutsu.registry.ModAttributes;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -12,16 +13,25 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(Mouse.class)
 public class MouseMixin {
     @Shadow @Final private MinecraftClient client;
 
-    @Shadow @Final private Smoother cursorXSmoother;
-
-    @Shadow @Final private Smoother cursorYSmoother;
+    @Inject(method = "onMouseButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/Window;getHandle()J", shift = At.Shift.AFTER))
+    private void onMouseButton(long window, int button, int action, int mods, CallbackInfo ci) {
+        if (action != 1 && action != 2) {
+            if (action == 0) {
+                KeyEvents.MOUSE_BUTTON_RELEASED_EVENT.invoker().interact(client, button);
+            }
+        } else {
+            KeyEvents.MOUSE_BUTTON_PRESSED_EVENT.invoker().interact(client, button);
+        }
+    }
 
     @ModifyArgs(method = "updateMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;changeLookDirection(DD)V"))
     private void updateMouse(Args args, @Local(argsOnly = true) double timeDelta, @Local(ordinal = 2) double f) {

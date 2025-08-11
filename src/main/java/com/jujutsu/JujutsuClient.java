@@ -48,6 +48,7 @@ public class JujutsuClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(AbilityCooldownRenderer::render);
         HudRenderCallback.EVENT.register(BuffIconsRenderer::render);
         HudRenderCallback.EVENT.register(FlashSystemHudRenderer::render);
+        HudRenderCallback.EVENT.register(CrosshairMarkRenderer::render);
 
         EntityModelLayerRegistry.registerModelLayer(BlinkMarkerModel.MODEL_LAYER, BlinkMarkerModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(PhoenixFireballModel.MODEL_LAYER, PhoenixFireballModel::getTexturedModelData);

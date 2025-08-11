@@ -5,25 +5,21 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class FlashSystemHudRenderer {
-    private static final List<FlashData> flashDataQueue = new ArrayList<>();
+    private static FlashData flashData = null;
     private static int currentTime = 0;
     private static float prevTickDelta = 0;
     
     public static void addFlashData(FlashData flashData) {
-        flashDataQueue.add(flashData);
+        FlashSystemHudRenderer.flashData = flashData;
+        currentTime = 0;
     }
 
     public static void render(DrawContext context, RenderTickCounter counter) {
-        if(flashDataQueue.isEmpty()) return;
-
-        FlashData flashData = flashDataQueue.getFirst();
+        if(flashData == null) return;
 
         if(currentTime >= flashData.getTotalTime()) {
-            flashDataQueue.removeFirst();
+            flashData = null;
             currentTime = 0;
             return;
         }

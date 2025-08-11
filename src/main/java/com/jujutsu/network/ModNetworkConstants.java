@@ -3,6 +3,7 @@ package com.jujutsu.network;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.animation.IAnimatedPlayer;
 import com.jujutsu.client.hud.BuffIconsRenderer;
+import com.jujutsu.client.hud.CrosshairMarkRenderer;
 import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.toast.AbilitiesAcquiredToast;
 import com.jujutsu.network.payload.*;
@@ -31,6 +32,7 @@ public class ModNetworkConstants {
     public static final Identifier PLAY_ANIMATION_ID = Jujutsu.getId("play_animation");
     public static final Identifier SYNC_BUFFS_FOR_DISPLAYING_ID = Jujutsu.getId("sync_buffs");
     public static final Identifier SHOW_SCREEN_FLASH_ID = Jujutsu.getId("show_screen_flash");
+    public static final Identifier SHOW_CROSSHAIR_MARK_ID = Jujutsu.getId("show_crosshair_mark");
 
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(AbilityKeyPressedPayload.ID, AbilityKeyPressedPayload.CODEC);
@@ -41,6 +43,7 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(PlayAnimationPayload.ID, PlayAnimationPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncBuffsForDisplaying.ID, SyncBuffsForDisplaying.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowScreenFlashPayload.ID, ShowScreenFlashPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(ShowCrosshairMarkPayload.ID, ShowCrosshairMarkPayload.CODEC);
     }
 
     public static void registerServerReceivers() {
@@ -94,6 +97,10 @@ public class ModNetworkConstants {
 
         ClientPlayNetworking.registerGlobalReceiver(ShowScreenFlashPayload.ID, (payload, context) -> {
             FlashSystemHudRenderer.addFlashData(payload.flashData());
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(ShowCrosshairMarkPayload.ID, (payload, context) -> {
+            CrosshairMarkRenderer.addMarkData(payload.markData());
         });
     }
 }

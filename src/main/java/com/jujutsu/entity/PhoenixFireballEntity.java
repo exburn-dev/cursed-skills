@@ -3,6 +3,7 @@ package com.jujutsu.entity;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModEntityTypes;
 import com.jujutsu.registry.ModSounds;
+import com.jujutsu.util.VisualEffectUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -13,6 +14,7 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.BlockHitResult;
@@ -108,15 +110,6 @@ public class PhoenixFireballEntity extends Entity {
 
     }
 
-    protected void onCollision(HitResult hitResult) {
-        if (hitResult.getType() == HitResult.Type.ENTITY) {
-            EntityHitResult ehr = (EntityHitResult) hitResult;
-            hitEntity(ehr.getEntity());
-        } else if (hitResult.getType() == HitResult.Type.BLOCK) {
-            explode();
-        }
-    }
-
     private void hitEntity(Entity entity) {
         if(getOwner().isPresent() && entity.isPlayer() && entity.getUuid().equals(getOwner().get())) return;
 
@@ -128,14 +121,22 @@ public class PhoenixFireballEntity extends Entity {
         }
         getWorld().playSound(this, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.MASTER, 3, 1);
 
-        if(getOwner().isPresent()) {
-            PlayerEntity player = getWorld().getPlayerByUuid(getOwner().get());
-            if(player != null) {
-                player.playSoundToPlayer(ModSounds.HIT_IMPACT, SoundCategory.MASTER, 1, 1);
-            }
-        }
+        showOnHitEffectsToOwner();
 
         kill();
+    }
+
+    private void showOnHitEffectsToOwner() {
+        if(getOwner().isEmpty()) return;
+
+        PlayerEntity player = getWorld().getPlayerByUuid(getOwner().get());
+        if(player == null) return;
+
+        player.playSoundToPlayer(ModSounds.HIT_IMPACT, SoundCategory.MASTER, 1, 1);
+
+        if(getWorld().isClient()) return;
+        VisualEffectUtils.sendScreenFlash((ServerPlayerEntity) player, 3, 5, 5, 0.35f, 0xffffff);
+        VisualEffectUtils.sendCrosshairMarkData((ServerPlayerEntity) player, 3, 5, 5, 0xffffff);
     }
 
     private void explode() {

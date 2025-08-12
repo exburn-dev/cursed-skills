@@ -15,6 +15,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Style;
 import net.minecraft.util.Pair;
 
 public class SpeedPassiveAbility extends PassiveAbility {
@@ -95,6 +96,11 @@ public class SpeedPassiveAbility extends PassiveAbility {
         instance.removeModifier(Jujutsu.getId("passive_speed"));
         EntityAttributeInstance instance1 = player.getAttributes().getCustomInstance(EntityAttributes.GENERIC_STEP_HEIGHT);
         instance1.removeModifier(Jujutsu.getId("passive_step"));
+    }
+
+    @Override
+    public Style getStyle() {
+        return Style.EMPTY.withColor(0xa7cad9);
     }
 
     @Override

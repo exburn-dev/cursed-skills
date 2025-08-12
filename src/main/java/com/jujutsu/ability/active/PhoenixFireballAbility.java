@@ -9,6 +9,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Style;
 
 public class PhoenixFireballAbility extends AbilityType {
     public PhoenixFireballAbility(int cooldownTime) {
@@ -44,5 +45,10 @@ public class PhoenixFireballAbility extends AbilityType {
     @Override
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
         return instance.getUseTime() >= 10;
+    }
+
+    @Override
+    public Style getStyle() {
+        return Style.EMPTY.withColor(0xfc4e03);
     }
 }

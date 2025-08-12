@@ -7,6 +7,7 @@ import com.jujutsu.systems.ability.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Style;
 
 public class FierySoulSwitchAbility extends AbilityType {
     public FierySoulSwitchAbility(int cooldownTime) {
@@ -39,5 +40,10 @@ public class FierySoulSwitchAbility extends AbilityType {
     @Override
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
         return instance.getUseTime() >= 5;
+    }
+
+    @Override
+    public Style getStyle() {
+        return Style.EMPTY.withColor(0x858585);
     }
 }

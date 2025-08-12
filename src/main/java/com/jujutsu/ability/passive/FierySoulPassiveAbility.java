@@ -12,6 +12,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Style;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Box;
 
@@ -73,6 +74,11 @@ public class FierySoulPassiveAbility extends PassiveAbility {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    @Override
+    public Style getStyle() {
+        return Style.EMPTY.withColor(0xfc4e03);
     }
 
     @Override

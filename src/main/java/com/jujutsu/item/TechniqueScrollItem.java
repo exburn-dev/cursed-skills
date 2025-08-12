@@ -62,9 +62,17 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
                 tooltip.add(Text.translatable("item.jujutsu.technique_scroll.press_shift").formatted(Formatting.YELLOW));
                 return;
             }
-            tooltip.add(Text.translatable("item.jujutsu.technique_scroll.stored_abilities").setStyle(Style.EMPTY.withColor(0xD58C62).withUnderline(true)));
+            tooltip.add(Text.translatable("item.jujutsu.technique_scroll.stored_abilities").setStyle(Style.EMPTY.withColor(0xfcaf68).withUnderline(true)));
             for(AbilityType ability: component.abilities().values()) {
                 tooltip.add(Text.literal("- ").append(ability.getName().copy().setStyle(ability.getStyle())));
+            }
+
+            if(component.passiveAbilities().isEmpty()) return;
+
+            tooltip.add(Text.literal(""));
+            tooltip.add(Text.translatable("item.jujutsu.technique_scroll.stored_passive_abilities").setStyle(Style.EMPTY.withColor(0xfcaf68).withUnderline(true)));
+            for(PassiveAbility passiveAbility: component.passiveAbilities()) {
+                tooltip.add(Text.literal("- ").append(passiveAbility.getName().copy().setStyle(passiveAbility.getStyle())));
             }
         }
 

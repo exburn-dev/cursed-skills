@@ -10,8 +10,13 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.Pair;
+
+import java.util.Optional;
 
 public abstract class PassiveAbility {
     //public static final Codec<RegistryEntry<PassiveAbility>> ENTRY_CODEC = JujutsuRegistries.PASSIVE_ABILITY_TYPE.getEntryCodec();
@@ -56,6 +61,19 @@ public abstract class PassiveAbility {
         Multimap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> map = ArrayListMultimap.create();
         map.put(attributes.getLeft(), attributes.getRight());
         player.getAttributes().addTemporaryModifiers(map);
+    }
+
+    public Style getStyle() {
+        return Style.EMPTY;
+    }
+
+    public Text getName() {
+        return Text.translatable(getTranslationKey());
+    }
+
+    public String getTranslationKey() {
+        Optional<RegistryKey<PassiveAbilityType<?>>> optional = JujutsuRegistries.PASSIVE_ABILITY_TYPE.getKey(this.getType());
+        return optional.map(registryKey -> registryKey.getValue().toTranslationKey("passive_ability")).orElse("");
     }
 
     public abstract PassiveAbilityType<?> getType();

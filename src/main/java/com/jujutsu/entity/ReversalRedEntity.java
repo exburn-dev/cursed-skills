@@ -61,10 +61,6 @@ public class ReversalRedEntity extends Entity {
         render();
         if(getWorld().isClient()) return;
 
-        if(isCharging) {
-            this.dataTracker.set(CHARGE_TIME, getChargeTime() + 1);
-        }
-
         if(getVelocity().length() <= 0.02 && !isCharging) {
             explode(null);
         }
@@ -126,6 +122,10 @@ public class ReversalRedEntity extends Entity {
             explode(null);
         }
         super.onBlockCollision(state);
+    }
+
+    public void increaseChargeTime() {
+        this.dataTracker.set(CHARGE_TIME, getChargeTime() + 1);
     }
 
     public Optional<UUID> getOwnerUuid() {

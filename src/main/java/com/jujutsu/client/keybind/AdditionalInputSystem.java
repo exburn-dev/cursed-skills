@@ -3,7 +3,11 @@ package com.jujutsu.client.keybind;
 import com.jujutsu.event.client.KeyEvents;
 import com.jujutsu.network.payload.AdditionalInputPressedPayload;
 import com.jujutsu.systems.ability.AbilityAdditionalInput;
+import com.jujutsu.systems.ability.AbilityInstance;
+import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Pair;
 
@@ -56,6 +60,16 @@ public class AdditionalInputSystem {
 
     private static void sendAdditionalInputPressed() {
         ClientPlayNetworking.send(new AdditionalInputPressedPayload(stack.getLast()));
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        IAbilitiesHolder holder = (IAbilitiesHolder) client.player;
+
+        for(AbilitySlot slot: holder.getRunningSlots()) {
+            AbilityInstance instance = holder.getAbilityInstance(slot);
+            if(instance.getStatus().isWaiting() && instance.checkAdditionalInput(stack.getLast())) {
+                break;
+            }
+        }
 
         stack.removeLast();
         stackStatus.removeLast();

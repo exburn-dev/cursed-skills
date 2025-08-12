@@ -68,15 +68,8 @@ public class ModItemGroups {
             fireScroll.set(ModDataComponents.TECHNIQUE_COMPONENT, new TechniqueComponent(map3, List.of(new FierySoulPassiveAbility())));
             itemGroup.add(fireScroll);
 
-            ItemStack test = ModItems.TECHNIQUE_SCROLL.getDefaultStack();
-            HashMap<AbilitySlot, AbilityType> testMap = new HashMap<>();
-            testMap.put(AbilitySlot.ABILITY_SLOT_1, ModAbilities.TEST_ABILITY);
-
-            test.set(ModDataComponents.TECHNIQUE_COMPONENT, new TechniqueComponent(testMap, List.of()));
-            itemGroup.add(test);
-
-            itemGroup.add(ModItems.ALLAH_MUSIC_DISC);
-            itemGroup.add(ModItems.SNUS_MUSIC_DISC);
+            //itemGroup.add(ModItems.ALLAH_MUSIC_DISC);
+            //itemGroup.add(ModItems.SNUS_MUSIC_DISC);
         });
     }
 }

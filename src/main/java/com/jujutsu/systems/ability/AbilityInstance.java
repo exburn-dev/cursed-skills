@@ -11,6 +11,7 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -32,12 +33,13 @@ public final class AbilityInstance {
         abilityData = type.getInitialData();
     }
 
-    private AbilityInstance(AbilityType type, AbilityData data, int useTime, int cooldownTime, AbilityStatus status) {
+    private AbilityInstance(AbilityType type, AbilityData data, int useTime, int cooldownTime, AbilityStatus status, @Nullable AbilityAdditionalInput additionalInput) {
         this.type = type;
         this.abilityData = data;
         this.useTime = useTime;
         this.cooldownTime = cooldownTime;
         this.status = status;
+        this.additionalInput = additionalInput;
     }
 
     public void start(PlayerEntity player) {
@@ -83,8 +85,17 @@ public final class AbilityInstance {
     public void setAdditionalInput(PlayerEntity player, AbilityAdditionalInput additionalInput) {
         if(this.additionalInput == null) {
             this.additionalInput = additionalInput;
-            syncAdditionalInput(player);
+            this.status = AbilityStatus.WAITING;
+
+            if(player instanceof ServerPlayerEntity) {
+                syncAdditionalInput(player);
+            }
         }
+    }
+
+    @Nullable
+    public AbilityAdditionalInput getAdditionalInput() {
+        return this.additionalInput;
     }
 
     private void syncAdditionalInput(PlayerEntity player) {
@@ -171,7 +182,16 @@ public final class AbilityInstance {
                         .result()
                         .orElse(AbilityStatus.NONE);
 
-                return DataResult.success(new Pair<>(new AbilityInstance(type, data, useTime, cooldownTime, status), input));
+                OptionalDynamic<T> additionalInputDynamic = dynamic.get("additionalInput");
+                AbilityAdditionalInput additionalInput = null;
+                if(additionalInputDynamic.result().isPresent()) {
+                    var result = AbilityAdditionalInput.CODEC.decode(additionalInputDynamic.result().get());
+                    if(result.result().isPresent()) {
+                        additionalInput = result.result().get().getFirst();
+                    }
+                }
+
+                return DataResult.success(new Pair<>(new AbilityInstance(type, data, useTime, cooldownTime, status, additionalInput), input));
             }
 
             @Override
@@ -191,6 +211,13 @@ public final class AbilityInstance {
                 DataResult<T> encodedData = dataCodec.encodeStart(ops, instance.abilityData);
                 if (encodedData.result().isPresent()) {
                     builder.add("data", encodedData.result().get());
+                }
+
+                if(instance.additionalInput != null) {
+                    DataResult<T> encodedInput = AbilityAdditionalInput.CODEC.encode(instance.additionalInput, ops, t);
+                    if(encodedInput.result().isPresent()) {
+                        builder.add("additionalInput", encodedInput.result().get());
+                    }
                 }
 
                 return builder.build(t);

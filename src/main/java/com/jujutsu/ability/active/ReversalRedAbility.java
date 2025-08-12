@@ -1,9 +1,6 @@
 package com.jujutsu.ability.active;
 
-import com.jujutsu.systems.ability.AbilityData;
-import com.jujutsu.systems.ability.AbilityInstance;
-import com.jujutsu.systems.ability.AbilityType;
-import com.jujutsu.systems.ability.ClientData;
+import com.jujutsu.systems.ability.*;
 import com.jujutsu.entity.ReversalRedEntity;
 import com.jujutsu.util.HandAnimationUtils;
 import com.mojang.serialization.Codec;
@@ -15,6 +12,8 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.RotationAxis;
@@ -47,6 +46,17 @@ public class ReversalRedAbility extends AbilityType {
         Vec3d vec = player.getPos().add(player.getRotationVector(player.getPitch(), player.getYaw() - 25).multiply(0.75).add(0, 1.5, 0));
 
         entity.addVelocity(vec.subtract(entity.getPos()).multiply(0.15));
+
+        if(instance.getAdditionalInput() == null) {
+            entity.increaseChargeTime();
+        }
+
+        if(instance.getUseTime() == 98) {
+            instance.setAdditionalInput(player, new AbilityAdditionalInput(-1, -1, 0));
+            if(!player.getWorld().isClient()) {
+                player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1, 1);
+            }
+        }
     }
 
     @Override

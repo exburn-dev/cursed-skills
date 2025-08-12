@@ -20,7 +20,7 @@ public class ClientEventListeners {
 
             for(AbilitySlot slot: holder.getRunningSlots()) {
                 AbilityInstance instance = holder.getAbilityInstance(slot);
-                if(!instance.getStatus().isRunning()) continue;
+                if(!instance.getStatus().isRunning() && !instance.getStatus().isWaiting()) continue;
 
                 ClientData clientData = instance.getType().getClientData();
                 if(clientData != null && clientData.animation() != null) {

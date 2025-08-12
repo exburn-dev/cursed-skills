@@ -20,7 +20,6 @@ public class ModAbilities {
     public static final AbilityType PHOENIX_ASH = registerAbilityType("phoenix_ash", new PhoenixAshAbility(4000));
     public static final AbilityType PHOENIX_FIREBALL = registerAbilityType("phoenix_fireball", new PhoenixFireballAbility(300));
     public static final AbilityType FIERY_SOUL_SWITCH = registerAbilityType("fiery_soul_switch", new FierySoulSwitchAbility(20));
-    public static final AbilityType TEST_ABILITY = registerAbilityType("test_ability", new TestAbility(100));
 
     public static final PassiveAbilityType<?> SPEED_PASSIVE_ABILITY = registerPassiveAbilityType("speed", new PassiveAbilityType<>(SpeedPassiveAbility.CODEC));
     public static final PassiveAbilityType<?> WITHER_MOMENTUM = registerPassiveAbilityType("wither_momentum", new PassiveAbilityType<>(WitherMomentumPassiveAbility.CODEC));

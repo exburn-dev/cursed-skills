@@ -17,6 +17,7 @@ import net.minecraft.particle.ParticleEffect;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -63,8 +64,11 @@ public class PhoenixFireballRenderer extends EntityRenderer<PhoenixFireballEntit
                 MathHelper.lerp(t, startColor.z, endColor.z)
         );
 
-        ParticleEffect particle = new ColoredSparkParticleEffect(2, 0.95f,
+        ColoredSparkParticleEffect particle = new ColoredSparkParticleEffect(2, 0.95f,
                 new ColoredSparkParticleEffect.ColorTransition(color, color), 0, 0.1f, 40);
+
+        Vec3d vec = entity.getRotationVector().normalize().multiply(-1 * entity.getRandom().nextDouble() * 0.15f);
+        particle.setVelocity(vec.toVector3f());
 
         entity.getWorld().addParticle(particle, entity.getX() + entity.getRandom().nextDouble(), entity.getY() + entity.getRandom().nextDouble(), entity.getZ() + entity.getRandom().nextDouble(), 0, 0, 0);
     }

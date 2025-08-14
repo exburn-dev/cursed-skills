@@ -40,7 +40,7 @@ public class LapseBlueEntity extends Entity {
     public void tick() {
         super.tick();
         this.move(MovementType.SELF, this.getVelocity());
-        this.setVelocity(this.getVelocity().multiply(0.8));
+        this.setVelocity(this.getVelocity().multiply(0.9));
         if (this.isOnGround()) {
             this.setVelocity(this.getVelocity().multiply(0.7, -0.5, 0.7));
         }
@@ -58,12 +58,14 @@ public class LapseBlueEntity extends Entity {
             return;
         }
 
-        List<Entity> entities = getWorld().getEntitiesByType(TypeFilter.instanceOf(Entity.class), Box.of(getPos(), 14, 14, 14),
+        float radius = 7f / 70f * getChargeTime();
+
+        List<Entity> entities = getWorld().getEntitiesByType(TypeFilter.instanceOf(Entity.class), Box.of(getPos(), radius * 2, radius * 2, radius * 2),
                 entity -> entity.getType() != ModEntityTypes.LAPSE_BLUE && entity.getType() != ModEntityTypes.REVERSAL_RED && entity.getType() != ModEntityTypes.HOLLOW_PURPLE && (getOwnerUuid().isEmpty() || !entity.getUuid().equals(this.getOwnerUuid().get())));
         List<LivingEntity> toDamage = new ArrayList<>();
         for(Entity entity: entities) {
             double distance = entity.distanceTo(this);
-            if(distance > 7) continue;
+            if(distance > radius) continue;
             if(distance < 0.2) {
                 distance = 0;
             }
@@ -110,7 +112,7 @@ public class LapseBlueEntity extends Entity {
             Supplier<ParticleEffect> particle1 = () -> new ColoredSparkParticleEffect(13, 0.95f,
                     new ColoredSparkParticleEffect.ColorTransition(color1, new Vector3f(0.5f, 0, 1)), 0, 0.1f, 50);
 
-            ParticleUtils.createCyl(particle1, getPos(), getWorld(), 20, 7f, -0.1f);
+            ParticleUtils.createCyl(particle1, getPos(), getWorld(), 20, 7f / 70 * getChargeTime(), -0.1f);
         }
 
         if(this.age % 20 == 0) {
@@ -118,10 +120,10 @@ public class LapseBlueEntity extends Entity {
             Supplier<ParticleEffect> particle1 = () -> new ColoredSparkParticleEffect(8, 0.95f,
                     new ColoredSparkParticleEffect.ColorTransition(color1, color1), 0, 0.1f, 50);
 
-            ParticleUtils.createBall(particle1, getPos(), getWorld(), 10, 4f, -0.1f);
+            ParticleUtils.createBall(particle1, getPos(), getWorld(), 10, 4f / 70f * getChargeTime(), -0.1f);
         }
 
-        ParticleUtils.createBallSurface(particle, getPos(), getWorld(), 40, 0.75f / 70 * getChargeTime(), 0);
+        ParticleUtils.createBallSurface(particle, getPos(), getWorld(), 40, 0.75f / 70f * getChargeTime(), 0);
     }
 
     @Override

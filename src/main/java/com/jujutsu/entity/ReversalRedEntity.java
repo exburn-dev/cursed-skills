@@ -16,8 +16,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -100,6 +103,13 @@ public class ReversalRedEntity extends Entity {
             entity.addVelocity(vec);
             entity.damage(this.getDamageSources().explosion(this, this), 1 + 0.2f * getChargeTime());
         }
+
+        if(!getWorld().isClient()) {
+            ServerWorld world = (ServerWorld) getWorld();
+            world.playSound(this, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.MASTER, 3, 1.1f);
+            world.spawnParticles(ParticleTypes.EXPLOSION, getX(), getY(), getZ(), 1, 0, 0, 0, 0);
+        }
+
         remove(RemovalReason.KILLED);
     }
 

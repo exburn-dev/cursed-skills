@@ -2,10 +2,15 @@ package com.jujutsu.mixin;
 
 import com.jujutsu.event.server.AbilityEvents;
 import com.jujutsu.event.server.PlayerBonusEvents;
+import com.jujutsu.network.payload.SyncAbilityAttributesPayload;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
 import com.jujutsu.systems.ability.*;
 import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
+import com.jujutsu.systems.ability.attribute.AbilityAttribute;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
+import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
@@ -37,9 +42,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.*;
 
 @Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin extends LivingEntity implements IAbilitiesHolder, IPlayerJujutsuAbilitiesHolder {
+public abstract class PlayerEntityMixin extends LivingEntity implements IAbilitiesHolder, IPlayerJujutsuAbilitiesHolder, AbilityAttributeContainerHolder {
     @Unique
     private PlayerJujutsuAbilities abilities = new PlayerJujutsuAbilities(new HashMap<>(), new ArrayList<>(), new ArrayList<>());
+    @Unique
+    private AbilityAttributesContainer abilityAttributes = new AbilityAttributesContainer(new HashMap<>());
 
     protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
@@ -119,15 +126,25 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
 
     @Inject(method = "writeCustomDataToNbt", at = @At("HEAD"))
     private void writeNBT(NbtCompound nbt, CallbackInfo ci) {
+        NbtCompound main = new NbtCompound();
         NbtElement serializedAbilities = abilities.serialize(NbtOps.INSTANCE);
+        NbtElement serializedAttributes = abilityAttributes.serialize(NbtOps.INSTANCE);
 
-        nbt.put("JujutsuAbilities", serializedAbilities);
+        main.put("Abilities", serializedAbilities);
+        main.put("Attributes", serializedAttributes);
+
+        nbt.put("Jujutsu", main);
     }
 
     @Inject(method = "readCustomDataFromNbt", at = @At("HEAD"))
     private void readNBT(NbtCompound nbt, CallbackInfo ci) {
-        NbtCompound compound = nbt.getCompound("JujutsuAbilities");
-        this.abilities = PlayerJujutsuAbilities.deserialize(new Dynamic<>(NbtOps.INSTANCE, compound));
+        NbtCompound main = nbt.getCompound("Jujutsu");
+
+        NbtCompound abilitiesCompound = main.getCompound("Abilities");
+        NbtCompound attributesCompound = main.getCompound("Attributes");
+
+        this.abilities = PlayerJujutsuAbilities.deserialize(new Dynamic<>(NbtOps.INSTANCE, abilitiesCompound));
+        this.abilityAttributes = AbilityAttributesContainer.deserialize(new Dynamic<>(NbtOps.INSTANCE, attributesCompound));
     }
 
     @Override
@@ -225,11 +242,49 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
         return abilities.passiveAbilities();
     }
 
+    @Override
+    public List<AbilityAttributeModifier> getModifiers(AbilityAttribute attribute) {
+        return abilityAttributes.attributes().get(attribute);
+    }
+
+    @Override
+    public void addModifier(AbilityAttribute attribute, AbilityAttributeModifier modifier) {
+        List<AbilityAttributeModifier> modifiers = getModifiers(attribute);
+        if(modifiers != null) {
+            modifiers.add(modifier);
+            abilityAttributes.attributes().put(attribute, (ArrayList<AbilityAttributeModifier>) modifiers);
+        }
+        else {
+            ArrayList<AbilityAttributeModifier> list = new ArrayList<>();
+            list.add(modifier);
+            abilityAttributes.attributes().put(attribute, list);
+        }
+        jujutsu$syncAbilityAttributesToClient();
+    }
+
+    @Override
+    public void setAbilityAttributes(AbilityAttributesContainer container) {
+        this.abilityAttributes = container;
+    }
+
+    @Override
+    public AbilityAttributesContainer getAbilityAttributes() {
+        return abilityAttributes;
+    }
+
     @Unique
     private void jujutsu$syncAbilitiesToClient() {
         PlayerEntity player = (PlayerEntity) (Object) this;
         if(!player.getWorld().isClient()) {
             ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncPlayerAbilitiesPayload(abilities));
+        }
+    }
+
+    @Unique
+    private void jujutsu$syncAbilityAttributesToClient() {
+        PlayerEntity player = (PlayerEntity) (Object) this;
+        if(!player.getWorld().isClient()) {
+            ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncAbilityAttributesPayload(abilityAttributes));
         }
     }
 }

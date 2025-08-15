@@ -26,14 +26,17 @@ public class Jujutsu implements ModInitializer {
 
 		ModEntityTypes.register();
 		ModParticleTypes.register();
-		ModAbilities.register();
-		BuffCancellingConditionTypes.register();
 
 		ModNetworkConstants.registerPackets();
 		ModNetworkConstants.registerServerReceivers();
 
 		JujutsuCommand.register();
 		ServerEventsListeners.register();
+
+		ModAbilities.register();
+		BuffCancellingConditionTypes.register();
+		ModAbilityAttributes.register();
+
 	}
 
 	public static Identifier getId(String id) {

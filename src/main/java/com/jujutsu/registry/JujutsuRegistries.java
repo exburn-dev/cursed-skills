@@ -2,6 +2,7 @@ package com.jujutsu.registry;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.systems.ability.AbilityType;
+import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.jujutsu.systems.ability.passive.PassiveAbilityType;
 import com.jujutsu.systems.buff.BuffCancellingConditionType;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
@@ -22,6 +23,11 @@ public class JujutsuRegistries {
 
     public static final RegistryKey<Registry<BuffCancellingConditionType<?>>> BUFF_CANCELLING_CONDITION_KEY = RegistryKey.ofRegistry(Jujutsu.getId("buff_cancelling_condition"));
     public static final Registry<BuffCancellingConditionType<?>> BUFF_CANCELLING_CONDITION_TYPE = FabricRegistryBuilder.createSimple(BUFF_CANCELLING_CONDITION_KEY)
+            .attribute(RegistryAttribute.SYNCED)
+            .buildAndRegister();
+
+    public static final RegistryKey<Registry<AbilityAttribute>> ABILITY_ATTRIBUTE_REGISTRY_KEY = RegistryKey.ofRegistry(Jujutsu.getId("ability_attribute"));
+    public static final Registry<AbilityAttribute> ABILITY_ATTRIBUTE = FabricRegistryBuilder.createSimple(ABILITY_ATTRIBUTE_REGISTRY_KEY)
             .attribute(RegistryAttribute.SYNCED)
             .buildAndRegister();
 }

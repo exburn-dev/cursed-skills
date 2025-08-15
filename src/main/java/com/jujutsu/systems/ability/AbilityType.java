@@ -1,6 +1,7 @@
 package com.jujutsu.systems.ability;
 
 import com.jujutsu.registry.JujutsuRegistries;
+import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.mojang.serialization.Codec;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;

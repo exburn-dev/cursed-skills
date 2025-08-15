@@ -11,6 +11,7 @@ import com.jujutsu.client.toast.AbilitiesAcquiredToast;
 import com.jujutsu.network.payload.*;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.screen.HandTransformSettingScreen;
@@ -41,6 +42,7 @@ public class ModNetworkConstants {
     public static final Identifier SHOW_CROSSHAIR_MARK_ID = Jujutsu.getId("show_crosshair_mark");
     public static final Identifier SHOW_SCREEN_COLOR_MODIFIER_ID = Jujutsu.getId("show_screen_color_modifier");
     public static final Identifier SYNC_ABILITY_ADDITIONAL_INPUT_ID = Jujutsu.getId("sync_ability_additional_input");
+    public static final Identifier SYNC_ABILITY_ATTRIBUTES_ID = Jujutsu.getId("sync_ability_attributes");
 
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(AbilityKeyPressedPayload.ID, AbilityKeyPressedPayload.CODEC);
@@ -56,6 +58,7 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(ShowCrosshairMarkPayload.ID, ShowCrosshairMarkPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowScreenColorModifierPayload.ID, ShowScreenColorModifierPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncAbilityAdditionalInputPayload.ID, SyncAbilityAdditionalInputPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncAbilityAttributesPayload.ID, SyncAbilityAttributesPayload.CODEC);
     }
 
     public static void registerServerReceivers() {
@@ -132,6 +135,11 @@ public class ModNetworkConstants {
 
         ClientPlayNetworking.registerGlobalReceiver(SyncAbilityAdditionalInputPayload.ID, (payload, context) -> {
             AdditionalInputSystem.addAdditionalInput(payload.additionalInput());
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(SyncAbilityAttributesPayload.ID, (payload, context) -> {
+            AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) context.player();
+            holder.setAbilityAttributes(payload.container());
         });
     }
 }

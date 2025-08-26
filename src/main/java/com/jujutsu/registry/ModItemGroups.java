@@ -28,7 +28,7 @@ public class ModItemGroups {
         ItemGroupEvents.modifyEntriesEvent(MAIN_GROUP_KEY).register((itemGroup) -> {
             itemGroup.add(ModItems.REARM);
 
-            ItemStack godjoScroll = new ItemStackBuilder()
+            ItemStack godjoScroll = new ItemStackBuilder(Jujutsu.getId("gojo"))
                     .addAbility(AbilitySlot.ABILITY_SLOT_1, ModAbilities.HOLLOW_PURPLE)
                     .addAbility(AbilitySlot.ABILITY_SLOT_2, ModAbilities.INFINITY)
                     .addAbility(AbilitySlot.ABILITY_SLOT_3, ModAbilities.LAPSE_BLUE)
@@ -38,7 +38,7 @@ public class ModItemGroups {
             itemGroup.add(godjoScroll);
 
 
-            ItemStack speedScroll = new ItemStackBuilder()
+            ItemStack speedScroll = new ItemStackBuilder(Jujutsu.getId("speedster"))
                     .addAbility(AbilitySlot.ABILITY_SLOT_1, ModAbilities.SHADOW_STEP)
                     .addPassiveAbility(new SpeedPassiveAbility())
                     .addPassiveAbility(new WitherMomentumPassiveAbility())
@@ -47,7 +47,7 @@ public class ModItemGroups {
             itemGroup.add(speedScroll);
 
 
-            ItemStack fireScroll = new ItemStackBuilder()
+            ItemStack fireScroll = new ItemStackBuilder(Jujutsu.getId("phoenix"))
                     .addAbility(AbilitySlot.ABILITY_SLOT_1, ModAbilities.PHOENIX_FIREBALL)
                     .addAbility(AbilitySlot.ABILITY_SLOT_2, ModAbilities.FIERY_SOUL_SWITCH)
                     .addAbility(AbilitySlot.ABILITY_SLOT_ON_DEATH, ModAbilities.PHOENIX_ASH)
@@ -56,8 +56,8 @@ public class ModItemGroups {
 
             itemGroup.add(fireScroll);
 
-            //itemGroup.add(ModItems.ALLAH_MUSIC_DISC);
-            //itemGroup.add(ModItems.SNUS_MUSIC_DISC);
+            itemGroup.add(ModItems.ALLAH_MUSIC_DISC);
+            itemGroup.add(ModItems.SNUS_MUSIC_DISC);
         });
     }
 }

@@ -2,6 +2,7 @@ package com.jujutsu.systems.ability;
 
 import com.jujutsu.registry.JujutsuRegistries;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
+import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.mojang.serialization.Codec;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
@@ -54,6 +55,10 @@ public abstract class AbilityType {
 
     public Codec<? extends AbilityData> getCodec() {
         return DATA_CODEC;
+    }
+
+    public AbilityAttributesContainer getDefaultAttributes() {
+        return new AbilityAttributesContainer.Builder().build();
     }
 
     public Style getStyle() {

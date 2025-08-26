@@ -15,6 +15,7 @@ import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.screen.HandTransformSettingScreen;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
 import com.jujutsu.systems.animation.AnimationData;
 import dev.kosmx.playerAnim.api.IPlayable;
 import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
@@ -43,6 +44,7 @@ public class ModNetworkConstants {
     public static final Identifier SHOW_SCREEN_COLOR_MODIFIER_ID = Jujutsu.getId("show_screen_color_modifier");
     public static final Identifier SYNC_ABILITY_ADDITIONAL_INPUT_ID = Jujutsu.getId("sync_ability_additional_input");
     public static final Identifier SYNC_ABILITY_ATTRIBUTES_ID = Jujutsu.getId("sync_ability_attributes");
+    public static final Identifier SYNC_ABILITY_UPGRADES_ID = Jujutsu.getId("sync_ability_upgrades");
 
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(AbilityKeyPressedPayload.ID, AbilityKeyPressedPayload.CODEC);
@@ -59,6 +61,7 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(ShowScreenColorModifierPayload.ID, ShowScreenColorModifierPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncAbilityAdditionalInputPayload.ID, SyncAbilityAdditionalInputPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncAbilityAttributesPayload.ID, SyncAbilityAttributesPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncAbilityUpgradesPayload.ID, SyncAbilityUpgradesPayload.CODEC);
     }
 
     public static void registerServerReceivers() {
@@ -89,6 +92,8 @@ public class ModNetworkConstants {
         ClientPlayNetworking.registerGlobalReceiver(SyncPlayerAbilitiesPayload.ID, (payload, context) -> {
             IPlayerJujutsuAbilitiesHolder holder = (IPlayerJujutsuAbilitiesHolder) context.player();
             holder.setAbilities(payload.abilities());
+            IAbilitiesHolder abilitiesHolder = (IAbilitiesHolder) context.player();
+            abilitiesHolder.setUpgradesId(payload.upgradesId());
         });
 
         ClientPlayNetworking.registerGlobalReceiver(OpenHandSettingScreenPayload.ID, (payload, context) -> {
@@ -141,5 +146,7 @@ public class ModNetworkConstants {
             AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) context.player();
             holder.setAbilityAttributes(payload.container());
         });
+
+        AbilityUpgradesReloadListener.registerClientReceiver();
     }
 }

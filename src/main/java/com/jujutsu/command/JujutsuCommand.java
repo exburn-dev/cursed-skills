@@ -6,16 +6,19 @@ import com.jujutsu.registry.JujutsuRegistries;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilitySlot;
 import com.jujutsu.systems.ability.AbilityType;
+import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.network.payload.OpenHandSettingScreenPayload;
 import com.jujutsu.systems.animation.PlayerAnimations;
 import com.jujutsu.util.AbilitiesHolderUtils;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.command.argument.RegistryEntryReferenceArgumentType;
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -23,6 +26,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 public class JujutsuCommand {
     public static void register() {
@@ -41,6 +45,14 @@ public class JujutsuCommand {
                                             .then(CommandManager.argument("ability",
                                                     RegistryEntryReferenceArgumentType.registryEntry(registryAccess, JujutsuRegistries.ABILITY_TYPE_REGISTRY_KEY) )
                                                     .executes(JujutsuCommand::setAbility) )))
+
+                            .then(CommandManager.literal("attribute")
+                                    .then(CommandManager.literal("set")
+                                            .then(CommandManager.argument( "attribute", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, JujutsuRegistries.ABILITY_ATTRIBUTE_REGISTRY_KEY))
+                                                    .then(CommandManager.argument("id", IdentifierArgumentType.identifier())
+                                                            .then(CommandManager.argument("value", DoubleArgumentType.doubleArg())
+                                                                    .executes(JujutsuCommand::setAttribute))))) )
+
                     )
 
                     .then(CommandManager.literal("rearm").executes(JujutsuCommand::reloadAbilities))
@@ -52,6 +64,16 @@ public class JujutsuCommand {
                             .then(CommandManager.literal("left").executes(context -> openHandSettingMenu(context, false))))
             );
         });
+    }
+
+    private static int setAttribute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        AbilityAttribute attribute = RegistryEntryReferenceArgumentType.getRegistryEntry(context, "attribute", JujutsuRegistries.ABILITY_ATTRIBUTE_REGISTRY_KEY).value();
+        Identifier id = IdentifierArgumentType.getIdentifier(context, "id");
+        double value = DoubleArgumentType.getDouble(context, "value");
+
+
+
+        return 1;
     }
 
     private static int playAnimation(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {

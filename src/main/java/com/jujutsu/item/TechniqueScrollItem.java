@@ -47,6 +47,7 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
             for(PassiveAbility passiveAbility: component.passiveAbilities()) {
                 holder.addPassiveAbility(passiveAbility);
             }
+            holder.setUpgradesId(component.upgradesId());
             ServerPlayNetworking.send((ServerPlayerEntity) user, new AbilitiesAcquiredPayload(component.abilities().values().stream().toList()));
         }
 

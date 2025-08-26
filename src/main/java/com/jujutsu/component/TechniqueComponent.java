@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 
 import java.util.ArrayList;
@@ -19,21 +20,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public record TechniqueComponent(Map<AbilitySlot, AbilityType> abilities, List<PassiveAbility> passiveAbilities) {
+public record TechniqueComponent(Map<AbilitySlot, AbilityType> abilities, List<PassiveAbility> passiveAbilities, Identifier upgradesId) {
     public static final Codec<TechniqueComponent> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(Codec.unboundedMap(AbilitySlot.CODEC,
                     JujutsuRegistries.ABILITY_TYPE.getCodec()).fieldOf("abilities").forGetter(TechniqueComponent::abilities),
-                    PassiveAbility.CODEC.listOf().fieldOf("passiveAbilities").forGetter(TechniqueComponent::passiveAbilities))
+                    PassiveAbility.CODEC.listOf().fieldOf("passiveAbilities").forGetter(TechniqueComponent::passiveAbilities),
+                    Identifier.CODEC.fieldOf("upgradesId").forGetter(TechniqueComponent::upgradesId))
                     .apply(instance, TechniqueComponent::new));
 
     public static final PacketCodec<RegistryByteBuf, TechniqueComponent> PACKET_CODEC = PacketCodec.tuple(
             PacketCodecs.map(HashMap::new, AbilitySlot.PACKET_CODEC, PacketCodecs.registryCodec(JujutsuRegistries.ABILITY_TYPE.getCodec())), TechniqueComponent::abilities,
             PassiveAbility.PACKET_CODEC.collect(PacketCodecs.toList()), TechniqueComponent::passiveAbilities,
+            Identifier.PACKET_CODEC, TechniqueComponent::upgradesId,
             TechniqueComponent::new);
 
     public static class ItemStackBuilder {
         private final List<Pair<AbilitySlot, AbilityType>> abilities = new ArrayList<>();
         private final List<PassiveAbility> passiveAbilities = new ArrayList<>();
+        private final Identifier upgradesId;
+
+        public ItemStackBuilder(Identifier upgradesId) {
+            this.upgradesId = upgradesId;
+        }
 
         public ItemStackBuilder addAbility(AbilitySlot slot, AbilityType type) {
             abilities.add(new Pair<>(slot, type));
@@ -51,7 +59,7 @@ public record TechniqueComponent(Map<AbilitySlot, AbilityType> abilities, List<P
             for(Pair<AbilitySlot, AbilityType> pair: abilities) {
                 map.put(pair.getLeft(), pair.getRight());
             }
-            stack.set(ModDataComponents.TECHNIQUE_COMPONENT, new TechniqueComponent(map, passiveAbilities));
+            stack.set(ModDataComponents.TECHNIQUE_COMPONENT, new TechniqueComponent(map, passiveAbilities, upgradesId));
             return stack;
         }
     }

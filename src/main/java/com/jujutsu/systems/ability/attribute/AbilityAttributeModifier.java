@@ -5,20 +5,26 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.util.Identifier;
 
-public record AbilityAttributeModifier(Identifier id, double value, Type type) {
+public record AbilityAttributeModifier(double value, Type type) {
     public static final Codec<AbilityAttributeModifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Identifier.CODEC.fieldOf("id").forGetter(AbilityAttributeModifier::id),
             Codec.DOUBLE.fieldOf("value").forGetter(AbilityAttributeModifier::value),
             Type.CODEC.fieldOf("type").forGetter(AbilityAttributeModifier::type)
     ).apply(instance, AbilityAttributeModifier::new));
 
     public static final PacketCodec<RegistryByteBuf, AbilityAttributeModifier> PACKET_CODEC = PacketCodec.tuple(
-            Identifier.PACKET_CODEC, AbilityAttributeModifier::id,
             PacketCodecs.DOUBLE, AbilityAttributeModifier::value,
             Type.PACKET_CODEC, AbilityAttributeModifier::type,
             AbilityAttributeModifier::new);
+
+    public double applyToValue(double value) {
+        if(type == Type.MULTIPLY) {
+            return value * this.value();
+        }
+        else {
+            return value + this.value();
+        }
+    }
 
     public enum Type {
         ADD(0),
@@ -35,6 +41,10 @@ public record AbilityAttributeModifier(Identifier id, double value, Type type) {
 
         public static Type byId(int id) {
             return Type.values()[id];
+        }
+
+        public int getId() {
+            return id;
         }
 
         static {

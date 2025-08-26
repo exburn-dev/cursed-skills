@@ -29,10 +29,11 @@ import java.util.function.Supplier;
 public class HollowPurpleEntity extends Entity {
     public static final int MAX_AGE = 150;
     public static final double SPEED = 0.75;
-    public static final int BLOCK_BREAK_RADIUS = 3;
+    //public static final int BLOCK_BREAK_RADIUS = 3;
 
     private static final TrackedData<Optional<UUID>> OWNER_UUID;
     private static final TrackedData<Integer> AGE;
+    private static final TrackedData<Float> BLOCK_BREAK_RADIUS;
 
     public HollowPurpleEntity(EntityType<?> type, World world) {
         super(type, world);
@@ -65,11 +66,11 @@ public class HollowPurpleEntity extends Entity {
 
         move(MovementType.SELF, getRotationVector().normalize().multiply(SPEED));
 
-        BlockBox box = new BlockBox(this.getBlockPos()).expand(BLOCK_BREAK_RADIUS);
+        BlockBox box = new BlockBox(this.getBlockPos()).expand((int) getBlockBreakRadius());
         Iterator<BlockPos> iterator = BlockPos.iterate(box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ()).iterator();
         ServerWorld world = (ServerWorld) getWorld();
         iterator.forEachRemaining(pos -> {
-            if(pos.isWithinDistance(this.getPos(), BLOCK_BREAK_RADIUS)) {
+            if(pos.isWithinDistance(this.getPos(), getBlockBreakRadius())) {
                 world.breakBlock(pos, false);
             }
         });
@@ -113,6 +114,14 @@ public class HollowPurpleEntity extends Entity {
         return this.dataTracker.get(AGE);
     }
 
+    public float getBlockBreakRadius() {
+        return this.dataTracker.get(BLOCK_BREAK_RADIUS);
+    }
+
+    public void setBlockBreakRadius(float value) {
+        this.dataTracker.set(BLOCK_BREAK_RADIUS, value);
+    }
+
     @Override
     public boolean hasNoGravity() {
         return true;
@@ -127,6 +136,7 @@ public class HollowPurpleEntity extends Entity {
     protected void initDataTracker(DataTracker.Builder builder) {
         builder.add(AGE, 0);
         builder.add(OWNER_UUID, Optional.empty());
+        builder.add(BLOCK_BREAK_RADIUS, 0f);
     }
 
     @Override
@@ -154,5 +164,6 @@ public class HollowPurpleEntity extends Entity {
     static {
         AGE = DataTracker.registerData(HollowPurpleEntity.class, TrackedDataHandlerRegistry.INTEGER);
         OWNER_UUID = DataTracker.registerData(HollowPurpleEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+        BLOCK_BREAK_RADIUS = DataTracker.registerData(HollowPurpleEntity.class, TrackedDataHandlerRegistry.FLOAT);
     }
 }

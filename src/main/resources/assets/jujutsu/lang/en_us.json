@@ -43,5 +43,8 @@
   "sounds.jujutsu.shadow_step_cast": "Shadow step cast",
   "sounds.jujutsu.shadow_step_end": "Shadow step end",
 
-  "toast.jujutsu.abilities_acquired.title": "Acquired %d new abilities: "
+  "toast.jujutsu.abilities_acquired.title": "Acquired %d new abilities: ",
+
+  "key.jujutsu.open_abilities_keybindings": "Open Abilities Keybindings",
+  "key.jujutsu.open_ability_upgrades": "Open Abilities Upgrades"
 }

@@ -1,0 +1,30 @@
+[
+  [
+    {
+      "id": "jujutsu:hollow_purple_11",
+      "container": {
+        "attributes": {
+          "jujutsu:hollow_purple_radius": {
+            "jujutsu:hollow_purple_11": {
+              "value": 3,
+              "type": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "jujutsu:hollow_purple_12",
+      "container": {
+        "attributes": {
+          "jujutsu:hollow_purple_radius": {
+            "jujutsu:hollow_purple_12": {
+              "value": -3,
+              "type": 0
+            }
+          }
+        }
+      }
+    }
+  ]
+]

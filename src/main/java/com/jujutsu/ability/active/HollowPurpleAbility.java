@@ -4,10 +4,13 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.network.payload.ShowScreenFlashPayload;
+import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilityType;
 import com.jujutsu.systems.ability.ClientData;
 import com.jujutsu.entity.HollowPurpleEntity;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
+import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.animation.PlayerAnimations;
 import com.jujutsu.util.HandAnimationUtils;
 import com.jujutsu.util.ParticleUtils;
@@ -50,6 +53,7 @@ public class HollowPurpleAbility extends AbilityType {
             entity.setYaw(player.getYaw());
             entity.setPitch(player.getPitch());
             entity.setPosition(player.getEyePos().add(0, 0.5, 0).add(player.getRotationVector().multiply(5)));
+            entity.setBlockBreakRadius((float) instance.getAbilityAttributeValue(player, ModAbilityAttributes.HOLLOW_PURPLE_RADIUS));
             player.getWorld().spawnEntity(entity);
         }
         Vec3d pos = player.getEyePos().add(0, (double) instance.getUseTime() / 120, 0).add(player.getRotationVector().multiply(5));
@@ -94,6 +98,12 @@ public class HollowPurpleAbility extends AbilityType {
     @Override
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
         return instance.getUseTime() >= 60;
+    }
+
+    @Override
+    public AbilityAttributesContainer getDefaultAttributes() {
+        return new AbilityAttributesContainer.Builder()
+                .addBaseModifier(ModAbilityAttributes.HOLLOW_PURPLE_RADIUS, 3, AbilityAttributeModifier.Type.ADD).build();
     }
 
     @Override

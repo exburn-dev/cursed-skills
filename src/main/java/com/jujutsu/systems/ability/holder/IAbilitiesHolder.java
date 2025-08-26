@@ -6,6 +6,7 @@ import com.jujutsu.systems.ability.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
+import net.minecraft.util.Identifier;
 
 import java.util.List;
 
@@ -27,6 +28,6 @@ public interface IAbilitiesHolder {
     void addPassiveAbility(PassiveAbility instance);
     void removePassiveAbility(PassiveAbility instance);
 
-    List<AbilityAttributeModifier> getModifiers(AbilityAttribute attribute);
-    void addModifier(AbilityAttribute attribute, AbilityAttributeModifier modifier);
+    void setUpgradesId(Identifier id);
+    Identifier getUpgradesId();
 }

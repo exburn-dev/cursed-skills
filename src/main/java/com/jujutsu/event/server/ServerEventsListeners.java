@@ -3,20 +3,27 @@ package com.jujutsu.event.server;
 import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.passive.SpeedPassiveAbility;
+import com.jujutsu.network.payload.SyncAbilityUpgradesPayload;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
+import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
 import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
 import com.jujutsu.util.IOldPosHolder;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Box;
 
@@ -27,12 +34,17 @@ public class ServerEventsListeners {
         ServerPlayerEvents.COPY_FROM.register((from, to, alive) -> {
             PlayerJujutsuAbilities abilities = ((IPlayerJujutsuAbilitiesHolder) from).getAbilities();
             ((IPlayerJujutsuAbilitiesHolder) to).setAbilities(abilities);
+
+            AbilityAttributesContainer attributes = ((AbilityAttributeContainerHolder) from).getAbilityAttributes();
+            ((AbilityAttributeContainerHolder) to).setAbilityAttributes(attributes);
         });
 
         ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
             if(entity.isPlayer()) {
                 IAbilitiesHolder holder = (IAbilitiesHolder) entity;
                 holder.getPassiveAbilities().forEach(passiveAbility -> passiveAbility.onGained((PlayerEntity) entity));
+
+                AbilityUpgradesReloadListener.getInstance().syncUpgrades((ServerPlayerEntity) entity);
             }
         });
 

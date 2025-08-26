@@ -4,6 +4,7 @@ import com.jujutsu.command.JujutsuCommand;
 import com.jujutsu.event.server.ServerEventsListeners;
 import com.jujutsu.network.ModNetworkConstants;
 import com.jujutsu.registry.*;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.util.Identifier;
@@ -37,6 +38,7 @@ public class Jujutsu implements ModInitializer {
 		BuffCancellingConditionTypes.register();
 		ModAbilityAttributes.register();
 
+		AbilityUpgradesReloadListener.register();
 	}
 
 	public static Identifier getId(String id) {

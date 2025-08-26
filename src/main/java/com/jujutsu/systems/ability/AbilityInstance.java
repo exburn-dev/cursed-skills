@@ -3,6 +3,11 @@ package com.jujutsu.systems.ability;
 import com.jujutsu.network.NbtPacketCodec;
 import com.jujutsu.network.payload.SyncAbilityAdditionalInputPayload;
 import com.jujutsu.registry.JujutsuRegistries;
+import com.jujutsu.systems.ability.attribute.AbilityAttribute;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
+import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -13,8 +18,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public final class AbilityInstance {
     public static final Codec<AbilityInstance> CODEC;
@@ -79,6 +85,38 @@ public final class AbilityInstance {
     public void cancel() {
         if(type.isCancelable() && status.isRunning()) {
             status = AbilityStatus.CANCELLED;
+        }
+    }
+
+    public double getAbilityAttributeValue(PlayerEntity player, AbilityAttribute attribute) {
+        AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) player;
+        List<AbilityAttributeModifier> holderModifiers = new ArrayList<>(holder.getAbilityAttributes().attributes().get(attribute).values());
+
+        holderModifiers.sort(Comparator.comparing(modifier -> modifier.type().getId()));
+
+        double totalValue = 0;
+        for(int i = 0; i < holderModifiers.size(); i++) {
+            totalValue = holderModifiers.get(i).applyToValue(totalValue);
+        }
+        return totalValue;
+    }
+
+    public void addDefaultAttributes(PlayerEntity player) {
+        if(player.getWorld().isClient()) return;
+        AbilityAttributesContainer container = type.getDefaultAttributes();
+        AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) player;
+
+        if(container.attributes().isEmpty()) return;
+
+        for(var entry: container.attributes().entrySet()) {
+            HashMap<Identifier, AbilityAttributeModifier> holderModifiers = holder.getModifiers(entry.getKey());
+            if(holderModifiers == null) {
+                HashMap<Identifier, AbilityAttributeModifier> map = new HashMap<>(entry.getValue());
+                holder.getAbilityAttributes().attributes().put(entry.getKey(), map);
+            }
+            else {
+                holderModifiers.putAll(entry.getValue());
+            }
         }
     }
 

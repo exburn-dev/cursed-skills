@@ -25,6 +25,8 @@ public class ShaderUtils {
     public static ShaderProgram stunShader;
     public static ShaderProgram vignetteShader;
     public static ShaderProgram colorModifierShader;
+    public static ShaderProgram hexMaskShader;
+    public static ShaderProgram litMaskShader;
 
     private static Framebuffer effectFramebuffer;
 
@@ -35,6 +37,9 @@ public class ShaderUtils {
         stunShader = new ShaderProgram(factory, "stun_screen_effect", VertexFormats.POSITION_TEXTURE);
         vignetteShader = new ShaderProgram(factory, "vignette", VertexFormats.POSITION_TEXTURE);
         colorModifierShader = new ShaderProgram(factory, "color_modifier", VertexFormats.POSITION_TEXTURE);
+        hexMaskShader = new ShaderProgram(factory, "hex_mask", VertexFormats.POSITION_TEXTURE);
+        litMaskShader = new ShaderProgram(factory, "lit_mask", VertexFormats.POSITION_TEXTURE);
+
         effectFramebuffer = new SimpleFramebuffer(client.getFramebuffer().textureWidth, client.getFramebuffer().textureHeight, true, MinecraftClient.IS_SYSTEM_MAC);
     }
 
@@ -71,6 +76,74 @@ public class ShaderUtils {
         BufferRenderer.drawWithGlobalProgram(buf.end());
 
         RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
+    }
+
+    public static void renderHexMask(DrawContext context, MatrixStack ms, float x, float y, float size, float hoverProgress, float softPx, float r, float g, float b, float a, Identifier texture) {
+        Supplier<ShaderProgram> shaderSup = () -> hexMaskShader;
+
+        RenderSystem.setShaderTexture(0, texture);
+
+        hexMaskShader.getUniform("u_Hover").set(hoverProgress);
+        hexMaskShader.getUniform("u_SoftPx").set(softPx);
+        hexMaskShader.getUniform("u_QuadSize").set(size, size);
+        hexMaskShader.getUniform("u_Color").set(new float[]{r, g, b, a});
+
+        hexMaskShader.addSampler("Sampler0", texture);
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+
+        Tessellator tess = Tessellator.getInstance();
+        BufferBuilder buf = tess.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_TEXTURE);
+
+        Matrix4f mat = ms.peek().getPositionMatrix();
+
+        float z = -10;
+
+        buf.vertex(mat, x, y, z).texture(0, 0);
+        buf.vertex(mat, x, y + size, z).texture(0, 1);
+        buf.vertex(mat, x + size, y, z).texture(1, 0);
+        buf.vertex(mat, x + size, y + size, z).texture(1, 1);
+
+        RenderSystem.setShader(shaderSup);
+
+        BufferRenderer.drawWithGlobalProgram(buf.end());
+
+        RenderSystem.disableBlend();
+    }
+
+    public static void renderLitMask(DrawContext context, MatrixStack ms, float x, float y, float size, float litProgress, float r, float g, float b, float a, Identifier texture) {
+        Supplier<ShaderProgram> shaderSup = () -> litMaskShader;
+
+        RenderSystem.setShaderTexture(0, texture);
+
+        litMaskShader.getUniform("u_Hover").set(litProgress);
+        litMaskShader.getUniform("u_Color").set(new float[]{r, g, b, a});
+
+        litMaskShader.addSampler("Sampler0", texture);
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+
+        Tessellator tess = Tessellator.getInstance();
+        BufferBuilder buf = tess.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_TEXTURE);
+
+        Matrix4f mat = ms.peek().getPositionMatrix();
+
+        float z = -2;
+
+        buf.vertex(mat, x, y, z).texture(0, 0);
+        buf.vertex(mat, x, y + size, z).texture(0, 1);
+        buf.vertex(mat, x + size, y, z).texture(1, 0);
+        buf.vertex(mat, x + size, y + size, z).texture(1, 1);
+
+        RenderSystem.setShader(shaderSup);
+
+        BufferRenderer.drawWithGlobalProgram(buf.end());
+
         RenderSystem.disableBlend();
     }
 
@@ -221,6 +294,14 @@ public class ShaderUtils {
         if (colorModifierShader != null) {
             colorModifierShader.close();
             colorModifierShader = null;
+        }
+        if (hexMaskShader != null) {
+            hexMaskShader.close();
+            hexMaskShader = null;
+        }
+        if (litMaskShader != null) {
+            litMaskShader.close();
+            litMaskShader = null;
         }
         init(manager);
     }

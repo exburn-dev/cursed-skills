@@ -1,168 +1,372 @@
 package com.jujutsu.screen;
 
+import com.jujutsu.Jujutsu;
+import com.jujutsu.client.hud.ShaderUtils;
+import com.jujutsu.network.payload.AbilityUpgradePurchasedPayload;
+import com.jujutsu.registry.ModSounds;
+import com.jujutsu.systems.ability.attribute.AbilityAttribute;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgrade;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
+import com.jujutsu.systems.ability.upgrade.UpgradesData;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
+import org.joml.Vector2i;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AbilityUpgradesScreen extends Screen {
     private final List<AbilityUpgradeBranch> branches;
+    private int playerLastPurchasedBranch = 0;
 
-    private double dragOffsetX = 0;
-    private double dragOffsetY = 0;
-    private int zoomState = 1;
+    private UpgradesData upgradesData;
 
-    private final int widgetWidth = 16;
-    private final int widgetHeight = 16;
-    private final int horizontalGap = 2;
-    private final int verticalGap = 8;
+    private double dragX = 0;
+    private double dragY = 0;
+    private double scale = 1.0;
 
-    public AbilityUpgradesScreen(List<AbilityUpgradeBranch> branches) {
-        super(Text.literal("upgrades"));
+    private final List<AbilityUpgradeButton> buttons = new ArrayList<>();
+    private final List<Line> lines = new ArrayList<>();
 
+    public AbilityUpgradesScreen(List<AbilityUpgradeBranch> branches, UpgradesData upgradesData) {
+        super(Text.literal(""));
         this.branches = branches;
+        this.upgradesData = upgradesData;
+        this.playerLastPurchasedBranch = AbilityUpgradeBranch.findPlayerLastPurchasedBranchIndex(branches, upgradesData);
     }
 
     @Override
     protected void init() {
         super.init();
 
-        int count = branches.size();
+        int widgetWidth = 32;
+        int widgetHeight = 32;
+        int horizontalGap = 24;
+        int verticalGap = 24;
 
-        int startX = this.width / 2 - (widgetWidth * count + horizontalGap * count) / 2;
-        int startY = this.height / 2 - (widgetHeight * count + verticalGap * count) / 2;
+        int startX = width / 2 - widgetWidth - horizontalGap / 2;
+        int startY = height / 2 + (widgetHeight * (branches.size() - 1) + verticalGap * (branches.size() - 2) ) / 2;
 
         for(int i = 0; i < branches.size(); i++) {
             AbilityUpgradeBranch branch = branches.get(i);
-            int y = startY + widgetHeight * i + verticalGap * i;
+            int y = startY - widgetHeight * i - verticalGap * i;
 
-            for(int j = 0; j < branch.upgrades().size(); j++) {
+            for(int j = 0; j < Math.min(branch.upgrades().size(), 2); j++) {
                 AbilityUpgrade upgrade = branch.upgrades().get(j);
                 int x = startX + widgetWidth * j + horizontalGap * j;
 
-                this.addDrawableChild(new AbilityUpgradeButton(upgrade, x, y, widgetWidth, widgetHeight, Text.literal("")));
+                AbilityUpgradeButton button = new AbilityUpgradeButton(branch, upgrade, x, y, widgetWidth, widgetHeight, Text.literal(""));
+
+                reloadButtonStatus(button);
+
+                buttons.add(button);
+                lines.add(new Line(
+                        new Vector2i(x + widgetWidth / 2, y + widgetHeight / 2),
+                        new Vector2i(startX, y + widgetHeight / 2)
+                ));
             }
+        }
+    }
+
+    public void reload(UpgradesData upgradesData) {
+        this.upgradesData = upgradesData;
+        this.playerLastPurchasedBranch = AbilityUpgradeBranch.findPlayerLastPurchasedBranchIndex(branches, upgradesData);
+        buttons.clear();
+        lines.clear();
+        init();
+    }
+
+    private void reloadButtonStatus(AbilityUpgradeButton button) {
+        Identifier purchasedUpgrade = upgradesData.purchasedUpgrades().get(button.branch.id());
+        if(purchasedUpgrade != null) {
+            button.purchased = purchasedUpgrade.equals(button.upgrade.id());
+            button.canBePurchased = false;
+        }
+        AbilityUpgradeBranch playerCurrentBranch = playerLastPurchasedBranch == -1 ? branches.getFirst() : branches.get(Math.min(playerLastPurchasedBranch + 1, branches.size() - 1));
+        if(!button.branch.id().equals(playerCurrentBranch.id())) {
+            button.canBePurchased = false;
         }
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        MatrixStack matrices = context.getMatrices();
-
-        //float centerX = (float) (this.width / 2f + dragOffsetX);
-        //float centerY = (float) (this.height / 2f + dragOffsetY);
-
         renderBackground(context, mouseX, mouseY, delta);
 
-        float centerX = this.width / 2f;
-        float centerY = this.height / 2f;
-
+        MatrixStack matrices = context.getMatrices();
         matrices.push();
 
-        matrices.translate(dragOffsetX, dragOffsetY, 0);
+        matrices.translate(dragX, dragY, 0);
+        matrices.scale((float) scale, (float) scale, 1f);
 
-        matrices.translate(centerX, centerY, 0);
-        matrices.scale(getScaleFactor(), getScaleFactor(), 1f);
-        matrices.translate(-centerX, -centerY, 0);
-
-        for(Element child: children()) {
-            if(child instanceof Drawable drawable) {
-                drawable.render(context, mouseX, mouseY, delta);
-            }
+        for (AbilityUpgradeButton b : buttons) {
+            b.render(context, mouseX, mouseY, delta, dragX, dragY, scale);
         }
 
+        matrices.translate(0, 0, -20);
+        for(Line line: lines) {
+            if(line.start.x == line.end.x) {
+                context.drawVerticalLine(line.start.x, line.start.y, line.end.y, 0xFFFFFFFF);
+            }
+            else {
+                context.drawHorizontalLine(line.start.x, line.end.x, line.start.y, 0xFFFFFFFF);
+            }
+        }
+        matrices.translate(0, 0, 20);
+
         matrices.pop();
+
+        MutableText panelText = Text.translatable("screen.jujutsu.abilities_upgrades.points", upgradesData.points());
+        int panelWidth = Math.max(48, client.textRenderer.getWidth(panelText)) + 4;
+        int panelHeight = 16;
+        int x = width / 2 - panelWidth / 2;
+        int y = height - panelHeight / 2 - 16;
+        context.fill(x , y, x + panelWidth, y + panelHeight, 0xFF454545);
+        context.drawGuiTexture(Jujutsu.getId("screen/abilities_upgrades/upgrade_tooltip_border"), x - 4, y - 4, panelWidth + 8, panelHeight + 8);
+        context.drawText(client.textRenderer, panelText, x + 2, y + panelHeight / 2 - textRenderer.fontHeight / 2 + 1, 0xFFFFFFFF, true);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for(AbilityUpgradeButton b: buttons) {
+            b.mouseClicked(mouseX, mouseY, button);
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        if(button == 0) {
-            dragOffsetX += deltaX;
-            dragOffsetY += deltaY;
+        if (button == 0) {
+            dragX += deltaX;
+            dragY += deltaY;
+            return true;
         }
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        if(verticalAmount > 0 && zoomState < 2) {
-            zoomState += 1;
-        }
-        else if(verticalAmount < 0 && zoomState > 0) {
-            zoomState -= 1;
+        double oldScale = scale;
+        if (verticalAmount > 0) {
+            scale *= 1.1;
+        } else if (verticalAmount < 0) {
+            scale /= 1.1;
         }
 
-        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
-    }
+        scale = Math.max(0.5, Math.min(scale, 2.0));
 
-    private float getScaleFactor() {
-        return switch (zoomState) {
-            case 0 -> 0.75f;
-            case 2 -> 1.25f;
-            default -> 1f;
-        };
+        double dx = mouseX - dragX;
+        double dy = mouseY - dragY;
+
+        dragX -= (dx / oldScale - dx / scale);
+        dragY -= (dy / oldScale - dy / scale);
+
+        return true;
     }
 
     private class AbilityUpgradeButton extends ClickableWidget {
+        private final AbilityUpgradeBranch branch;
         private final AbilityUpgrade upgrade;
+        private final List<MutableText> tooltip;
+        private final int tooltipWidth;
 
-        public AbilityUpgradeButton(AbilityUpgrade upgrade, int x, int y, int width, int height, Text message) {
+        private boolean purchased = false;
+        private boolean canBePurchased = true;
+        private float hoverProgress = 0;
+        private float offsetX = 0;
+        private int jiggleTime = 0;
+
+        public AbilityUpgradeButton(AbilityUpgradeBranch branch, AbilityUpgrade upgrade, int x, int y, int width, int height, Text message) {
             super(x, y, width, height, message);
             this.upgrade = upgrade;
+            this.branch = branch;
+
+            Pair<List<MutableText>, Integer> tooltipInfo = getTooltip(client.textRenderer);
+            this.tooltip = tooltipInfo.getLeft();
+            this.tooltipWidth = tooltipInfo.getRight();
         }
 
-        @Override
-        protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-            context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0xFFFFFFFF);
+        public void render(DrawContext context, int mouseX, int mouseY, float delta,
+                           double dragX, double dragY, double scale) {
+            double adjX = (mouseX - dragX) / scale;
+            double adjY = (mouseY - dragY) / scale;
+            boolean hovered = isMouseOver(adjX, adjY);
+            MatrixStack matrices = context.getMatrices();
+
+            matrices.push();
+
+            matrices.translate(offsetX, 0, 0);
+
+            if(hovered && hoverProgress == 0) {
+                client.player.playSoundToPlayer(ModSounds.UI_HOVER, SoundCategory.MASTER, 1, 1);
+            }
+
+            if(jiggleTime > 0) {
+                offsetX = (float) Math.sin(jiggleTime * 0.35) * 0.75f;
+                jiggleTime--;
+            }
+            else if(offsetX != 0) {
+                offsetX = 0;
+            }
+
+            float speed = 0.025f;
+            hoverProgress += (hovered ? +1f : -1f) * speed;
+            hoverProgress = Math.max(0f, Math.min(1f, hoverProgress));
+
+            boolean unlocked = !purchased && canBePurchased;
+            float primaryColor = unlocked || purchased ? 0.35f : 0.075f;
+            float secondaryColor = unlocked || purchased ? 0.75f : 0.475f;
+            float softPx = unlocked ? 0f : 1f;
+
+            ShaderUtils.renderHexMask(context, context.getMatrices(), getX() - 6, getY() - 6, getWidth() + 12, hoverProgress, softPx, primaryColor, primaryColor, primaryColor, 0.5f, Jujutsu.getId("textures/gui/square.png"));
+            ShaderUtils.renderHexMask(context, context.getMatrices(), getX() - 4, getY() - 4, getWidth() + 8, hoverProgress, softPx, secondaryColor, secondaryColor, secondaryColor + 0.10f, 1f, Jujutsu.getId("textures/gui/square.png"));
+            ShaderUtils.renderHexMask(context, context.getMatrices(), getX(), getY(), getWidth(), hoverProgress, softPx, primaryColor, primaryColor, primaryColor, 0.5f, Jujutsu.getId("textures/gui/square.png"));
+
+            renderIcon(context);
+
+            matrices.pop();
+
+            if(hovered) renderTooltip(context, mouseX, mouseY, delta);
         }
 
-        @Override
-        public void onClick(double mouseX, double mouseY) {
+        private void renderIcon(DrawContext context) {
+            MatrixStack matrices = context.getMatrices();
+            matrices.translate(0, 0, -2);
+            ShaderUtils.renderLitMask(context, matrices, getX() + 2, getY() + 2, getWidth() - 4, hoverProgress, 1, 1, 1, 0.85f, upgrade.icon().withSuffixedPath(".png"));
+            matrices.translate(0, 0, 2);
 
-            super.onClick(mouseX, mouseY);
+            if(!purchased && canBePurchased) {
+
+            }
+            else if(purchased) {
+                context.drawGuiTexture(Jujutsu.getId("screen/abilities_upgrades/checkmark"), getX() + getWidth() / 2 - 12, getY() + getHeight() - 10, -1, 24, 24);
+            }
+            else if(!purchased && !canBePurchased) {
+                context.drawGuiTexture(Jujutsu.getId("screen/abilities_upgrades/lock"), getX() + getWidth() / 2 - 12, getY() + getHeight() - 10, -1, 24, 24);
+            }
+        }
+
+        private void renderTooltip(DrawContext context, int mouseX, int mouseY, float delta) {
+            double adjX = (mouseX - dragX) / scale;
+            double adjY = (mouseY - dragY) / scale;
+
+            TextRenderer textRenderer = client.textRenderer;
+
+            int x = (int) (adjX + 20);
+            int y = (int) (adjY - 5);
+
+            int height = textRenderer.fontHeight * tooltip.size();
+            context.fill(x, y, x + tooltipWidth, y + height, 0x8B454545);
+            context.drawGuiTexture(Jujutsu.getId("screen/abilities_upgrades/upgrade_tooltip_border"), x - 4, y - 4, tooltipWidth + 8, height + 8);
+
+            for(int i = 0; i < tooltip.size(); i++) {
+                MutableText text = tooltip.get(i);
+                context.drawText(textRenderer, text, x, y + textRenderer.fontHeight * i, 0xFFFFFFFF, true);
+            }
+        }
+
+        private Pair<List<MutableText>, Integer> getTooltip(TextRenderer textRenderer) {
+            List<MutableText> tooltip = new ArrayList<>();
+            MutableText costText = Text.translatable("screen.jujutsu.abilities_upgrades.cost", upgrade.cost()).formatted(Formatting.GOLD);
+
+            int biggestWidth = textRenderer.getWidth(costText);
+
+            tooltip.add(costText);
+            tooltip.add(Text.literal(""));
+
+            for(var attributeEntry: upgrade.container().attributes().entrySet()) {
+                AbilityAttribute attribute = attributeEntry.getKey();
+                for(AbilityAttributeModifier modifierEntry: attributeEntry.getValue().values()) {
+                    double value = modifierEntry.value();
+                    boolean multiplyMode = modifierEntry.type() == AbilityAttributeModifier.Type.MULTIPLY;
+                    boolean positiveValue = value >= 0;
+                    if(multiplyMode) {
+                        value = 100 * value - 100;
+                        positiveValue = value >= 0;
+                    }
+
+                    MutableText text = Text.literal(positiveValue ? "+" : "-");
+                    text.append(Text.literal(String.valueOf(Math.abs(value))));
+                    text.append(Text.literal(multiplyMode ? "% " : " "));
+                    text.append(Text.translatable(attribute.getTranslationKey()));
+                    text.setStyle(Style.EMPTY.withColor(positiveValue ? Formatting.GREEN : Formatting.RED));
+
+                    tooltip.add(text);
+
+                    int textWidth = textRenderer.getWidth(text);
+                    biggestWidth = Math.max(biggestWidth, textWidth);
+                }
+            }
+            return new Pair<>(tooltip, biggestWidth);
         }
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if(this.active && this.visible && isMouseOver(mouseX, mouseY) && button == 0) {
-                client.player.playSoundToPlayer(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 1, 1);
-                return true;
+            double adjX = (mouseX - dragX) / scale;
+            double adjY = (mouseY - dragY) / scale;
+
+            if (isMouseOver(adjX, adjY) && button == 0) {
+                if(!purchased && canBePurchased) {
+                    client.player.playSoundToPlayer(ModSounds.UI_SUCCESS, SoundCategory.MASTER, 1, 1);
+                    ClientPlayNetworking.send(new AbilityUpgradePurchasedPayload(branch.id(), upgrade.id()));
+
+                    return true;
+                }
+                else {
+                    if(jiggleTime <= 0) {
+                        client.player.playSoundToPlayer(ModSounds.UI_FAILURE, SoundCategory.MASTER, 1, 1);
+                    }
+
+                    jiggleTime = 100;
+                }
             }
+
             return false;
         }
 
         @Override
         public boolean isMouseOver(double mouseX, double mouseY) {
-            float scale = getScaleFactor();
-
-            float centerX = this.width / 2f;
-            float centerY = this.height / 2f;
-
-            double adjX = (mouseX - centerX) * scale + centerX - dragOffsetX;
-            double adjY = (mouseY - centerY) * scale + centerY - dragOffsetY;
-
-            return this.active && this.visible &&
-                    adjX >= this.getX() &&
-                    adjY >= this.getY() &&
-                    adjX < this.getX() + this.width &&
-                    adjY < this.getY() + this.height;
+            return mouseX >= this.getX() &&
+                    mouseY >= this.getY() &&
+                    mouseX < this.getX() + this.getWidth() &&
+                    mouseY < this.getY() + this.getHeight();
         }
 
         @Override
-        protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+        protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
-        }
+        @Override
+        protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {}
     }
+
+    @Override
+    public boolean shouldPause() {
+        return false;
+    }
+
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return true;
+    }
+
+    private record Line(Vector2i start, Vector2i end) {}
 }

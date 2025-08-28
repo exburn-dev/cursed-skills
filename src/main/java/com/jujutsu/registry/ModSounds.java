@@ -14,6 +14,9 @@ public class ModSounds {
     public static final SoundEvent HIT_IMPACT = registerSound("hit_impact", SoundEvent.of(Jujutsu.getId("hit_impact")));
     public static final SoundEvent SHADOW_STEP_CAST = registerSound("abilities.shadow_step_cast", SoundEvent.of(Jujutsu.getId("abilities.shadow_step_cast")));
     public static final SoundEvent SHADOW_STEP_END = registerSound("abilities.shadow_step_end", SoundEvent.of(Jujutsu.getId("abilities.shadow_step_end")));
+    public static final SoundEvent UI_HOVER = registerSound("ui_hover", SoundEvent.of(Jujutsu.getId("ui_hover")));
+    public static final SoundEvent UI_FAILURE = registerSound("ui_failure", SoundEvent.of(Jujutsu.getId("ui_failure")));
+    public static final SoundEvent UI_SUCCESS = registerSound("ui_success", SoundEvent.of(Jujutsu.getId("ui_success")));
 
     public static final SoundEvent ALLAH_MUSIC_DISC = registerSound("music_disc.allah", SoundEvent.of(Jujutsu.getId("music_disc.allah")));
     public static final SoundEvent SNUS_MUSIC_DISC = registerSound("music_disc.snus", SoundEvent.of(Jujutsu.getId("music_disc.snus")));

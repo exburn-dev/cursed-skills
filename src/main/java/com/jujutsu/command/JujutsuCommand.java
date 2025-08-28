@@ -2,16 +2,23 @@ package com.jujutsu.command;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.command.argument.AbilitySlotArgument;
+import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
 import com.jujutsu.registry.JujutsuRegistries;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilitySlot;
 import com.jujutsu.systems.ability.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
+import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.network.payload.OpenHandSettingScreenPayload;
+import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
+import com.jujutsu.systems.ability.upgrade.UpgradesData;
 import com.jujutsu.systems.animation.PlayerAnimations;
 import com.jujutsu.util.AbilitiesHolderUtils;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
@@ -27,6 +34,8 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+
+import java.util.HashMap;
 
 public class JujutsuCommand {
     public static void register() {
@@ -55,6 +64,14 @@ public class JujutsuCommand {
 
                     )
 
+                    .then(CommandManager.literal("points")
+                            .then(CommandManager.literal("set")
+                                    .then(CommandManager.argument("points", FloatArgumentType.floatArg()).executes(JujutsuCommand::setPoints)))
+                    )
+
+                    .then(CommandManager.literal("attribute")
+                            .then(CommandManager.literal("reset").executes(JujutsuCommand::resetAttributesAndUpgrades)))
+
                     .then(CommandManager.literal("rearm").executes(JujutsuCommand::reloadAbilities))
 
                     .then(CommandManager.literal("animation").then(CommandManager.argument("player", EntityArgumentType.player()).executes(JujutsuCommand::playAnimation)) )
@@ -64,6 +81,48 @@ public class JujutsuCommand {
                             .then(CommandManager.literal("left").executes(context -> openHandSettingMenu(context, false))))
             );
         });
+    }
+
+    private static int resetAttributesAndUpgrades(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        IAbilitiesHolder holder = (IAbilitiesHolder) context.getSource().getPlayer();
+        AbilityAttributeContainerHolder attributesHolder = (AbilityAttributeContainerHolder) context.getSource().getPlayer();
+        AbilityAttributesContainer container = attributesHolder.getAbilityAttributes();
+        AbilityAttributesContainer newContainer = new AbilityAttributesContainer(new HashMap<>());
+
+        for(var entry: container.attributes().entrySet()) {
+            AbilityAttribute attribute = entry.getKey();
+            for(var entry1: entry.getValue().entrySet()) {
+                if(entry1.getKey().equals(Jujutsu.getId("base"))) {
+                    HashMap<Identifier, AbilityAttributeModifier> map = newContainer.attributes().getOrDefault(attribute, new HashMap<>());
+                    map.put(entry1.getKey(), entry1.getValue());
+                    newContainer.attributes().put(attribute, map);
+                }
+            }
+        }
+
+        attributesHolder.setAbilityAttributes(newContainer);
+
+        UpgradesData data = holder.getUpgradesData();
+
+        holder.setUpgradesData(new UpgradesData(data.upgradesId(), data.points(), new HashMap<>()));
+
+        ServerPlayNetworking.send(context.getSource().getPlayer(), new SyncPlayerAbilitiesPayload(
+                ((IPlayerJujutsuAbilitiesHolder) context.getSource().getPlayer()).getAbilities(),
+                holder.getUpgradesData()
+        ));
+
+        return 1;
+    }
+
+    private static int setPoints(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        float points = FloatArgumentType.getFloat(context, "points");
+        IAbilitiesHolder holder = (IAbilitiesHolder) context.getSource().getPlayer();
+
+        UpgradesData data = holder.getUpgradesData();
+
+        holder.setUpgradesData(new UpgradesData(data.upgradesId(), points, data.purchasedUpgrades()));
+
+        return 1;
     }
 
     private static int setAttribute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {

@@ -16,10 +16,7 @@ import net.minecraft.particle.ParticleEffect;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.TypeFilter;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
 
@@ -70,7 +67,17 @@ public class HollowPurpleEntity extends Entity {
         Iterator<BlockPos> iterator = BlockPos.iterate(box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ()).iterator();
         ServerWorld world = (ServerWorld) getWorld();
         iterator.forEachRemaining(pos -> {
-            if(pos.isWithinDistance(this.getPos(), getBlockBreakRadius())) {
+            if (world.isAir(pos)) return;
+
+            double distance = pos.getSquaredDistance(this.getPos());
+            double maxDistance = MathHelper.square(getBlockBreakRadius());
+            double threshold = 1.5;
+            double thresholdDistance = MathHelper.square(getBlockBreakRadius() + threshold);
+
+            if(distance < maxDistance) {
+                world.breakBlock(pos, false);
+            }
+            else if (distance >= maxDistance && distance <= thresholdDistance && this.random.nextInt(50) == 0) {
                 world.breakBlock(pos, false);
             }
         });

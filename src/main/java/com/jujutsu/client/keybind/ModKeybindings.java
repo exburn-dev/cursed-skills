@@ -42,12 +42,8 @@ public class ModKeybindings {
                 IAbilitiesHolder holder = (IAbilitiesHolder) client.player;
                 Identifier upgradesId = holder.getUpgradesId();
 
-                Jujutsu.LOGGER.info(holder.getUpgradesId().toString());
-                Jujutsu.LOGGER.info(AbilityUpgradesReloadListener.getInstance().getBranchesIds().toString());
-                Jujutsu.LOGGER.info("contains {}", AbilityUpgradesReloadListener.getInstance().getBranchesIds().contains(upgradesId));
-
                 if(AbilityUpgradesReloadListener.getInstance().getBranchesIds().contains(upgradesId)) {
-                    client.setScreen(new AbilityUpgradesScreen(AbilityUpgradesReloadListener.getInstance().getBranches(upgradesId)));
+                    client.setScreen(new AbilityUpgradesScreen(AbilityUpgradesReloadListener.getInstance().getBranches(upgradesId), holder.getUpgradesData()));
                 }
             }
         });

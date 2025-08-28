@@ -28,10 +28,14 @@
   "ability.jujutsu.infinity.description": "Trash",
   "ability.jujutsu.lapse_blue.description": "Garbage",
 
+  "ability_attribute.jujutsu.hollow_purple_radius": "Hollow Purple Radius",
+
   "screen.jujutsu.abilities_menu.abilities": "Abilities",
   "screen.jujutsu.abilities_menu.ability_info": "Ability Info",
   "screen.jujutsu.abilities_menu.description": "Description",
   "screen.jujutsu.abilities_menu.bound_key": "Bound Key:",
+  "screen.jujutsu.abilities_upgrades.cost": "cost: %s",
+  "screen.jujutsu.abilities_upgrades.points": "Points: %s",
 
   "jukebox_song.jujutsu.allah": "ALLAH 3BL4N",
   "jukebox_song.jujutsu.snus": "SNUS",

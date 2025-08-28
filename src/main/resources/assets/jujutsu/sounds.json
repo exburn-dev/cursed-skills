@@ -41,6 +41,24 @@
       "jujutsu:hit_impact"
     ]
   },
+  "ui_hover": {
+    "subtitle": "sounds.jujutsu.ui_hover",
+    "sounds": [
+      "jujutsu:ui_hover"
+    ]
+  },
+  "ui_failure": {
+    "subtitle": "sounds.jujutsu.ui_failure",
+    "sounds": [
+      "jujutsu:ui_failure"
+    ]
+  },
+  "ui_success": {
+    "subtitle": "sounds.jujutsu.ui_success",
+    "sounds": [
+      "jujutsu:ui_success"
+    ]
+  },
   "effects.stun_applied": {
     "subtitle": "sounds.jujutsu.stun",
     "sounds": [

@@ -1,30 +1,107 @@
 [
-  [
-    {
-      "id": "jujutsu:hollow_purple_11",
-      "container": {
-        "attributes": {
-          "jujutsu:hollow_purple_radius": {
-            "jujutsu:hollow_purple_11": {
-              "value": 3,
-              "type": 0
+  {
+    "id": "jujutsu:gojo_branch1",
+    "upgrades": [
+      {
+        "id": "jujutsu:hollow_purple_11",
+        "icon": "minecraft:textures/item/iron_sword",
+        "cost": 3,
+        "container": {
+          "attributes": {
+            "jujutsu:hollow_purple_radius": {
+              "jujutsu:hollow_purple_11": {
+                "value": 3,
+                "type": 0
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "jujutsu:hollow_purple_12",
+        "icon": "minecraft:textures/item/firework_rocket",
+        "cost": 2,
+        "container": {
+          "attributes": {
+            "jujutsu:hollow_purple_radius": {
+              "jujutsu:hollow_purple_12": {
+                "value": -3,
+                "type": 0
+              }
             }
           }
         }
       }
-    },
-    {
-      "id": "jujutsu:hollow_purple_12",
-      "container": {
-        "attributes": {
-          "jujutsu:hollow_purple_radius": {
-            "jujutsu:hollow_purple_12": {
-              "value": -3,
-              "type": 0
+    ]
+  },
+  {
+    "id": "jujutsu:gojo_branch2",
+    "upgrades": [
+      {
+        "id": "jujutsu:hollow_purple_21",
+        "icon": "minecraft:textures/item/fire_charge",
+        "cost": 3,
+        "container": {
+          "attributes": {
+            "jujutsu:hollow_purple_radius": {
+              "jujutsu:hollow_purple_11": {
+                "value": 1.5,
+                "type": 1
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "jujutsu:hollow_purple_22",
+        "icon": "minecraft:textures/item/nether_star",
+        "cost": 2,
+        "container": {
+          "attributes": {
+            "jujutsu:hollow_purple_radius": {
+              "jujutsu:hollow_purple_12": {
+                "value": 0.5,
+                "type": 1
+              }
             }
           }
         }
       }
-    }
-  ]
+    ]
+  },
+  {
+    "id": "jujutsu:gojo_branch3",
+    "upgrades": [
+      {
+        "id": "jujutsu:hollow_purple_31",
+        "icon": "minecraft:textures/item/bell",
+        "cost": 3,
+        "container": {
+          "attributes": {
+            "jujutsu:hollow_purple_radius": {
+              "jujutsu:hollow_purple_11": {
+                "value": 1.5,
+                "type": 1
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "jujutsu:hollow_purple_32",
+        "icon": "minecraft:textures/item/cookie",
+        "cost": 2,
+        "container": {
+          "attributes": {
+            "jujutsu:hollow_purple_radius": {
+              "jujutsu:hollow_purple_12": {
+                "value": 0.5,
+                "type": 1
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
 ]

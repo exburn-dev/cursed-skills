@@ -9,13 +9,17 @@ import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.keybind.AdditionalInputSystem;
 import com.jujutsu.client.toast.AbilitiesAcquiredToast;
 import com.jujutsu.network.payload.*;
+import com.jujutsu.screen.AbilityUpgradesScreen;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilitySlot;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.screen.HandTransformSettingScreen;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgrade;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
+import com.jujutsu.systems.ability.upgrade.UpgradesData;
 import com.jujutsu.systems.animation.AnimationData;
 import dev.kosmx.playerAnim.api.IPlayable;
 import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
@@ -29,9 +33,13 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class ModNetworkConstants {
     public static final Identifier ABILITY_KEY_PRESSED_ID = Jujutsu.getId("ability_key_pressed");
     public static final Identifier ADDITIONAL_INPUT_PRESSED_ID = Jujutsu.getId("additional_input_pressed");
+    public static final Identifier ABILITY_UPGRADE_PURCHASED_ID = Jujutsu.getId("ability_upgrade_purchased");
 
     public static final Identifier SYNC_PLAYER_ABILITIES_ID = Jujutsu.getId("sync_player_abilities");
     public static final Identifier OPEN_HAND_SETTING_SCREEN_ID = Jujutsu.getId("open_hand_setting_screen");
@@ -49,6 +57,7 @@ public class ModNetworkConstants {
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(AbilityKeyPressedPayload.ID, AbilityKeyPressedPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(AdditionalInputPressedPayload.ID, AdditionalInputPressedPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(AbilityUpgradePurchasedPayload.ID, AbilityUpgradePurchasedPayload.CODEC);
 
         PayloadTypeRegistry.playS2C().register(SyncPlayerAbilitiesPayload.ID, SyncPlayerAbilitiesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenHandSettingScreenPayload.ID, OpenHandSettingScreenPayload.CODEC);
@@ -86,14 +95,70 @@ public class ModNetworkConstants {
                 }
             }
         });
+
+        ServerPlayNetworking.registerGlobalReceiver(AbilityUpgradePurchasedPayload.ID, (payload, context) -> {
+            IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
+            UpgradesData data = holder.getUpgradesData();
+
+            List<AbilityUpgradeBranch> branches = AbilityUpgradesReloadListener.getInstance().getBranches(holder.getUpgradesId());
+            if(branches == null || branches.isEmpty()) return;
+
+            int lastBranchIndex = AbilityUpgradeBranch.findPlayerLastPurchasedBranchIndex(branches, data);
+            AbilityUpgradeBranch branch = null;
+            int branchIndex = 0;
+            for(int i = 0; i < branches.size(); i++) {
+                AbilityUpgradeBranch branch1 = branches.get(i);
+                if(branch1.id().equals(payload.branchId())) {
+                    branch = branch1;
+                    branchIndex = i;
+                    break;
+                }
+            }
+
+            if(branch == null || data.purchasedUpgrades().containsKey(payload.branchId())) return;
+            if(lastBranchIndex != -1 && lastBranchIndex + 1 != branchIndex) return;
+
+            AbilityUpgrade upgrade = null;
+            for(AbilityUpgrade upgrade1: branch.upgrades()) {
+                if(upgrade1.id().equals(payload.upgradeId())) {
+                    upgrade = upgrade1;
+                    break;
+                }
+            }
+
+            if(upgrade == null) return;
+
+            if(data.points() < upgrade.cost()) return;
+
+            //branch exists; upgrade exists; has enough points; dont bought another upgrade from branch; branch ordinal is correct - so we can add upgrade
+
+            AbilityAttributeContainerHolder attributeHolder = (AbilityAttributeContainerHolder) context.player();
+            for(var entry: upgrade.container().attributes().entrySet()) {
+                for(var entry1: entry.getValue().entrySet()) {
+                    attributeHolder.addModifier(entry.getKey(), entry1.getKey(), entry1.getValue());
+                }
+            }
+
+            HashMap<Identifier, Identifier> purchasedUpgrades = data.purchasedUpgrades();
+            purchasedUpgrades.put(branch.id(), upgrade.id());
+
+            holder.setUpgradesData(new UpgradesData(data.upgradesId(), data.points() - upgrade.cost(), purchasedUpgrades));
+
+            ServerPlayNetworking.send(context.player(), new SyncPlayerAbilitiesPayload(((IPlayerJujutsuAbilitiesHolder) context.player()).getAbilities(), holder.getUpgradesData()));
+        });
     }
 
     public static void registerClientReceivers() {
         ClientPlayNetworking.registerGlobalReceiver(SyncPlayerAbilitiesPayload.ID, (payload, context) -> {
             IPlayerJujutsuAbilitiesHolder holder = (IPlayerJujutsuAbilitiesHolder) context.player();
             holder.setAbilities(payload.abilities());
+
             IAbilitiesHolder abilitiesHolder = (IAbilitiesHolder) context.player();
-            abilitiesHolder.setUpgradesId(payload.upgradesId());
+            abilitiesHolder.setUpgradesData(payload.upgradesData());
+
+            if(context.client().currentScreen != null && context.client().currentScreen instanceof AbilityUpgradesScreen upgradesScreen) {
+                upgradesScreen.reload(payload.upgradesData());
+            }
         });
 
         ClientPlayNetworking.registerGlobalReceiver(OpenHandSettingScreenPayload.ID, (payload, context) -> {

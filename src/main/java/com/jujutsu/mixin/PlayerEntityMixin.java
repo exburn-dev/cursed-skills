@@ -16,6 +16,8 @@ import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
+import com.jujutsu.systems.ability.upgrade.UpgradesData;
+import com.jujutsu.util.CodecUtils;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.serialization.Dynamic;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -50,7 +52,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     @Unique
     private AbilityAttributesContainer abilityAttributes = new AbilityAttributesContainer(new HashMap<>());
     @Unique
-    private Identifier abilityUpgradesId = Jujutsu.getId("");
+    private UpgradesData upgradesData = new UpgradesData(Jujutsu.getId(""), 0, new HashMap<>());
 
     protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
@@ -133,10 +135,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
         NbtCompound main = new NbtCompound();
         NbtElement serializedAbilities = abilities.serialize(NbtOps.INSTANCE);
         NbtElement serializedAttributes = abilityAttributes.serialize(NbtOps.INSTANCE);
+        NbtElement serializedUpgrades = CodecUtils.serialize(UpgradesData.CODEC, NbtOps.INSTANCE, upgradesData,
+                (e) -> Jujutsu.LOGGER.error("Failed to serialize upgrades data {}", e));
 
-        main.putString("UpgradesId", abilityUpgradesId.toString());
         main.put("Abilities", serializedAbilities);
         main.put("Attributes", serializedAttributes);
+        main.put("Upgrades", serializedUpgrades);
 
         nbt.put("Jujutsu", main);
     }
@@ -147,11 +151,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
 
         NbtCompound abilitiesCompound = main.getCompound("Abilities");
         NbtCompound attributesCompound = main.getCompound("Attributes");
-        Identifier upgradesId = Identifier.tryParse(main.getString("UpgradesId"));
+        NbtCompound upgradesCompound = main.getCompound("Upgrades");
 
         this.abilities = PlayerJujutsuAbilities.deserialize(new Dynamic<>(NbtOps.INSTANCE, abilitiesCompound));
         this.abilityAttributes = AbilityAttributesContainer.deserialize(new Dynamic<>(NbtOps.INSTANCE, attributesCompound));
-        this.abilityUpgradesId = upgradesId;
+        this.upgradesData = CodecUtils.deserialize(UpgradesData.CODEC, new Dynamic<>(NbtOps.INSTANCE, upgradesCompound),
+                () -> new UpgradesData(Jujutsu.getId(""), 0, new HashMap<>()), (e) -> Jujutsu.LOGGER.error("Failed to deserialize upgrades data {}", e));
     }
 
     @Override
@@ -282,19 +287,29 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
 
     @Override
     public void setUpgradesId(Identifier id) {
-        this.abilityUpgradesId = id;
+        this.upgradesData = new UpgradesData(id, upgradesData.points(), upgradesData.purchasedUpgrades());
+    }
+
+    @Override
+    public UpgradesData getUpgradesData() {
+        return upgradesData;
     }
 
     @Override
     public Identifier getUpgradesId() {
-        return this.abilityUpgradesId;
+        return this.upgradesData.upgradesId();
+    }
+
+    @Override
+    public void setUpgradesData(UpgradesData upgradesData) {
+        this.upgradesData = upgradesData;
     }
 
     @Unique
     private void jujutsu$syncAbilitiesToClient() {
         PlayerEntity player = (PlayerEntity) (Object) this;
         if(!player.getWorld().isClient()) {
-            ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncPlayerAbilitiesPayload(abilities, abilityUpgradesId));
+            ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncPlayerAbilitiesPayload(abilities, upgradesData));
         }
     }
 

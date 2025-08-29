@@ -4,12 +4,9 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.client.hud.ShaderUtils;
 import com.jujutsu.network.payload.AbilityUpgradePurchasedPayload;
 import com.jujutsu.registry.ModSounds;
-import com.jujutsu.systems.ability.attribute.AbilityAttribute;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgrade;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
 import com.jujutsu.systems.ability.upgrade.UpgradesData;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -18,9 +15,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -287,35 +282,17 @@ public class AbilityUpgradesScreen extends Screen {
         private Pair<List<MutableText>, Integer> getTooltip(TextRenderer textRenderer) {
             List<MutableText> tooltip = new ArrayList<>();
             MutableText costText = Text.translatable("screen.jujutsu.abilities_upgrades.cost", upgrade.cost()).formatted(Formatting.GOLD);
-
             int biggestWidth = textRenderer.getWidth(costText);
 
             tooltip.add(costText);
             tooltip.add(Text.literal(""));
+            tooltip.addAll(upgrade.getDescription());
 
-            for(var attributeEntry: upgrade.container().attributes().entrySet()) {
-                AbilityAttribute attribute = attributeEntry.getKey();
-                for(AbilityAttributeModifier modifierEntry: attributeEntry.getValue().values()) {
-                    double value = modifierEntry.value();
-                    boolean multiplyMode = modifierEntry.type() == AbilityAttributeModifier.Type.MULTIPLY;
-                    boolean positiveValue = value >= 0;
-                    if(multiplyMode) {
-                        value = 100 * value - 100;
-                        positiveValue = value >= 0;
-                    }
-
-                    MutableText text = Text.literal(positiveValue ? "+" : "-");
-                    text.append(Text.literal(String.valueOf(Math.abs(value))));
-                    text.append(Text.literal(multiplyMode ? "% " : " "));
-                    text.append(Text.translatable(attribute.getTranslationKey()));
-                    text.setStyle(Style.EMPTY.withColor(positiveValue ? Formatting.GREEN : Formatting.RED));
-
-                    tooltip.add(text);
-
-                    int textWidth = textRenderer.getWidth(text);
-                    biggestWidth = Math.max(biggestWidth, textWidth);
-                }
+            for(MutableText text: tooltip) {
+                biggestWidth = Math.max(biggestWidth, textRenderer.getWidth(text));
             }
+
+
             return new Pair<>(tooltip, biggestWidth);
         }
 

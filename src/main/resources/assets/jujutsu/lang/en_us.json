@@ -6,6 +6,9 @@
   "item.jujutsu.technique_scroll.press_shift": "Press [SHIFT] for more info",
   "item.jujutsu.technique_scroll.stored_abilities": "Cursed Techniques:",
   "item.jujutsu.technique_scroll.stored_passive_abilities": "Passive Techniques:",
+  "item.jujutsu.upgrade_reset_scroll": "Reset Upgrades Scroll",
+  "item.jujutsu.upgrade_reset_scroll.resets_upgrades": "Removes purchased ability upgrades",
+  "item.jujutsu.upgrade_reset_scroll.returns_points": "%s refund of points spent",
 
   "itemGroup.jujutsu.main": "Jujutsu",
 

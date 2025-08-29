@@ -6,14 +6,12 @@
         "id": "jujutsu:hollow_purple_11",
         "icon": "minecraft:textures/item/iron_sword",
         "cost": 3,
-        "container": {
-          "attributes": {
-            "jujutsu:hollow_purple_radius": {
-              "jujutsu:hollow_purple_11": {
-                "value": 3,
-                "type": 0
-              }
-            }
+        "type": "jujutsu:ability_attribute",
+        "modifiers": {
+          "jujutsu:hollow_purple_radius": {
+            "id": "jujutsu:hollow_purple_11",
+            "amount": 1,
+            "operation": "add"
           }
         }
       },
@@ -21,16 +19,35 @@
         "id": "jujutsu:hollow_purple_12",
         "icon": "minecraft:textures/item/firework_rocket",
         "cost": 2,
-        "container": {
-          "attributes": {
-            "jujutsu:hollow_purple_radius": {
-              "jujutsu:hollow_purple_12": {
-                "value": -3,
-                "type": 0
+        "type": "jujutsu:sequence",
+        "upgrades": [
+          {
+            "id": "jujutsu:hollow_purple_121",
+            "icon": "minecraft:textures/item/iron_sword",
+            "cost": 0,
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:hollow_purple_radius": {
+                "id": "jujutsu:hollow_purple_121",
+                "amount": 2,
+                "operation": "multiply"
+              }
+            }
+          },
+          {
+            "id": "jujutsu:hollow_purple_122",
+            "icon": "minecraft:textures/item/iron_sword",
+            "cost": 0,
+            "type": "jujutsu:entity_attribute",
+            "modifiers": {
+              "minecraft:generic.movement_speed": {
+                "id": "jujutsu:hollow_purple_122",
+                "amount": 0.1,
+                "operation": "add_multiplied_total"
               }
             }
           }
-        }
+        ]
       }
     ]
   },
@@ -41,14 +58,12 @@
         "id": "jujutsu:hollow_purple_21",
         "icon": "minecraft:textures/item/fire_charge",
         "cost": 3,
-        "container": {
-          "attributes": {
-            "jujutsu:hollow_purple_radius": {
-              "jujutsu:hollow_purple_11": {
-                "value": 1.5,
-                "type": 1
-              }
-            }
+        "type": "jujutsu:entity_attribute",
+        "modifiers": {
+          "minecraft:generic.movement_speed": {
+            "id": "jujutsu:gojo_21",
+            "amount": 0.5,
+            "operation": "add_multiplied_total"
           }
         }
       },
@@ -56,14 +71,12 @@
         "id": "jujutsu:hollow_purple_22",
         "icon": "minecraft:textures/item/nether_star",
         "cost": 2,
-        "container": {
-          "attributes": {
-            "jujutsu:hollow_purple_radius": {
-              "jujutsu:hollow_purple_12": {
-                "value": 0.5,
-                "type": 1
-              }
-            }
+        "type": "jujutsu:ability_attribute",
+        "modifiers": {
+          "jujutsu:hollow_purple_radius": {
+            "id": "jujutsu:hollow_purple_22",
+            "amount": 1.5,
+            "operation": "multiply"
           }
         }
       }
@@ -76,14 +89,12 @@
         "id": "jujutsu:hollow_purple_31",
         "icon": "minecraft:textures/item/bell",
         "cost": 3,
-        "container": {
-          "attributes": {
-            "jujutsu:hollow_purple_radius": {
-              "jujutsu:hollow_purple_11": {
-                "value": 1.5,
-                "type": 1
-              }
-            }
+        "type": "jujutsu:ability_attribute",
+        "modifiers": {
+          "jujutsu:hollow_purple_radius": {
+            "id": "jujutsu:hollow_purple_31",
+            "amount": 1.5,
+            "operation": "multiply"
           }
         }
       },
@@ -91,14 +102,12 @@
         "id": "jujutsu:hollow_purple_32",
         "icon": "minecraft:textures/item/cookie",
         "cost": 2,
-        "container": {
-          "attributes": {
-            "jujutsu:hollow_purple_radius": {
-              "jujutsu:hollow_purple_12": {
-                "value": 0.5,
-                "type": 1
-              }
-            }
+        "type": "jujutsu:ability_attribute",
+        "modifiers": {
+          "jujutsu:hollow_purple_radius": {
+            "id": "jujutsu:hollow_purple_32",
+            "amount": 0.5,
+            "operation": "multiply"
           }
         }
       }

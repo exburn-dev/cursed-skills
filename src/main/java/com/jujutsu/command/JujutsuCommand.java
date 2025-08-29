@@ -14,6 +14,9 @@ import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.network.payload.OpenHandSettingScreenPayload;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgrade;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
 import com.jujutsu.systems.ability.upgrade.UpgradesData;
 import com.jujutsu.systems.animation.PlayerAnimations;
 import com.jujutsu.util.AbilitiesHolderUtils;
@@ -36,6 +39,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class JujutsuCommand {
     public static void register() {
@@ -84,32 +88,7 @@ public class JujutsuCommand {
     }
 
     private static int resetAttributesAndUpgrades(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        IAbilitiesHolder holder = (IAbilitiesHolder) context.getSource().getPlayer();
-        AbilityAttributeContainerHolder attributesHolder = (AbilityAttributeContainerHolder) context.getSource().getPlayer();
-        AbilityAttributesContainer container = attributesHolder.getAbilityAttributes();
-        AbilityAttributesContainer newContainer = new AbilityAttributesContainer(new HashMap<>());
-
-        for(var entry: container.attributes().entrySet()) {
-            AbilityAttribute attribute = entry.getKey();
-            for(var entry1: entry.getValue().entrySet()) {
-                if(entry1.getKey().equals(Jujutsu.getId("base"))) {
-                    HashMap<Identifier, AbilityAttributeModifier> map = newContainer.attributes().getOrDefault(attribute, new HashMap<>());
-                    map.put(entry1.getKey(), entry1.getValue());
-                    newContainer.attributes().put(attribute, map);
-                }
-            }
-        }
-
-        attributesHolder.setAbilityAttributes(newContainer);
-
-        UpgradesData data = holder.getUpgradesData();
-
-        holder.setUpgradesData(new UpgradesData(data.upgradesId(), data.points(), new HashMap<>()));
-
-        ServerPlayNetworking.send(context.getSource().getPlayer(), new SyncPlayerAbilitiesPayload(
-                ((IPlayerJujutsuAbilitiesHolder) context.getSource().getPlayer()).getAbilities(),
-                holder.getUpgradesData()
-        ));
+        AbilitiesHolderUtils.removeAbilityUpgrades(context.getSource().getPlayer());
 
         return 1;
     }

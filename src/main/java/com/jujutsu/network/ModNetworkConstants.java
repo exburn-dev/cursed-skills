@@ -131,13 +131,8 @@ public class ModNetworkConstants {
             if(data.points() < upgrade.cost()) return;
 
             //branch exists; upgrade exists; has enough points; dont bought another upgrade from branch; branch ordinal is correct - so we can add upgrade
-
-            AbilityAttributeContainerHolder attributeHolder = (AbilityAttributeContainerHolder) context.player();
-            for(var entry: upgrade.container().attributes().entrySet()) {
-                for(var entry1: entry.getValue().entrySet()) {
-                    attributeHolder.addModifier(entry.getKey(), entry1.getKey(), entry1.getValue());
-                }
-            }
+            
+            upgrade.apply(context.player());
 
             HashMap<Identifier, Identifier> purchasedUpgrades = data.purchasedUpgrades();
             purchasedUpgrades.put(branch.id(), upgrade.id());

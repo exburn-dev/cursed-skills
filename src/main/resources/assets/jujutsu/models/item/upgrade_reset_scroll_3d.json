@@ -1,0 +1,8 @@
+{
+	"parent": "jujutsu:item/technique_scroll_3d",
+	"texture_size": [32, 32],
+	"textures": {
+		"0": "jujutsu:item/upgrade_reset_scroll_texture",
+		"particle": "jujutsu:item/upgrade_reset_scroll_texture"
+	}
+}

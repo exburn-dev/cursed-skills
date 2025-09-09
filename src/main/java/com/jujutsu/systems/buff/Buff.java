@@ -72,13 +72,13 @@ public class Buff {
 
         EntityAttributeModifier modifier = new EntityAttributeModifier(id, value, operation);
         Buff buff = new Buff(attribute, conditions, cancellingPolicy);
-        IBuffHolder buffHolder = (IBuffHolder) entity;
+        BuffHolder buffHolder = (BuffHolder) entity;
 
         buffHolder.addBuff(id, buff, modifier);
     }
 
     public static boolean hasBuff(LivingEntity entity, Identifier id) {
-        IBuffHolder buffHolder = (IBuffHolder) entity;
+        BuffHolder buffHolder = (BuffHolder) entity;
         return buffHolder.getBuff(id) != null;
     }
 

@@ -1,17 +1,13 @@
 package com.jujutsu.ability.active;
 
-import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.systems.ability.*;
 import com.jujutsu.entity.ReversalRedEntity;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.util.HandAnimationUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;

@@ -7,7 +7,7 @@ import com.jujutsu.registry.ModEffects;
 import com.jujutsu.registry.tag.ModDamageTypeTags;
 import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.BuffHashMapStorage;
-import com.jujutsu.systems.buff.IBuffHolder;
+import com.jujutsu.systems.buff.BuffHolder;
 import com.jujutsu.util.IOldPosHolder;
 import com.mojang.serialization.Dynamic;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin implements IBuffHolder, IOldPosHolder {
+public abstract class LivingEntityMixin implements BuffHolder, IOldPosHolder {
     @Shadow public abstract boolean hasStatusEffect(RegistryEntry<StatusEffect> effect);
 
     @Shadow protected boolean jumping;

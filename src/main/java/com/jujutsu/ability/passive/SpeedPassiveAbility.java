@@ -48,19 +48,7 @@ public class SpeedPassiveAbility extends PassiveAbility {
     }
 
     @Override
-    public void onGained(PlayerEntity player) {
-        addAttributes(
-                player,
-                new Pair<>(
-                        EntityAttributes.GENERIC_MOVEMENT_SPEED,
-                        new EntityAttributeModifier(Jujutsu.getId("passive_speed"), 0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
-                ),
-                new Pair<>(
-                        EntityAttributes.GENERIC_STEP_HEIGHT,
-                        new EntityAttributeModifier(Jujutsu.getId("passive_step"), 0.4, EntityAttributeModifier.Operation.ADD_VALUE)
-                )
-        );
-    }
+    public void onGained(PlayerEntity player) {}
 
     @Override
     public void tick(PlayerEntity player) {
@@ -91,12 +79,7 @@ public class SpeedPassiveAbility extends PassiveAbility {
     }
 
     @Override
-    public void onRemoved(PlayerEntity player) {
-        EntityAttributeInstance instance = player.getAttributes().getCustomInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
-        instance.removeModifier(Jujutsu.getId("passive_speed"));
-        EntityAttributeInstance instance1 = player.getAttributes().getCustomInstance(EntityAttributes.GENERIC_STEP_HEIGHT);
-        instance1.removeModifier(Jujutsu.getId("passive_step"));
-    }
+    public void onRemoved(PlayerEntity player) {}
 
     @Override
     public Style getStyle() {

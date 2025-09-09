@@ -136,7 +136,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
         NbtElement serializedAbilities = abilities.serialize(NbtOps.INSTANCE);
         NbtElement serializedAttributes = abilityAttributes.serialize(NbtOps.INSTANCE);
         NbtElement serializedUpgrades = CodecUtils.serialize(UpgradesData.CODEC, NbtOps.INSTANCE, upgradesData,
-                (e) -> Jujutsu.LOGGER.error("Failed to serialize upgrades data {}", e));
+                (e) -> Jujutsu.LOGGER.error("Failed to serialize rewards data {}", e));
 
         main.put("Abilities", serializedAbilities);
         main.put("Attributes", serializedAttributes);
@@ -156,7 +156,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
         this.abilities = PlayerJujutsuAbilities.deserialize(new Dynamic<>(NbtOps.INSTANCE, abilitiesCompound));
         this.abilityAttributes = AbilityAttributesContainer.deserialize(new Dynamic<>(NbtOps.INSTANCE, attributesCompound));
         this.upgradesData = CodecUtils.deserialize(UpgradesData.CODEC, new Dynamic<>(NbtOps.INSTANCE, upgradesCompound),
-                () -> new UpgradesData(Jujutsu.getId(""), 0, new HashMap<>()), (e) -> Jujutsu.LOGGER.error("Failed to deserialize upgrades data {}", e));
+                () -> new UpgradesData(Jujutsu.getId(""), 0, new HashMap<>()), (e) -> Jujutsu.LOGGER.error("Failed to deserialize rewards data {}", e));
     }
 
     @Override
@@ -256,26 +256,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     }
 
     @Override
-    public HashMap<Identifier, AbilityAttributeModifier> getModifiers(AbilityAttribute attribute) {
-        return abilityAttributes.attributes().get(attribute);
-    }
-
-    @Override
-    public void addModifier(AbilityAttribute attribute, Identifier id, AbilityAttributeModifier modifier) {
-        HashMap<Identifier, AbilityAttributeModifier> modifiers = getModifiers(attribute);
-        if(modifiers != null) {
-            modifiers.put(id, modifier);
-            abilityAttributes.attributes().put(attribute, modifiers);
-        }
-        else {
-            HashMap<Identifier, AbilityAttributeModifier> map = new HashMap<>();
-            map.put(id, modifier);
-            abilityAttributes.attributes().put(attribute, map);
-        }
-        jujutsu$syncAbilityAttributesToClient();
-    }
-
-    @Override
     public void setAbilityAttributes(AbilityAttributesContainer container) {
         this.abilityAttributes = container;
     }
@@ -309,7 +289,11 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     private void jujutsu$syncAbilitiesToClient() {
         PlayerEntity player = (PlayerEntity) (Object) this;
         if(!player.getWorld().isClient()) {
-            ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncPlayerAbilitiesPayload(abilities, upgradesData));
+            ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncPlayerAbilitiesPayload(new PlayerJujutsuAbilities(
+                    new HashMap<>(abilities.abilities()),
+                    abilities.runningAbilities(),
+                    abilities.passiveAbilities()
+            ), upgradesData));
         }
     }
 

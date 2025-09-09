@@ -3,6 +3,7 @@
   "package": "com.jujutsu.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "FallingBlockAccessor",
     "LastAttackTimeAccessor",
     "LivingEntityMixin",
     "PlayerEntityMixin"

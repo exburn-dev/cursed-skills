@@ -23,7 +23,7 @@ public class ParticleUtils {
 
             Vec3d velocityVec = new Vec3d(x, y, z).subtract(vec).normalize().multiply(velocity);
 
-            world.addParticle(particle, x, y, z, velocityVec.x, velocityVec.y, velocityVec.z);
+            spawnParticle(particle, new Vec3d(x, y, z), world, velocityVec);
         }
     }
 

@@ -1,11 +1,13 @@
 package com.jujutsu.ability.active;
 
 import com.jujutsu.entity.ReversalRedEntity;
+import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.systems.ability.AbilityData;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilityType;
 import com.jujutsu.systems.ability.ClientData;
 import com.jujutsu.entity.LapseBlueEntity;
+import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.util.HandAnimationUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -61,6 +63,10 @@ public class LapseBlueAbility extends AbilityType {
         entity.setCharging(false);
         entity.setPitch(player.getPitch());
         entity.setYaw(player.getYaw());
+
+        entity.setDamageMultiplier((float) instance.getAbilityAttributeValue(player, ModAbilityAttributes.LAPSE_BLUE_DAMAGE_MULTIPLIER));
+        entity.setStunSeconds((float) instance.getAbilityAttributeValue(player, ModAbilityAttributes.LAPSE_BLUE_STUN));
+
         entity.addVelocity(entity.getRotationVector().multiply( 0.4f + (2f - 0.4f) / 100 * entity.getChargeTime() ));
     }
 
@@ -94,6 +100,14 @@ public class LapseBlueAbility extends AbilityType {
 
     private LapseBlueAbilityData getData(AbilityInstance instance) {
         return instance.getAbilityData(LapseBlueAbilityData.class, () -> (LapseBlueAbilityData) getInitialData());
+    }
+
+    @Override
+    public AbilityAttributesContainer getDefaultAttributes() {
+        return new AbilityAttributesContainer.Builder()
+                .addBaseModifier(ModAbilityAttributes.LAPSE_BLUE_DAMAGE_MULTIPLIER, 1)
+                .addBaseModifier(ModAbilityAttributes.LAPSE_BLUE_STUN, 0)
+                .build();
     }
 
     @Override

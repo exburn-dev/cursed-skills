@@ -9,19 +9,20 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
 import java.util.Optional;
 
-public record AbilityAttributesContainer(HashMap<AbilityAttribute, HashMap<Identifier, AbilityAttributeModifier>> attributes) {
+public record AbilityAttributesContainer(HashMap<RegistryEntry<AbilityAttribute>, HashMap<Identifier, AbilityAttributeModifier>> attributes) {
     public static final Codec<AbilityAttributesContainer> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.unboundedMap(JujutsuRegistries.ABILITY_ATTRIBUTE.getCodec(), Codec.unboundedMap(Identifier.CODEC, AbilityAttributeModifier.CODEC).xmap(HashMap::new, HashMap::new)).xmap(HashMap::new, HashMap::new)
+            Codec.unboundedMap(JujutsuRegistries.ABILITY_ATTRIBUTE.getEntryCodec(), Codec.unboundedMap(Identifier.CODEC, AbilityAttributeModifier.CODEC).xmap(HashMap::new, HashMap::new)).xmap(HashMap::new, HashMap::new)
                     .fieldOf("attributes").forGetter(AbilityAttributesContainer::attributes)
     ).apply(instance, AbilityAttributesContainer::new));
 
     public static final PacketCodec<RegistryByteBuf, AbilityAttributesContainer> PACKET_CODEC = PacketCodec.tuple(
-            PacketCodecs.map(HashMap::new, PacketCodecs.registryCodec(JujutsuRegistries.ABILITY_ATTRIBUTE.getCodec()),
+            PacketCodecs.map(HashMap::new, PacketCodecs.registryEntry(JujutsuRegistries.ABILITY_ATTRIBUTE_REGISTRY_KEY),
                     PacketCodecs.map(HashMap::new, Identifier.PACKET_CODEC, AbilityAttributeModifier.PACKET_CODEC)), AbilityAttributesContainer::attributes,
             AbilityAttributesContainer::new);
 
@@ -42,10 +43,27 @@ public record AbilityAttributesContainer(HashMap<AbilityAttribute, HashMap<Ident
         return optional.get().getFirst();
     }
 
-    public static class Builder {
-        private final HashMap<AbilityAttribute, HashMap<Identifier, AbilityAttributeModifier>> map = new HashMap<>();
+    public HashMap<Identifier, AbilityAttributeModifier> getModifiers(RegistryEntry<AbilityAttribute> attribute) {
+        return attributes.get(attribute);
+    }
 
-        public Builder addModifier(AbilityAttribute attribute, Identifier id, double value, AbilityAttributeModifier.Type type) {
+    public void addModifier(RegistryEntry<AbilityAttribute> attribute, Identifier id, AbilityAttributeModifier modifier) {
+        HashMap<Identifier, AbilityAttributeModifier> modifiers = getModifiers(attribute);
+        if(modifiers != null) {
+            modifiers.put(id, modifier);
+            attributes().put(attribute, modifiers);
+        }
+        else {
+            HashMap<Identifier, AbilityAttributeModifier> map = new HashMap<>();
+            map.put(id, modifier);
+            attributes().put(attribute, map);
+        }
+    }
+
+    public static class Builder {
+        private final HashMap<RegistryEntry<AbilityAttribute>, HashMap<Identifier, AbilityAttributeModifier>> map = new HashMap<>();
+
+        public Builder addModifier(RegistryEntry<AbilityAttribute> attribute, Identifier id, double value, AbilityAttributeModifier.Type type) {
             HashMap<Identifier, AbilityAttributeModifier> modifiers = map.get(attribute);
             AbilityAttributeModifier modifier = new AbilityAttributeModifier(value, type);
             if(modifiers != null) {
@@ -60,8 +78,8 @@ public record AbilityAttributesContainer(HashMap<AbilityAttribute, HashMap<Ident
             return this;
         }
 
-        public Builder addBaseModifier(AbilityAttribute attribute, double value, AbilityAttributeModifier.Type type) {
-            return addModifier(attribute, Jujutsu.getId("base"), value, type);
+        public Builder addBaseModifier(RegistryEntry<AbilityAttribute> attribute, double value) {
+            return addModifier(attribute, Jujutsu.getId("base"), value, AbilityAttributeModifier.Type.ADD);
         }
 
         public AbilityAttributesContainer build() {

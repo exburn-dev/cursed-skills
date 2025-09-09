@@ -112,6 +112,8 @@ public class ShaderUtils {
         BufferRenderer.drawWithGlobalProgram(buf.end());
 
         RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
     }
 
     public static void renderLitMask(DrawContext context, MatrixStack ms, float x, float y, float size, float litProgress, float r, float g, float b, float a, Identifier texture) {
@@ -145,6 +147,8 @@ public class ShaderUtils {
         BufferRenderer.drawWithGlobalProgram(buf.end());
 
         RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
     }
 
     public static void renderStunEffect(float tickDelta) {

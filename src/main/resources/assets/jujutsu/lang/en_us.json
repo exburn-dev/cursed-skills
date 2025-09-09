@@ -23,7 +23,7 @@
   "ability.jujutsu.fiery_soul_switch": "Fiery Soul Switch",
   "ability.jujutsu.phoenix_fireball": "Phoenix Fireball",
 
-  "passive_ability.jujutsu.speed": "Speed",
+  "passive_ability.jujutsu.speed": "Speed Punch",
   "passive_ability.jujutsu.wither_momentum": "Wither Momentum",
   "passive_ability.jujutsu.fiery_soul": "Fiery Soul",
 
@@ -32,6 +32,14 @@
   "ability.jujutsu.lapse_blue.description": "Garbage",
 
   "ability_attribute.jujutsu.hollow_purple_radius": "Hollow Purple Radius",
+  "ability_attribute.jujutsu.hollow_purple_speed": "Hollow Purple Speed",
+  "ability_attribute.jujutsu.infinity_duration": "Infinity Duration",
+  "ability_attribute.jujutsu.reversal_red_explosion_power": "Reversal Red Explosion Power",
+  "ability_attribute.jujutsu.reversal_red_damage_multiplier": "Reversal Red Damage",
+  "ability_attribute.jujutsu.reversal_red_stun": "Reversal Red Stun",
+  "ability_attribute.jujutsu.reversal_red_charge_time": "Reversal Red Charge Time",
+  "ability_attribute.jujutsu.lapse_blue_damage_multiplier": "Lapse Blue Damage",
+  "ability_attribute.jujutsu.lapse_blue_stun": "Lapse Blue Stun",
 
   "screen.jujutsu.abilities_menu.abilities": "Abilities",
   "screen.jujutsu.abilities_menu.ability_info": "Ability Info",

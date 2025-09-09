@@ -1,7 +1,11 @@
 package com.jujutsu.ability.active;
 
+import com.jujutsu.Jujutsu;
+import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.systems.ability.*;
 import com.jujutsu.entity.ReversalRedEntity;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
+import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.util.HandAnimationUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -21,11 +25,12 @@ import net.minecraft.util.math.Vec3d;
 
 public class ReversalRedAbility extends AbilityType {
     public static final Codec<ReversalRedAbilityData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("entityId").forGetter(ReversalRedAbilityData::entityId)
+            Codec.INT.fieldOf("entityId").forGetter(ReversalRedAbilityData::entityId),
+            Codec.INT.fieldOf("chargeTime").forGetter(ReversalRedAbilityData::chargeTime)
     ).apply(instance, ReversalRedAbilityData::new));
 
     public ReversalRedAbility(int cooldownTime) {
-        super(cooldownTime, true, new ClientData(ReversalRedAbility::renderHand, ReversalRedAbility::renderHud));
+        super(cooldownTime, true, new ClientData(ReversalRedAbility::renderHand, null));
     }
 
     @Override
@@ -35,15 +40,17 @@ public class ReversalRedAbility extends AbilityType {
         entity.setPosition(player.getPos());
         player.getWorld().spawnEntity(entity);
 
-        instance.setAbilityData(new ReversalRedAbilityData(entity.getId()));
+        int chargeTime = (int) Math.floor(instance.getAbilityAttributeValue(player, ModAbilityAttributes.REVERSAL_RED_CHARGE_TIME)) * 20;
+        instance.setAbilityData(new ReversalRedAbilityData(entity.getId(), chargeTime));
     }
 
     @Override
     public void tick(PlayerEntity player, AbilityInstance instance) {
-        ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(getData(instance).entityId());
+        ReversalRedAbilityData data = getData(instance);
+        ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(data.entityId());
         if(entity == null) return;
 
-        Vec3d vec = player.getPos().add(player.getRotationVector(player.getPitch(), player.getYaw() - 25).multiply(0.75).add(0, 1.5, 0));
+        Vec3d vec = player.getPos().add(player.getRotationVector(player.getPitch(), player.getYaw() - 25).multiply(0.75 + 0.002 * instance.getUseTime()).add(0, 1.5, 0));
 
         entity.addVelocity(vec.subtract(entity.getPos()).multiply(0.15));
 
@@ -51,7 +58,7 @@ public class ReversalRedAbility extends AbilityType {
             entity.increaseChargeTime();
         }
 
-        if(instance.getUseTime() == 98) {
+        if(instance.getUseTime() == data.chargeTime() - 2) {
             instance.setAdditionalInput(player, new AbilityAdditionalInput(-1, -1, 0));
             if(!player.getWorld().isClient()) {
                 player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1, 1);
@@ -62,17 +69,23 @@ public class ReversalRedAbility extends AbilityType {
     @Override
     public void end(PlayerEntity player, AbilityInstance instance) {
         ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(getData(instance).entityId());
-        if(entity == null) return;
+        if(player.getWorld().isClient() || entity == null) return;
 
         entity.setCharging(false);
         entity.setPitch(player.getPitch());
         entity.setYaw(player.getYaw());
-        entity.addVelocity(entity.getRotationVector().multiply( 0.4f + (2f - 0.4f) / 100 * entity.getChargeTime() ));
+
+        entity.setExplosionPower((float) instance.getAbilityAttributeValue(player, ModAbilityAttributes.REVERSAL_RED_EXPLOSION_POWER));
+        entity.setDamageMultiplier((float) instance.getAbilityAttributeValue(player, ModAbilityAttributes.REVERSAL_RED_DAMAGE_MULTIPLIER));
+        entity.setStunSeconds((float) instance.getAbilityAttributeValue(player, ModAbilityAttributes.REVERSAL_RED_STUN));
+
+        entity.addVelocity(entity.getRotationVector().multiply( 0.8f + 0.016 * entity.getChargeTime() ));
     }
 
     @Override
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
-        return instance.getUseTime() >= 100;
+        int chargeTime = getData(instance).chargeTime();
+        return instance.getUseTime() >= chargeTime;
     }
 
     @Override
@@ -80,26 +93,14 @@ public class ReversalRedAbility extends AbilityType {
         return Style.EMPTY.withColor(Formatting.RED);
     }
 
-    public static void renderHud(DrawContext context, RenderTickCounter counter, AbilityInstance instance) {
-//        MinecraftClient client = MinecraftClient.getInstance();
-//        if (client == null || client.player == null) return;
-//
-//        MatrixStack matrices = context.getMatrices();
-//        int tick = ((int) Util.getMeasuringTimeMs() / 100 % 10) + 1;
-//
-//        RenderSystem.disableDepthTest();
-//        RenderSystem.depthMask(false);
-//        RenderSystem.enableBlend();
-//
-//        matrices.push();
-//        matrices.translate(Math.sin(tick), 0, 0);
-//        context.drawTexture(Jujutsu.getId(String.format("textures/misc/reversal_red%d.png", tick)), 240, context.getScaledWindowHeight() / 2 - 50, -90, 0.0F, 0.0F, 64, 64, 64, 64);
-//
-//        matrices.pop();
-//
-//        RenderSystem.disableBlend();
-//        RenderSystem.depthMask(true);
-//        RenderSystem.enableDepthTest();
+    @Override
+    public AbilityAttributesContainer getDefaultAttributes() {
+        return new AbilityAttributesContainer.Builder()
+                .addBaseModifier(ModAbilityAttributes.REVERSAL_RED_EXPLOSION_POWER, 1)
+                .addBaseModifier(ModAbilityAttributes.REVERSAL_RED_DAMAGE_MULTIPLIER, 1)
+                .addBaseModifier(ModAbilityAttributes.REVERSAL_RED_STUN, 0)
+                .addBaseModifier(ModAbilityAttributes.REVERSAL_RED_CHARGE_TIME, 3)
+                .build();
     }
 
     public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstance instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light) {
@@ -124,7 +125,7 @@ public class ReversalRedAbility extends AbilityType {
 
     @Override
     public AbilityData getInitialData() {
-        return new ReversalRedAbilityData(0);
+        return new ReversalRedAbilityData(0, 0);
     }
 
     @Override
@@ -132,5 +133,5 @@ public class ReversalRedAbility extends AbilityType {
         return CODEC;
     }
 
-    public record ReversalRedAbilityData(int entityId) implements AbilityData {}
+    public record ReversalRedAbilityData(int entityId, int chargeTime) implements AbilityData {}
 }

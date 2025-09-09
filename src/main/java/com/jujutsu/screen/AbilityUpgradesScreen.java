@@ -7,6 +7,7 @@ import com.jujutsu.registry.ModSounds;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgrade;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
 import com.jujutsu.systems.ability.upgrade.UpgradesData;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -43,6 +44,7 @@ public class AbilityUpgradesScreen extends Screen {
         this.branches = branches;
         this.upgradesData = upgradesData;
         this.playerLastPurchasedBranch = AbilityUpgradeBranch.findPlayerLastPurchasedBranchIndex(branches, upgradesData);
+        Jujutsu.LOGGER.info("Branches: {}\nUpgradesData: {}\nLastPurchasedBranch: {}", branches, upgradesData, playerLastPurchasedBranch);
     }
 
     @Override
@@ -55,7 +57,7 @@ public class AbilityUpgradesScreen extends Screen {
         int verticalGap = 24;
 
         int startX = width / 2 - widgetWidth - horizontalGap / 2;
-        int startY = height / 2 + (widgetHeight * (branches.size() - 1) + verticalGap * (branches.size() - 2) ) / 2;
+        int startY = height - 100;
 
         for(int i = 0; i < branches.size(); i++) {
             AbilityUpgradeBranch branch = branches.get(i);
@@ -64,16 +66,20 @@ public class AbilityUpgradesScreen extends Screen {
             for(int j = 0; j < Math.min(branch.upgrades().size(), 2); j++) {
                 AbilityUpgrade upgrade = branch.upgrades().get(j);
                 int x = startX + widgetWidth * j + horizontalGap * j;
+                boolean onlyOneUpgrade = branch.upgrades().size() == 1;
+                x += onlyOneUpgrade ? widgetWidth : 0;
 
                 AbilityUpgradeButton button = new AbilityUpgradeButton(branch, upgrade, x, y, widgetWidth, widgetHeight, Text.literal(""));
 
                 reloadButtonStatus(button);
 
                 buttons.add(button);
-                lines.add(new Line(
-                        new Vector2i(x + widgetWidth / 2, y + widgetHeight / 2),
-                        new Vector2i(startX, y + widgetHeight / 2)
-                ));
+                if(!onlyOneUpgrade) {
+                    lines.add(new Line(
+                            new Vector2i(x + widgetWidth / 2, y + widgetHeight / 2),
+                            new Vector2i(startX, y + widgetHeight / 2)
+                    ));
+                }
             }
         }
     }
@@ -100,9 +106,14 @@ public class AbilityUpgradesScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderBackground(context, mouseX, mouseY, delta);
-
         MatrixStack matrices = context.getMatrices();
+        matrices.push();
+        matrices.translate(0 ,0, -20);
+        renderBackground(context, mouseX, mouseY, delta);
+        matrices.pop();
+
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+
         matrices.push();
 
         matrices.translate(dragX, dragY, 0);
@@ -125,6 +136,9 @@ public class AbilityUpgradesScreen extends Screen {
 
         matrices.pop();
 
+        matrices.push();
+        matrices.translate(0, 0, 20);
+
         MutableText panelText = Text.translatable("screen.jujutsu.abilities_upgrades.points", upgradesData.points());
         int panelWidth = Math.max(48, client.textRenderer.getWidth(panelText)) + 4;
         int panelHeight = 16;
@@ -133,6 +147,9 @@ public class AbilityUpgradesScreen extends Screen {
         context.fill(x , y, x + panelWidth, y + panelHeight, 0xFF454545);
         context.drawGuiTexture(Jujutsu.getId("screen/abilities_upgrades/upgrade_tooltip_border"), x - 4, y - 4, panelWidth + 8, panelHeight + 8);
         context.drawText(client.textRenderer, panelText, x + 2, y + panelHeight / 2 - textRenderer.fontHeight / 2 + 1, 0xFFFFFFFF, true);
+
+        matrices.translate(0, 0, -20);
+        matrices.pop();
     }
 
     @Override
@@ -227,14 +244,20 @@ public class AbilityUpgradesScreen extends Screen {
             hoverProgress += (hovered ? +1f : -1f) * speed;
             hoverProgress = Math.max(0f, Math.min(1f, hoverProgress));
 
-            boolean unlocked = !purchased && canBePurchased;
-            float primaryColor = unlocked || purchased ? 0.35f : 0.075f;
-            float secondaryColor = unlocked || purchased ? 0.75f : 0.475f;
-            float softPx = unlocked ? 0f : 1f;
+            float softPx = 0.5f;
+            float r, g, b;
+            if(!purchased) {
+                r = canBePurchased ? 0.35f : 0.075f;
+                g = canBePurchased ? 0.35f : 0.075f;
+                b = canBePurchased ? 0.35f : 0.075f;
+            }
+            else {
+                r = 0.545f; g = 0.769f; b = 0.145f;
+            }
 
-            ShaderUtils.renderHexMask(context, context.getMatrices(), getX() - 6, getY() - 6, getWidth() + 12, hoverProgress, softPx, primaryColor, primaryColor, primaryColor, 0.5f, Jujutsu.getId("textures/gui/square.png"));
-            ShaderUtils.renderHexMask(context, context.getMatrices(), getX() - 4, getY() - 4, getWidth() + 8, hoverProgress, softPx, secondaryColor, secondaryColor, secondaryColor + 0.10f, 1f, Jujutsu.getId("textures/gui/square.png"));
-            ShaderUtils.renderHexMask(context, context.getMatrices(), getX(), getY(), getWidth(), hoverProgress, softPx, primaryColor, primaryColor, primaryColor, 0.5f, Jujutsu.getId("textures/gui/square.png"));
+            ShaderUtils.renderHexMask(context, context.getMatrices(), getX() - 6, getY() - 6, getWidth() + 12, hoverProgress, softPx, r, g, b, 0.5f, Jujutsu.getId("textures/gui/square.png"));
+            ShaderUtils.renderHexMask(context, context.getMatrices(), getX() - 4, getY() - 4, getWidth() + 8, hoverProgress, softPx, r + 0.4f, g + 0.4f, b + 0.50f, 1f, Jujutsu.getId("textures/gui/square.png"));
+            ShaderUtils.renderHexMask(context, context.getMatrices(), getX(), getY(), getWidth(), hoverProgress, softPx, r, g, b, 0.5f, Jujutsu.getId("textures/gui/square.png"));
 
             renderIcon(context);
 
@@ -286,12 +309,11 @@ public class AbilityUpgradesScreen extends Screen {
 
             tooltip.add(costText);
             tooltip.add(Text.literal(""));
-            tooltip.addAll(upgrade.getDescription());
+            tooltip.addAll(upgrade.getAllDescriptions());
 
             for(MutableText text: tooltip) {
                 biggestWidth = Math.max(biggestWidth, textRenderer.getWidth(text));
             }
-
 
             return new Pair<>(tooltip, biggestWidth);
         }

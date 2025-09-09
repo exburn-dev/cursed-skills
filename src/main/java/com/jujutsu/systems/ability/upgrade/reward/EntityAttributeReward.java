@@ -1,5 +1,8 @@
-package com.jujutsu.systems.ability.upgrade;
+package com.jujutsu.systems.ability.upgrade.reward;
 
+import com.jujutsu.registry.AbilityUpgradeRewardTypes;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgradeReward;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgradeRewardType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -11,25 +14,21 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class EntityAttributeAbilityUpgrade extends AbilityUpgrade {
-    public static final MapCodec<EntityAttributeAbilityUpgrade> CODEC = RecordCodecBuilder.mapCodec(instance ->
-            commonFields(instance)
-            .and(Codec.unboundedMap(EntityAttribute.CODEC, EntityAttributeModifier.CODEC).xmap(HashMap::new, HashMap::new)
-                    .fieldOf("modifiers").forGetter(EntityAttributeAbilityUpgrade::modifiers))
-                    .apply(instance, EntityAttributeAbilityUpgrade::new)
+public class EntityAttributeReward extends AbilityUpgradeReward {
+    public static final MapCodec<EntityAttributeReward> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Codec.unboundedMap(EntityAttribute.CODEC, EntityAttributeModifier.CODEC).xmap(HashMap::new, HashMap::new)
+                    .fieldOf("modifiers").forGetter(EntityAttributeReward::modifiers))
+                    .apply(instance, EntityAttributeReward::new)
     );
 
     private final HashMap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> modifiers;
 
-    public EntityAttributeAbilityUpgrade(Identifier id, Identifier icon, float cost, AbilityUpgradeType<?> type,
-                                         HashMap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> modifiers) {
-        super(id, icon, cost, type);
+    public EntityAttributeReward(HashMap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> modifiers) {
         this.modifiers = modifiers;
     }
 
@@ -76,5 +75,10 @@ public class EntityAttributeAbilityUpgrade extends AbilityUpgrade {
         }
 
         return description;
+    }
+
+    @Override
+    public AbilityUpgradeRewardType<?> getType() {
+        return AbilityUpgradeRewardTypes.ENTITY_ATTRIBUTE;
     }
 }

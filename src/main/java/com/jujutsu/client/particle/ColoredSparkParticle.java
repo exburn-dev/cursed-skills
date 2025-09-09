@@ -1,12 +1,9 @@
 package com.jujutsu.client.particle;
 
-import com.jujutsu.Jujutsu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.particle.v1.FabricSpriteProvider;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.render.*;
-import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
@@ -87,7 +84,7 @@ public class ColoredSparkParticle extends SpriteBillboardParticle {
 
     @Override
     public ParticleTextureSheet getType() {
-        return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
+        return ParticleTextureSheet.PARTICLE_SHEET_LIT;
     }
 
     @Override

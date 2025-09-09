@@ -7,6 +7,10 @@ import com.jujutsu.network.payload.AbilitiesAcquiredPayload;
 import com.jujutsu.registry.ModDataComponents;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgrade;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
+import com.jujutsu.systems.ability.upgrade.UpgradesData;
 import com.jujutsu.util.AbilitiesHolderUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.gui.screen.Screen;
@@ -37,19 +41,35 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
         if(world.isClient()) return TypedActionResult.pass(stack);
 
         TechniqueComponent component = stack.get(ModDataComponents.TECHNIQUE_COMPONENT);
-        if(component != null) {
-            IAbilitiesHolder holder = (IAbilitiesHolder) user;
+        if(component == null) return TypedActionResult.pass(stack);
 
-            AbilitiesHolderUtils.removeAbilities(holder);
-            for(Map.Entry<AbilitySlot, AbilityType> entry: component.abilities().entrySet()) {
-                holder.addAbilityInstance(entry.getValue().getDefaultInstance(), entry.getKey());
+        IAbilitiesHolder holder = (IAbilitiesHolder) user;
+
+        AbilitiesHolderUtils.removeAbilities((ServerPlayerEntity) user);
+        holder.setUpgradesId(component.upgradesId());
+
+        List<AbilityUpgradeBranch> branches = AbilityUpgradesReloadListener.getInstance().getBranches(component.upgradesId());
+        UpgradesData data = holder.getUpgradesData();
+        if(branches != null && !branches.isEmpty()) {
+            for (AbilityUpgradeBranch branch : branches) {
+                if (data.purchasedUpgrades().containsKey(branch.id())) {
+                    AbilityUpgrade upgrade = branch.findUpgrade(data.purchasedUpgrades().get(branch.id()));
+
+                    if (upgrade != null) {
+                        upgrade.apply(user);
+                    }
+                }
             }
-            for(PassiveAbility passiveAbility: component.passiveAbilities()) {
-                holder.addPassiveAbility(passiveAbility);
-            }
-            holder.setUpgradesId(component.upgradesId());
-            ServerPlayNetworking.send((ServerPlayerEntity) user, new AbilitiesAcquiredPayload(component.abilities().values().stream().toList()));
         }
+
+        for(Map.Entry<AbilitySlot, AbilityType> entry: component.abilities().entrySet()) {
+            holder.addAbilityInstance(entry.getValue().getDefaultInstance(), entry.getKey());
+        }
+        for(PassiveAbility passiveAbility: component.passiveAbilities()) {
+            holder.addPassiveAbility(passiveAbility);
+        }
+
+        ServerPlayNetworking.send((ServerPlayerEntity) user, new AbilitiesAcquiredPayload(component.abilities().values().stream().toList()));
 
         stack.decrement(1);
         return TypedActionResult.success(stack);

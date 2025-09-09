@@ -1,5 +1,6 @@
 package com.jujutsu.systems.ability;
 
+import com.jujutsu.Jujutsu;
 import com.jujutsu.network.NbtPacketCodec;
 import com.jujutsu.network.payload.SyncAbilityAdditionalInputPayload;
 import com.jujutsu.registry.JujutsuRegistries;
@@ -7,20 +8,19 @@ import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public final class AbilityInstance {
     public static final Codec<AbilityInstance> CODEC;
@@ -88,17 +88,22 @@ public final class AbilityInstance {
         }
     }
 
-    public double getAbilityAttributeValue(PlayerEntity player, AbilityAttribute attribute) {
+    public double getAbilityAttributeValue(PlayerEntity player, RegistryEntry<AbilityAttribute> attribute) {
         AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) player;
         List<AbilityAttributeModifier> holderModifiers = new ArrayList<>(holder.getAbilityAttributes().attributes().get(attribute).values());
 
-        holderModifiers.sort(Comparator.comparing(modifier -> modifier.type().getId()));
-
         double totalValue = 0;
+        double totalMultiplier = 1;
         for(int i = 0; i < holderModifiers.size(); i++) {
-            totalValue = holderModifiers.get(i).applyToValue(totalValue);
+            AbilityAttributeModifier modifier = holderModifiers.get(i);
+            if(modifier.type() == AbilityAttributeModifier.Type.ADD) {
+                totalValue += modifier.value();
+            }
+            else {
+                totalMultiplier += modifier.value();
+            }
         }
-        return totalValue;
+        return totalValue * totalMultiplier;
     }
 
     public void addDefaultAttributes(PlayerEntity player) {
@@ -107,9 +112,8 @@ public final class AbilityInstance {
         AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) player;
 
         if(container.attributes().isEmpty()) return;
-
         for(var entry: container.attributes().entrySet()) {
-            HashMap<Identifier, AbilityAttributeModifier> holderModifiers = holder.getModifiers(entry.getKey());
+            HashMap<Identifier, AbilityAttributeModifier> holderModifiers = holder.getAbilityAttributes().getModifiers(entry.getKey());
             if(holderModifiers == null) {
                 HashMap<Identifier, AbilityAttributeModifier> map = new HashMap<>(entry.getValue());
                 holder.getAbilityAttributes().attributes().put(entry.getKey(), map);

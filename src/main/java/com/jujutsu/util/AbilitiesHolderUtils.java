@@ -10,12 +10,10 @@ import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgrade;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
-import com.jujutsu.systems.ability.upgrade.UpgradesData;
+import com.jujutsu.systems.ability.upgrade.*;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
@@ -24,7 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class AbilitiesHolderUtils {
-    public static void removeAbilities(IAbilitiesHolder holder) {
+    public static void removeAbilities(ServerPlayerEntity player) {
+        IAbilitiesHolder holder = (IAbilitiesHolder) player;
         if (!holder.getSlots().isEmpty()) {
             for(AbilitySlot slot: holder.getSlots()) {
                 holder.tryCancelAbility(slot);
@@ -39,6 +38,25 @@ public class AbilitiesHolderUtils {
                 iterator.remove();
             }
         }
+
+        cancelAbilityUpgrades(player);
+    }
+
+    public static void cancelAbilityUpgrades(ServerPlayerEntity player) {
+        IAbilitiesHolder holder = (IAbilitiesHolder) player;
+        UpgradesData data = holder.getUpgradesData();
+
+        List<AbilityUpgradeBranch> branches = AbilityUpgradesReloadListener.getInstance().getBranches(data.upgradesId());
+        if(branches == null || branches.isEmpty()) return;
+        for(AbilityUpgradeBranch branch: branches) {
+            if (data.purchasedUpgrades().containsKey(branch.id())) {
+                AbilityUpgrade upgrade = branch.findUpgrade(data.purchasedUpgrades().get(branch.id()));
+
+                if(upgrade != null) {
+                    upgrade.remove(player);
+                }
+            }
+        }
     }
 
     public static void removeAbilityUpgrades(ServerPlayerEntity player) {
@@ -46,13 +64,13 @@ public class AbilitiesHolderUtils {
         UpgradesData data = holder.getUpgradesData();
 
         List<AbilityUpgradeBranch> branches = AbilityUpgradesReloadListener.getInstance().getBranches(data.upgradesId());
+        if(branches == null || branches.isEmpty()) return;
         for(AbilityUpgradeBranch branch: branches) {
             if (data.purchasedUpgrades().containsKey(branch.id())) {
-                Identifier upgradeId = data.purchasedUpgrades().get(branch.id());
-                for(AbilityUpgrade upgrade: branch.upgrades()) {
-                    if(upgrade.id().equals(upgradeId)) {
-                        upgrade.remove(player);
-                    }
+                AbilityUpgrade upgrade = branch.findUpgrade(data.purchasedUpgrades().get(branch.id()));
+
+                if(upgrade != null) {
+                    upgrade.remove(player);
                 }
             }
         }
@@ -62,7 +80,7 @@ public class AbilitiesHolderUtils {
         AbilityAttributesContainer newContainer = new AbilityAttributesContainer(new HashMap<>());
 
         for(var entry: container.attributes().entrySet()) {
-            AbilityAttribute attribute = entry.getKey();
+            RegistryEntry<AbilityAttribute> attribute = entry.getKey();
             for(var entry1: entry.getValue().entrySet()) {
                 if(entry1.getKey().equals(Jujutsu.getId("base"))) {
                     HashMap<Identifier, AbilityAttributeModifier> map = newContainer.attributes().getOrDefault(attribute, new HashMap<>());

@@ -1,6 +1,7 @@
 package com.jujutsu.registry;
 
 import com.jujutsu.Jujutsu;
+import com.jujutsu.client.particle.BigColoredSparkParticleEffect;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
@@ -21,6 +22,9 @@ public class ModParticleTypes {
     public static final ParticleType<ColoredSparkParticleEffect> COLORED_SPARK = registerParticle("colored_spark", false,
             (type) -> ColoredSparkParticleEffect.CODEC,
             (type) -> ColoredSparkParticleEffect.PACKET_CODEC);
+    public static final ParticleType<BigColoredSparkParticleEffect> BIG_COLORED_SPARK = registerParticle("big_colored_spark", false,
+            (type) -> BigColoredSparkParticleEffect.CODEC,
+            (type) -> BigColoredSparkParticleEffect.PACKET_CODEC);
 
     private static <T extends ParticleType<?>> T registerParticle(String name, T type) {
         return Registry.register(Registries.PARTICLE_TYPE, Jujutsu.getId(name), type);

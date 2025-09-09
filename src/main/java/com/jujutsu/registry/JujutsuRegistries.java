@@ -4,7 +4,7 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.systems.ability.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.jujutsu.systems.ability.passive.PassiveAbilityType;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgradeType;
+import com.jujutsu.systems.ability.upgrade.AbilityUpgradeRewardType;
 import com.jujutsu.systems.buff.BuffCancellingConditionType;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
@@ -32,8 +32,8 @@ public class JujutsuRegistries {
             .attribute(RegistryAttribute.SYNCED)
             .buildAndRegister();
 
-    public static final RegistryKey<Registry<AbilityUpgradeType<?>>> ABILITY_UPGRADE_TYPE_REGISTRY_KEY = RegistryKey.ofRegistry(Jujutsu.getId("ability_upgrade_type"));
-    public static final Registry<AbilityUpgradeType<?>> ABILITY_UPGRADE_TYPE = FabricRegistryBuilder.createSimple(ABILITY_UPGRADE_TYPE_REGISTRY_KEY)
+    public static final RegistryKey<Registry<AbilityUpgradeRewardType<?>>> ABILITY_UPGRADE_REWARD_TYPE_REGISTRY_KEY = RegistryKey.ofRegistry(Jujutsu.getId("ability_upgrade_type"));
+    public static final Registry<AbilityUpgradeRewardType<?>> ABILITY_UPGRADE_REWARD_TYPE = FabricRegistryBuilder.createSimple(ABILITY_UPGRADE_REWARD_TYPE_REGISTRY_KEY)
             .attribute(RegistryAttribute.SYNCED)
             .buildAndRegister();
 }

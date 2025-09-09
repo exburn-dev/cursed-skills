@@ -30,4 +30,21 @@ public record AbilityUpgradeBranch(Identifier id, List<AbilityUpgrade> upgrades)
         }
         return branchIndex;
     }
+
+    public AbilityUpgrade findUpgrade(Identifier id) {
+        AbilityUpgrade toReturn = null;
+        for(AbilityUpgrade upgrade: upgrades()) {
+            if(upgrade.id().equals(id)) {
+                toReturn = upgrade;
+                break;
+            }
+        }
+        return toReturn;
+    }
+
+    public List<AbilityUpgradeReward> getAllUpgrades() {
+        return upgrades.stream()
+                .flatMap(upgrade -> upgrade.rewards().stream())
+                .toList();
+    }
 }

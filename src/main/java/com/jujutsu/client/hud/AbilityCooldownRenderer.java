@@ -100,9 +100,7 @@ public class AbilityCooldownRenderer {
             vertexConsumer.vertex(matrix4f, endX, endY, z).color(colorEnd);
             vertexConsumer.vertex(matrix4f, endX, startY, z).color(colorEnd);
 
-            RenderSystem.disableDepthTest();
             context.getVertexConsumers().draw();
-            RenderSystem.enableDepthTest();
         }
 
         public void setInstance(AbilityInstance instance) {

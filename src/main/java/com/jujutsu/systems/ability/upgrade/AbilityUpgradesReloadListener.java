@@ -44,7 +44,7 @@ public class AbilityUpgradesReloadListener implements SimpleSynchronousResourceR
 
     public static AbilityUpgradesReloadListener getInstance() {
         if(INSTANCE == null) {
-            Jujutsu.LOGGER.error("Ability upgrades reload listener is not registered");
+            Jujutsu.LOGGER.error("Ability rewards reload listener is not registered");
         }
         return INSTANCE;
     }

@@ -2,21 +2,13 @@ package com.jujutsu.command;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.command.argument.AbilitySlotArgument;
-import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
 import com.jujutsu.registry.JujutsuRegistries;
 import com.jujutsu.systems.ability.AbilityInstance;
 import com.jujutsu.systems.ability.AbilitySlot;
 import com.jujutsu.systems.ability.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
-import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.network.payload.OpenHandSettingScreenPayload;
-import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgrade;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
 import com.jujutsu.systems.ability.upgrade.UpgradesData;
 import com.jujutsu.systems.animation.PlayerAnimations;
 import com.jujutsu.util.AbilitiesHolderUtils;
@@ -37,9 +29,6 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-
-import java.util.HashMap;
-import java.util.List;
 
 public class JujutsuCommand {
     public static void register() {
@@ -141,10 +130,9 @@ public class JujutsuCommand {
 
     private static int removeAllAbilities(CommandContext<ServerCommandSource> context) {
         ServerPlayerEntity player = context.getSource().getPlayer();
-        IAbilitiesHolder holder = (IAbilitiesHolder) player;
 
         try {
-            AbilitiesHolderUtils.removeAbilities(holder);
+            AbilitiesHolderUtils.removeAbilities(player);
         }
         catch (Exception e) {
             Jujutsu.LOGGER.warn("exception: {}", e);

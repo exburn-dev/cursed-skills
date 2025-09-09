@@ -53,7 +53,10 @@ public class HollowPurpleAbility extends AbilityType {
             entity.setYaw(player.getYaw());
             entity.setPitch(player.getPitch());
             entity.setPosition(player.getEyePos().add(0, 0.5, 0).add(player.getRotationVector().multiply(5)));
+
             entity.setBlockBreakRadius((float) instance.getAbilityAttributeValue(player, ModAbilityAttributes.HOLLOW_PURPLE_RADIUS));
+            entity.setSpeed((float) instance.getAbilityAttributeValue(player, ModAbilityAttributes.HOLLOW_PURPLE_SPEED));
+
             player.getWorld().spawnEntity(entity);
         }
         Vec3d pos = player.getEyePos().add(0, (double) instance.getUseTime() / 120, 0).add(player.getRotationVector().multiply(5));
@@ -103,7 +106,9 @@ public class HollowPurpleAbility extends AbilityType {
     @Override
     public AbilityAttributesContainer getDefaultAttributes() {
         return new AbilityAttributesContainer.Builder()
-                .addBaseModifier(ModAbilityAttributes.HOLLOW_PURPLE_RADIUS, 3, AbilityAttributeModifier.Type.ADD).build();
+                .addBaseModifier(ModAbilityAttributes.HOLLOW_PURPLE_RADIUS, 3)
+                .addBaseModifier(ModAbilityAttributes.HOLLOW_PURPLE_SPEED, 0.75)
+                .build();
     }
 
     @Override

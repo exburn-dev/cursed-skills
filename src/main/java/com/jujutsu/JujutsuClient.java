@@ -2,10 +2,7 @@ package com.jujutsu;
 
 import com.jujutsu.client.hud.*;
 import com.jujutsu.client.keybind.AdditionalInputSystem;
-import com.jujutsu.client.particle.ColoredSparkParticle;
-import com.jujutsu.client.particle.HollowPurpleParticle;
-import com.jujutsu.client.particle.LapseBlueCoreParticle;
-import com.jujutsu.client.particle.LapseBlueLightningParticle;
+import com.jujutsu.client.particle.*;
 import com.jujutsu.entity.model.BlinkMarkerModel;
 import com.jujutsu.entity.model.PhoenixFireballModel;
 import com.jujutsu.entity.renderer.*;
@@ -45,6 +42,7 @@ public class JujutsuClient implements ClientModInitializer {
         ParticleFactoryRegistry.getInstance().register(ModParticleTypes.LAPSE_BLUE_LIGHTNING, LapseBlueLightningParticle.Factory::new);
         ParticleFactoryRegistry.getInstance().register(ModParticleTypes.LAPSE_BLUE_CORE, LapseBlueCoreParticle.Factory::new);
         ParticleFactoryRegistry.getInstance().register(ModParticleTypes.COLORED_SPARK, ColoredSparkParticle.Factory::new);
+        ParticleFactoryRegistry.getInstance().register(ModParticleTypes.BIG_COLORED_SPARK, BigColoredSparkParticleEffect.Factory::new);
 
         HudRenderCallback.EVENT.register(AbilitiesHudRenderer::render);
         HudRenderCallback.EVENT.register(AbilityCooldownRenderer::render);

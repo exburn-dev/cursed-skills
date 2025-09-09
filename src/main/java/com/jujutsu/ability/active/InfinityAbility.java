@@ -2,15 +2,17 @@ package com.jujutsu.ability.active;
 
 import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
+import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.registry.ModAttributes;
-import com.jujutsu.systems.ability.AbilityInstance;
-import com.jujutsu.systems.ability.AbilityType;
-import com.jujutsu.systems.ability.ClientData;
+import com.jujutsu.systems.ability.*;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
+import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.animation.PlayerAnimations;
 import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
 import com.jujutsu.util.HandAnimationUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.serialization.Codec;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -35,15 +37,16 @@ import net.minecraft.world.RaycastContext;
 import java.util.List;
 
 public class InfinityAbility extends AbilityType {
-    private static final int abilityDuration = 160;
-
     public InfinityAbility(int cooldownTime) {
         super(cooldownTime, false, new ClientData.Builder().addAnimation(InfinityAbility::renderHand).addOverlay(InfinityAbility::renderHud).build());
     }
 
     @Override
     public void start(PlayerEntity player, AbilityInstance instance) {
-        Buff.createBuff(player, ModAttributes.INVINCIBLE, ImmutableList.of(new TimeCancellingCondition(abilityDuration)), Buff.CancellingPolicy.ONE_OR_MORE, 0.5,
+        int duration = (int) Math.floor(instance.getAbilityAttributeValue(player, ModAbilityAttributes.INFINITY_DURATION)) * 20;
+        instance.setAbilityData(new AbilityDataTypes.Int(duration));
+
+        Buff.createBuff(player, ModAttributes.INVINCIBLE, ImmutableList.of(new TimeCancellingCondition(duration)), Buff.CancellingPolicy.ONE_OR_MORE, 0.5,
                 EntityAttributeModifier.Operation.ADD_VALUE, Jujutsu.getId("infinity"));
         if(player.getWorld().isClient()) return;
         PlayerAnimations.playAnimation((ServerPlayerEntity) player, Jujutsu.getId("infinity"), 1000, 50);
@@ -72,9 +75,28 @@ public class InfinityAbility extends AbilityType {
             else if(result.getType() == HitResult.Type.BLOCK) {
                 Block block = player.getWorld().getBlockState(BlockPos.ofFloored(result.getPos())).getBlock();
 
-                entity.damage(player.getDamageSources().magic(), Math.min((float) (5f / distance) * block.getHardness(), 100f));
+                float damage = Math.min((float) (5f / distance) * block.getHardness(), 100f);
+                Jujutsu.LOGGER.info("Infinity damage: {}", damage);
+                entity.damage(player.getDamageSources().magic(), damage);
             }
         }
+    }
+
+    @Override
+    public AbilityAttributesContainer getDefaultAttributes() {
+        return new AbilityAttributesContainer.Builder()
+                .addBaseModifier(ModAbilityAttributes.INFINITY_DURATION, 8)
+                .build();
+    }
+
+    @Override
+    public AbilityData getInitialData() {
+        return new AbilityDataTypes.Int(0);
+    }
+
+    @Override
+    public Codec<? extends AbilityData> getCodec() {
+        return AbilityDataTypes.INTEGER;
     }
 
     @Override
@@ -82,6 +104,7 @@ public class InfinityAbility extends AbilityType {
 
     @Override
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+        int abilityDuration = instance.getAbilityData(AbilityDataTypes.Int.class, () -> new AbilityDataTypes.Int(0)).value();
         return instance.getUseTime() >= abilityDuration;
     }
 
@@ -114,6 +137,7 @@ public class InfinityAbility extends AbilityType {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 
+        int abilityDuration = instance.getAbilityData(AbilityDataTypes.Int.class, () -> new AbilityDataTypes.Int(0)).value();
         float alpha;
         if(instance.getUseTime() >= abilityDuration - 20) {
             alpha = MathHelper.clampedLerp(0.35f, 0, (float) (instance.getUseTime() - abilityDuration + 20 ) / 20);

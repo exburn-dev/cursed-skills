@@ -1,12 +1,14 @@
 package com.jujutsu.entity;
 
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
+import com.jujutsu.registry.ModEffects;
 import com.jujutsu.registry.ModEntityTypes;
 import com.jujutsu.util.ParticleUtils;
 import net.minecraft.entity.*;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.util.TypeFilter;
@@ -26,6 +28,8 @@ public class LapseBlueEntity extends Entity {
     private static final TrackedData<Integer> AGE;
     private static final TrackedData<Integer> CHARGE_TIME;
     private static final TrackedData<Boolean> IS_CHARGING;
+    private static final TrackedData<Float> DAMAGE_MULTIPLIER;
+    private static final TrackedData<Float> STUN_SECONDS;
 
     public LapseBlueEntity(EntityType<?> type, World world) {
         super(type, world);
@@ -79,10 +83,14 @@ public class LapseBlueEntity extends Entity {
         }
 
         for(LivingEntity entity: toDamage) {
-            float damage = (toDamage.size() - 1) * 3.5f;
+            float damage = (toDamage.size() - 1) * 3.5f * getDamageMultiplier();
             if(damage <= 0) continue;
 
             entity.damage(this.getDamageSources().magic(), damage );
+            int stunSeconds = (int) getStunSeconds();
+            if(stunSeconds > 0) {
+                entity.addStatusEffect(new StatusEffectInstance(ModEffects.STUN, stunSeconds, 0, true, false, false));
+            }
         }
     }
 
@@ -100,6 +108,22 @@ public class LapseBlueEntity extends Entity {
 
     public int getChargeTime() {
         return dataTracker.get(CHARGE_TIME);
+    }
+
+    public float getDamageMultiplier() {
+        return this.dataTracker.get(DAMAGE_MULTIPLIER);
+    }
+
+    public void setDamageMultiplier(float value) {
+        this.dataTracker.set(DAMAGE_MULTIPLIER, value);
+    }
+
+    public float getStunSeconds() {
+        return this.dataTracker.get(STUN_SECONDS);
+    }
+
+    public void setStunSeconds(float value) {
+        this.dataTracker.set(STUN_SECONDS, value);
     }
 
     private void render() {
@@ -132,6 +156,8 @@ public class LapseBlueEntity extends Entity {
         builder.add(AGE, 0);
         builder.add(CHARGE_TIME, 0);
         builder.add(IS_CHARGING, true);
+        builder.add(DAMAGE_MULTIPLIER, 1f);
+        builder.add(STUN_SECONDS, 0f);
     }
 
     public Optional<UUID> getOwnerUuid() {
@@ -163,5 +189,7 @@ public class LapseBlueEntity extends Entity {
         OWNER_UUID = DataTracker.registerData(LapseBlueEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
         CHARGE_TIME = DataTracker.registerData(LapseBlueEntity.class, TrackedDataHandlerRegistry.INTEGER);
         IS_CHARGING = DataTracker.registerData(LapseBlueEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+        DAMAGE_MULTIPLIER = DataTracker.registerData(LapseBlueEntity.class, TrackedDataHandlerRegistry.FLOAT);
+        STUN_SECONDS = DataTracker.registerData(LapseBlueEntity.class, TrackedDataHandlerRegistry.FLOAT);
     }
 }

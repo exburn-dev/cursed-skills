@@ -1,0 +1,34 @@
+[
+  {
+    "id": "jujutsu:speedster_branch1",
+    "upgrades": [
+      {
+        "id": "jujutsu:speedster_11",
+        "icon": "minecraft:textures/mob_effect/speed",
+        "cost": 5,
+        "rewards": [
+          {
+            "type": "jujutsu:entity_attribute",
+            "modifiers": {
+              "minecraft:generic.movement_speed": {
+                "id": "jujutsu:speedster_111",
+                "amount": 0.25,
+                "operation": "add_multiplied_total"
+              }
+            }
+          },
+          {
+            "type": "jujutsu:entity_attribute",
+            "modifiers": {
+              "minecraft:generic.step_height": {
+                "id": "jujutsu:speedster_112",
+                "amount": 0.4,
+                "operation": "add_value"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -3,47 +3,54 @@
     "id": "jujutsu:gojo_branch1",
     "upgrades": [
       {
-        "id": "jujutsu:hollow_purple_11",
+        "id": "jujutsu:gojo_11",
         "icon": "minecraft:textures/item/iron_sword",
-        "cost": 3,
-        "type": "jujutsu:ability_attribute",
-        "modifiers": {
-          "jujutsu:hollow_purple_radius": {
-            "id": "jujutsu:hollow_purple_11",
-            "amount": 1,
-            "operation": "add"
-          }
-        }
-      },
-      {
-        "id": "jujutsu:hollow_purple_12",
-        "icon": "minecraft:textures/item/firework_rocket",
-        "cost": 2,
-        "type": "jujutsu:sequence",
-        "upgrades": [
+        "cost": 10,
+        "rewards": [
           {
-            "id": "jujutsu:hollow_purple_121",
-            "icon": "minecraft:textures/item/iron_sword",
-            "cost": 0,
             "type": "jujutsu:ability_attribute",
             "modifiers": {
               "jujutsu:hollow_purple_radius": {
-                "id": "jujutsu:hollow_purple_121",
-                "amount": 2,
-                "operation": "multiply"
+                "id": "jujutsu:gojo_111",
+                "amount": 0.5,
+                "operation": "add"
               }
             }
           },
           {
-            "id": "jujutsu:hollow_purple_122",
-            "icon": "minecraft:textures/item/iron_sword",
-            "cost": 0,
-            "type": "jujutsu:entity_attribute",
+            "type": "jujutsu:ability_attribute",
             "modifiers": {
-              "minecraft:generic.movement_speed": {
-                "id": "jujutsu:hollow_purple_122",
-                "amount": 0.1,
-                "operation": "add_multiplied_total"
+              "jujutsu:hollow_purple_speed": {
+                "id": "jujutsu:gojo_112",
+                "amount": -0.15,
+                "operation": "multiply"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "jujutsu:gojo_12",
+        "icon": "minecraft:textures/item/firework_rocket",
+        "cost": 10,
+        "rewards": [
+          {
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:hollow_purple_radius": {
+                "id": "jujutsu:gojo_121",
+                "amount": -0.5,
+                "operation": "add"
+              }
+            }
+          },
+          {
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:hollow_purple_speed": {
+                "id": "jujutsu:gojo_122",
+                "amount": 0.15,
+                "operation": "multiply"
               }
             }
           }
@@ -51,65 +58,238 @@
       }
     ]
   },
+
+
   {
     "id": "jujutsu:gojo_branch2",
     "upgrades": [
       {
-        "id": "jujutsu:hollow_purple_21",
+        "id": "jujutsu:gojo_21",
         "icon": "minecraft:textures/item/fire_charge",
-        "cost": 3,
-        "type": "jujutsu:entity_attribute",
-        "modifiers": {
-          "minecraft:generic.movement_speed": {
-            "id": "jujutsu:gojo_21",
-            "amount": 0.5,
-            "operation": "add_multiplied_total"
+        "cost": 8,
+        "rewards": [
+          {
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:infinity_duration": {
+                "id": "jujutsu:gojo_211",
+                "amount": 2,
+                "operation": "add"
+              }
+            }
           }
-        }
+        ]
       },
       {
-        "id": "jujutsu:hollow_purple_22",
+        "id": "jujutsu:gojo_22",
         "icon": "minecraft:textures/item/nether_star",
-        "cost": 2,
-        "type": "jujutsu:ability_attribute",
-        "modifiers": {
-          "jujutsu:hollow_purple_radius": {
-            "id": "jujutsu:hollow_purple_22",
-            "amount": 1.5,
-            "operation": "multiply"
+        "cost": 8,
+        "rewards": [
+          {
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:hollow_purple_radius": {
+                "id": "jujutsu:gojo_221",
+                "amount": 0.5,
+                "operation": "add"
+              }
+            }
           }
-        }
+        ]
       }
     ]
   },
+
+
   {
     "id": "jujutsu:gojo_branch3",
     "upgrades": [
       {
-        "id": "jujutsu:hollow_purple_31",
+        "id": "jujutsu:gojo_31",
         "icon": "minecraft:textures/item/bell",
-        "cost": 3,
-        "type": "jujutsu:ability_attribute",
-        "modifiers": {
-          "jujutsu:hollow_purple_radius": {
-            "id": "jujutsu:hollow_purple_31",
-            "amount": 1.5,
-            "operation": "multiply"
+        "cost": 10,
+        "rewards": [
+          {
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:reversal_red_explosion_power": {
+                "id": "jujutsu:gojo_311",
+                "amount": 1,
+                "operation": "multiply"
+              }
+            }
+          },
+          {
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:reversal_red_damage_multiplier": {
+                "id": "jujutsu:gojo_312",
+                "amount": 0.5,
+                "operation": "multiply"
+              }
+            }
           }
-        }
+        ]
       },
       {
-        "id": "jujutsu:hollow_purple_32",
+        "id": "jujutsu:gojo_32",
         "icon": "minecraft:textures/item/cookie",
-        "cost": 2,
-        "type": "jujutsu:ability_attribute",
-        "modifiers": {
-          "jujutsu:hollow_purple_radius": {
-            "id": "jujutsu:hollow_purple_32",
-            "amount": 0.5,
-            "operation": "multiply"
+        "cost": 10,
+        "rewards": [
+          {
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:lapse_blue_damage_multiplier": {
+                "id": "jujutsu:gojo_321",
+                "amount": 0.75,
+                "operation": "multiply"
+              }
+            }
           }
-        }
+        ]
+      }
+    ]
+  },
+
+
+  {
+    "id": "jujutsu:gojo_branch4",
+    "upgrades": [
+      {
+        "id": "jujutsu:gojo_41",
+        "icon": "minecraft:textures/item/diamond_sword",
+        "cost": 10,
+        "rewards": [
+          {
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:hollow_purple_radius": {
+                "id": "jujutsu:gojo_411",
+                "amount": 0.5,
+                "operation": "add"
+              }
+            }
+          },
+          {
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:hollow_purple_speed": {
+                "id": "jujutsu:gojo_412",
+                "amount": 0.1,
+                "operation": "multiply"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "jujutsu:gojo_42",
+        "icon": "minecraft:textures/mob_effect/health_boost",
+        "cost": 10,
+        "rewards": [
+          {
+            "type": "jujutsu:entity_attribute",
+            "modifiers": {
+              "minecraft:generic.movement_speed": {
+                "id": "jujutsu:gojo_421",
+                "amount": 0.15,
+                "operation": "add_multiplied_total"
+              }
+            }
+          },
+          {
+            "type": "jujutsu:entity_attribute",
+            "modifiers": {
+              "minecraft:generic.max_health": {
+                "id": "jujutsu:gojo_422",
+                "amount": 5,
+                "operation": "add_value"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+
+  {
+    "id": "jujutsu:gojo_branch5",
+    "upgrades": [
+      {
+        "id": "jujutsu:gojo_51",
+        "icon": "minecraft:textures/item/red_dye",
+        "cost": 10,
+        "rewards": [
+          {
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:reversal_red_stun": {
+                "id": "jujutsu:gojo_511",
+                "amount": 2,
+                "operation": "add"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "jujutsu:gojo_52",
+        "icon": "minecraft:textures/item/blue_dye",
+        "cost": 10,
+        "rewards": [
+          {
+            "type": "jujutsu:ability_attribute",
+            "modifiers": {
+              "jujutsu:lapse_blue_stun": {
+                "id": "jujutsu:gojo_521",
+                "amount": 2,
+                "operation": "add"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+
+  {
+    "id": "jujutsu:gojo_branch6",
+    "upgrades": [
+      {
+        "id": "jujutsu:gojo_61",
+        "icon": "minecraft:textures/mob_effect/health_boost",
+        "cost": 10,
+        "rewards": [
+          {
+            "type": "jujutsu:entity_attribute",
+            "modifiers": {
+              "minecraft:generic.max_health": {
+                "id": "jujutsu:gojo_611",
+                "amount": 5,
+                "operation": "add_value"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "jujutsu:gojo_62",
+        "icon": "minecraft:textures/mob_effect/speed",
+        "cost": 10,
+        "rewards": [
+          {
+            "type": "jujutsu:entity_attribute",
+            "modifiers": {
+              "minecraft:generic.movement_speed": {
+                "id": "jujutsu:gojo_621",
+                "amount": 0.1,
+                "operation": "add_multiplied_total"
+              }
+            }
+          }
+        ]
       }
     ]
   }

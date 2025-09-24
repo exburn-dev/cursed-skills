@@ -6,8 +6,8 @@ import net.minecraft.util.Identifier;
 import java.util.List;
 
 public interface BuffHolder {
-    Buff getBuff(Identifier id);
-    List<Buff> getBuffs();
-    void addBuff(Identifier id, Buff buff, EntityAttributeModifier modifier);
+    BuffWrapper getBuff(Identifier id);
+    List<BuffWrapper> getBuffs();
+    void addBuff(Identifier id, BuffWrapper buffWrapper);
     void removeBuff(Identifier id);
 }

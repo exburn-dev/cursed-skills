@@ -1,4 +1,4 @@
-package com.jujutsu.systems.ability;
+package com.jujutsu.systems.ability.data;
 
 import com.mojang.serialization.Codec;
 

@@ -1,38 +1,51 @@
 package com.jujutsu.mixin;
 
+import com.jujutsu.Jujutsu;
 import com.jujutsu.client.hud.BuffDisplayData;
+import com.jujutsu.event.server.PlayerBonusEvents;
 import com.jujutsu.network.payload.SyncBuffsForDisplaying;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
 import com.jujutsu.registry.tag.ModDamageTypeTags;
-import com.jujutsu.systems.buff.Buff;
+import com.jujutsu.systems.buff.BuffWrapper;
 import com.jujutsu.systems.buff.BuffHashMapStorage;
 import com.jujutsu.systems.buff.BuffHolder;
+import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
+import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.util.IOldPosHolder;
 import com.mojang.serialization.Dynamic;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.entity.Attackable;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.AttributeContainer;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,10 +53,19 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin implements BuffHolder, IOldPosHolder {
+public abstract class LivingEntityMixin extends Entity implements Attackable, BuffHolder, IOldPosHolder {
+    public LivingEntityMixin(EntityType<?> type, World world) {
+        super(type, world);
+    }
+
     @Shadow public abstract boolean hasStatusEffect(RegistryEntry<StatusEffect> effect);
 
-    @Shadow protected boolean jumping;
+    @Shadow public abstract double getAttributeValue(RegistryEntry<EntityAttribute> attribute);
+
+    @Shadow public abstract AttributeContainer getAttributes();
+
+    @Shadow public abstract boolean damage(DamageSource source, float amount);
+
     @Unique
     private BuffHashMapStorage buffStorage = new BuffHashMapStorage(new HashMap<>());
     @Unique
@@ -62,11 +84,11 @@ public abstract class LivingEntityMixin implements BuffHolder, IOldPosHolder {
 
         List<Identifier> toRemove = new ArrayList<>();
 
-        for(Map.Entry<Identifier, Buff> entry: buffStorage.buffs().entrySet()) {
+        for(Map.Entry<Identifier, BuffWrapper> entry: buffStorage.buffs().entrySet()) {
             Identifier id = entry.getKey();
-            Buff buff = entry.getValue();
+            BuffWrapper buffWrapper = entry.getValue();
 
-            if(buff.checkConditions(entity)) {
+            if(buffWrapper.checkConditions(entity)) {
                 toRemove.add(id);
             }
         }
@@ -97,6 +119,23 @@ public abstract class LivingEntityMixin implements BuffHolder, IOldPosHolder {
         if(hasStatusEffect(ModEffects.STUN)) {
             cir.setReturnValue(0f);
         }
+    }
+
+    @ModifyArgs(method = "jump", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;setVelocity(DDD)V"))
+    private void modifyJumpVelocity(Args args) {
+        if(!this.isPlayer() || !getAttributes().hasAttribute(ModAttributes.JUMP_VELOCITY_MULTIPLIER)) return;
+        Pair<ActionResult, Float> result = PlayerBonusEvents.GET_JUMP_VELOCITY_BONUS_EVENT.invoker().interact((PlayerEntity) (Object) this);
+        double multiplier = 1;
+
+        if(result.getLeft() != ActionResult.FAIL) {
+            multiplier = ((PlayerDynamicAttributesAccessor) this).getDynamicJumpVelocityMultiplier();
+        }
+
+        double baseX = args.get(0);
+        double baseZ = args.get(2);
+
+        args.set(0, baseX * multiplier);
+        args.set(2, baseZ * multiplier);
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("HEAD"))
@@ -138,6 +177,10 @@ public abstract class LivingEntityMixin implements BuffHolder, IOldPosHolder {
         else if(source.isIn(DamageTypeTags.IS_EXPLOSION) && entity.getAttributes().hasAttribute(ModAttributes.BLAST_RESISTANCE)) {
             cir.setReturnValue((float) (amount - amount * entity.getAttributes().getValue(ModAttributes.BLAST_RESISTANCE)));
         }
+
+        if(source.isIn(DamageTypeTags.IS_FIRE) && entity.hasStatusEffect(ModEffects.INCINERATION)) {
+            cir.setReturnValue(amount * (1.5f + 0.5f * entity.getStatusEffect(ModEffects.INCINERATION).getAmplifier()));
+        }
     }
 
     @Inject(method = "createLivingAttributes", at = @At("RETURN"), cancellable = true)
@@ -149,18 +192,16 @@ public abstract class LivingEntityMixin implements BuffHolder, IOldPosHolder {
     }
 
     @Override
-    public Buff getBuff(Identifier id) {
+    public BuffWrapper getBuff(Identifier id) {
         return buffStorage.buffs().get(id);
     }
 
     @Override
-    public void addBuff(Identifier id, Buff buff, EntityAttributeModifier modifier) {
+    public void addBuff(Identifier id, BuffWrapper buffWrapper) {
         LivingEntity entity = (LivingEntity) (Object) this;
 
-        EntityAttributeInstance instance = entity.getAttributes().getCustomInstance(buff.getAttribute());
-        instance.addTemporaryModifier(modifier);
-
-        buffStorage.buffs().put(id, buff);
+        buffWrapper.buff().apply(entity, id);
+        buffStorage.buffs().put(id, buffWrapper);
 
         syncBuffs(entity);
     }
@@ -170,11 +211,9 @@ public abstract class LivingEntityMixin implements BuffHolder, IOldPosHolder {
         if(!buffStorage.buffs().containsKey(id)) return;
 
         LivingEntity entity = (LivingEntity) (Object) this;
-        Buff buff = buffStorage.buffs().get(id);
+        BuffWrapper buffWrapper = buffStorage.buffs().get(id);
 
-        EntityAttributeInstance instance = entity.getAttributes().getCustomInstance(buff.getAttribute());
-        instance.removeModifier(id);
-
+        buffWrapper.buff().remove(entity, id);
         buffStorage.buffs().remove(id);
 
         syncBuffs(entity);
@@ -184,17 +223,18 @@ public abstract class LivingEntityMixin implements BuffHolder, IOldPosHolder {
     private void syncBuffs(LivingEntity entity) {
         if(entity.isPlayer() && !entity.getWorld().isClient()) {
             List<BuffDisplayData> list = new ArrayList<>();
-            for(Buff buff: buffStorage.buffs().values()) {
-                if(buff.getCancellingPolicy() != Buff.CancellingPolicy.ONE_OR_MORE) continue;
+            for(BuffWrapper buffWrapper : buffStorage.buffs().values()) {
+                if(buffWrapper.cancellingPolicy() != BuffWrapper.CancellingPolicy.ONE_OR_MORE
+                        || !(buffWrapper.buff() instanceof ConstantBuff constantBuff) ) continue;
 
-                list.add(new BuffDisplayData(buff.getAttribute(), buff.getConditions().getFirst()));
+                list.add(new BuffDisplayData(constantBuff.attribute(), buffWrapper.conditions().getFirst()));
             }
 
             ServerPlayNetworking.send((ServerPlayerEntity) entity, new SyncBuffsForDisplaying(list));
         }
     }
 
-    public List<Buff> getBuffs() {
+    public List<BuffWrapper> getBuffs() {
         return buffStorage.buffs().values().stream().toList();
     }
 

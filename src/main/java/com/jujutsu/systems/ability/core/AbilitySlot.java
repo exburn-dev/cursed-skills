@@ -1,4 +1,4 @@
-package com.jujutsu.systems.ability;
+package com.jujutsu.systems.ability.core;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;

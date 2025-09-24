@@ -1,9 +1,11 @@
 package com.jujutsu.client.hud;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.ability.AbilityInstance;
-import com.jujutsu.systems.ability.AbilitySlot;
-import com.jujutsu.systems.ability.ClientData;
+import com.jujutsu.client.keybind.AdditionalInputSystem;
+import com.jujutsu.systems.ability.data.AbilityAdditionalInput;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -25,8 +27,8 @@ public class AbilitiesHudRenderer {
             AbilityInstance instance = holder.getAbilityInstance(slot);
 
             renderHud(instance, context, counter);
-            renderAdditionalInput(instance, context, counter);
         }
+        renderAdditionalInput(context, counter);
         matrices.pop();
     }
 
@@ -39,15 +41,18 @@ public class AbilitiesHudRenderer {
         }
     }
 
-    private static void renderAdditionalInput(AbilityInstance instance, DrawContext context, RenderTickCounter counter) {
-        if(!instance.getStatus().isWaiting()) return;
+    private static void renderAdditionalInput(DrawContext context, RenderTickCounter counter) {
+        if(AdditionalInputSystem.getAdditionalInput().isEmpty()) return;
 
-        if(instance.getAdditionalInput() != null && instance.getAdditionalInput().mouseButton() >= 0) {
-            int x = context.getScaledWindowWidth() / 2;
-            int y = context.getScaledWindowHeight() / 2 + 10;
-            Identifier texture = instance.getAdditionalInput().mouseButton() == 0 ? Jujutsu.getId("additional_input/mouse_left")
-                    : Jujutsu.getId("additional_input/mouse_right");
-            context.drawGuiTexture(texture, x, y, 16, 16);
+        for(AdditionalInputSystem.InputData inputData: AdditionalInputSystem.getAdditionalInput()) {
+            AbilityAdditionalInput input = inputData.input;
+            if (input.showOnScreen() && input.mouseButton() >= 0) {
+                int x = context.getScaledWindowWidth() / 2 - 8;
+                int y = context.getScaledWindowHeight() / 2 - 8;
+                Identifier texture = input.mouseButton() == 0 ? Jujutsu.getId("additional_input/mouse_left")
+                        : Jujutsu.getId("additional_input/mouse_right");
+                context.drawGuiTexture(texture, x, y, 16, 16);
+            }
         }
     }
 }

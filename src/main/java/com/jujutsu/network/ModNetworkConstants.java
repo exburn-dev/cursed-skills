@@ -10,8 +10,8 @@ import com.jujutsu.client.keybind.AdditionalInputSystem;
 import com.jujutsu.client.toast.AbilitiesAcquiredToast;
 import com.jujutsu.network.payload.*;
 import com.jujutsu.screen.AbilityUpgradesScreen;
-import com.jujutsu.systems.ability.AbilityInstance;
-import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
@@ -32,6 +32,7 @@ import net.minecraft.world.World;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class ModNetworkConstants {
     public static final Identifier ABILITY_KEY_PRESSED_ID = Jujutsu.getId("ability_key_pressed");
@@ -50,6 +51,7 @@ public class ModNetworkConstants {
     public static final Identifier SYNC_ABILITY_ADDITIONAL_INPUT_ID = Jujutsu.getId("sync_ability_additional_input");
     public static final Identifier SYNC_ABILITY_ATTRIBUTES_ID = Jujutsu.getId("sync_ability_attributes");
     public static final Identifier SYNC_ABILITY_UPGRADES_ID = Jujutsu.getId("sync_ability_upgrades");
+    public static final Identifier SPAWN_PARTICLES_ID = Jujutsu.getId("spawn_particles");
 
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(AbilityKeyPressedPayload.ID, AbilityKeyPressedPayload.CODEC);
@@ -68,12 +70,12 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(SyncAbilityAdditionalInputPayload.ID, SyncAbilityAdditionalInputPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncAbilityAttributesPayload.ID, SyncAbilityAttributesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncAbilityUpgradesPayload.ID, SyncAbilityUpgradesPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(SpawnParticlesPayload.ID, SpawnParticlesPayload.CODEC);
     }
 
     public static void registerServerReceivers() {
         ServerPlayNetworking.registerGlobalReceiver(AbilityKeyPressedPayload.ID, (payload, context) -> {
             IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
-
             if(payload.cancel()) {
                 payload.abilitySlot().cancel(holder);
             }
@@ -87,8 +89,8 @@ public class ModNetworkConstants {
 
             for(AbilitySlot slot: holder.getRunningSlots()) {
                 AbilityInstance instance = holder.getAbilityInstance(slot);
-                if(instance.getStatus().isWaiting() && instance.checkAdditionalInput(payload.additionalInput())) {
-                    break;
+                if(instance.getStatus().isWaiting()) {
+                    instance.checkAdditionalInput(context.player(), payload.additionalInput());
                 }
             }
         });
@@ -195,14 +197,14 @@ public class ModNetworkConstants {
             ColorModifierHudRenderer.addColorModifier(payload.colorModifier());
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(SyncAbilityAdditionalInputPayload.ID, (payload, context) -> {
-            AdditionalInputSystem.addAdditionalInput(payload.additionalInput());
-        });
+        ClientPlayNetworking.registerGlobalReceiver(SyncAbilityAdditionalInputPayload.ID, SyncAbilityAdditionalInputPayload::receiveOnClient);
 
         ClientPlayNetworking.registerGlobalReceiver(SyncAbilityAttributesPayload.ID, (payload, context) -> {
             AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) context.player();
             holder.setAbilityAttributes(payload.container());
         });
+
+        ClientPlayNetworking.registerGlobalReceiver(SpawnParticlesPayload.ID, SpawnParticlesPayload::receiveOnClient);
 
         AbilityUpgradesReloadListener.registerClientReceiver();
     }

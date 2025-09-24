@@ -2,7 +2,9 @@ package com.jujutsu.util;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
-import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
@@ -17,9 +19,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class AbilitiesHolderUtils {
     public static void removeAbilities(ServerPlayerEntity player) {
@@ -40,6 +40,48 @@ public class AbilitiesHolderUtils {
         }
 
         cancelAbilityUpgrades(player);
+    }
+
+    public static double getAbilityAttributeValue(PlayerEntity player, RegistryEntry<AbilityAttribute> attribute) {
+        AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) player;
+        List<AbilityAttributeModifier> holderModifiers = new ArrayList<>(holder.getAbilityAttributes().attributes().get(attribute).values());
+
+        double totalValue = 0;
+        double totalMultiplier = 1;
+        for(int i = 0; i < holderModifiers.size(); i++) {
+            AbilityAttributeModifier modifier = holderModifiers.get(i);
+            if(modifier.type() == AbilityAttributeModifier.Type.ADD) {
+                totalValue += modifier.value();
+            }
+            else {
+                totalMultiplier += modifier.value();
+            }
+        }
+        return totalValue * totalMultiplier;
+    }
+
+    public static <T extends AbilityType> Optional<AbilityInstance> findAbility(IAbilitiesHolder holder, Class<T> ability) {
+        if(holder.getSlots().isEmpty()) return Optional.empty();
+
+        for(AbilitySlot slot: holder.getSlots()) {
+            AbilityInstance instance = holder.getAbilityInstance(slot);
+
+            if(ability.equals(instance.getType().getClass())) {
+                return Optional.of(instance);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public static <T extends PassiveAbility> Optional<T> findPassiveAbility(IAbilitiesHolder holder, Class<T> ability) {
+        if(holder.getPassiveAbilities().isEmpty()) return Optional.empty();
+
+        for(PassiveAbility passiveAbility: holder.getPassiveAbilities()) {
+            if(ability.equals(passiveAbility.getClass())) {
+                return Optional.of(ability.cast(passiveAbility));
+            }
+        }
+        return Optional.empty();
     }
 
     public static void cancelAbilityUpgrades(ServerPlayerEntity player) {

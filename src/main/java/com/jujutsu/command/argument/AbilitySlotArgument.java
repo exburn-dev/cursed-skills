@@ -1,7 +1,7 @@
 package com.jujutsu.command.argument;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;

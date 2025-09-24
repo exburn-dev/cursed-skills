@@ -1,8 +1,13 @@
 package com.jujutsu.util;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.DynamicOps;
+import com.jujutsu.registry.JujutsuRegistries;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityStatus;
+import com.jujutsu.systems.ability.core.AbilityType;
+import com.jujutsu.systems.ability.data.AbilityData;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.*;
+import net.minecraft.util.Identifier;
 
 import java.util.Optional;
 import java.util.function.Consumer;

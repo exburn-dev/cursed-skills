@@ -2,8 +2,8 @@ package com.jujutsu.ability.active;
 
 import com.jujutsu.entity.PhoenixFireballEntity;
 import com.jujutsu.registry.ModSounds;
-import com.jujutsu.systems.ability.AbilityInstance;
-import com.jujutsu.systems.ability.AbilityType;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.util.VisualEffectUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;

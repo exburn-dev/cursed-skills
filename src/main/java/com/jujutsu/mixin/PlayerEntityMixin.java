@@ -6,19 +6,23 @@ import com.jujutsu.event.server.PlayerBonusEvents;
 import com.jujutsu.network.payload.SyncAbilityAttributesPayload;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
-import com.jujutsu.systems.ability.*;
 import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
-import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
+import com.jujutsu.systems.ability.task.AbilityTask;
+import com.jujutsu.systems.ability.task.TickAbilitiesTask;
 import com.jujutsu.systems.ability.upgrade.UpgradesData;
+import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
 import com.jujutsu.util.CodecUtils;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Dynamic;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
@@ -27,6 +31,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -34,6 +41,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -46,46 +54,90 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.*;
 
 @Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin extends LivingEntity implements IAbilitiesHolder, IPlayerJujutsuAbilitiesHolder, AbilityAttributeContainerHolder {
+public abstract class PlayerEntityMixin extends LivingEntity implements IAbilitiesHolder, IPlayerJujutsuAbilitiesHolder, AbilityAttributeContainerHolder,
+        PlayerDynamicAttributesAccessor {
+    @Unique
+    private static final TrackedData<Float> DYNAMIC_SPEED_BONUS =
+            DataTracker.registerData(PlayerEntity.class, TrackedDataHandlerRegistry.FLOAT);
+    @Unique
+    private static final TrackedData<Float> DYNAMIC_JUMP_BONUS =
+            DataTracker.registerData(PlayerEntity.class, TrackedDataHandlerRegistry.FLOAT);
+
+
     @Unique
     private PlayerJujutsuAbilities abilities = new PlayerJujutsuAbilities(new HashMap<>(), new ArrayList<>(), new ArrayList<>());
     @Unique
     private AbilityAttributesContainer abilityAttributes = new AbilityAttributesContainer(new HashMap<>());
     @Unique
     private UpgradesData upgradesData = new UpgradesData(Jujutsu.getId(""), 0, new HashMap<>());
+    @Unique
+    private List<AbilityTask> abilityTasks = new ArrayList<>();
 
     protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
     }
 
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void init(World world, BlockPos pos, float yaw, GameProfile gameProfile, CallbackInfo ci) {
+        if(!world.isClient()) {
+            abilityTasks.add(new TickAbilitiesTask());
+        }
+    }
+
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
+        if(getWorld().isClient()) {
+            for(AbilitySlot slot: abilities.runningAbilities()) {
+                AbilityInstance instance = abilities.abilities().get(slot);
+                instance.tickClient();
+            }
+            return;
+        }
+
         PlayerEntity player = (PlayerEntity) (Object) this;
 
-        List<AbilitySlot> toRemove = new ArrayList<>();
-        for(AbilitySlot slot: abilities.runningAbilities()) {
-            AbilityInstance instance = abilities.abilities().get(slot);
+        for(Iterator<AbilityTask> iterator = abilityTasks.iterator(); iterator.hasNext(); ) {
+            AbilityTask task = iterator.next();
+            ActionResult result = task.execute(player);
 
-            instance.tick(player);
-
-            if((instance.getStatus().isRunning() && instance.isFinished(player)) || instance.getStatus().isCancelled()) {
-                instance.endAbility(player);
-            }
-            else if(instance.getStatus().onCooldown() && instance.getCooldownTime() <= 0) {
-                toRemove.add(slot);
-                instance.endCooldown();
-                jujutsu$syncAbilitiesToClient();
+            if(result == ActionResult.FAIL || result == ActionResult.SUCCESS) {
+                iterator.remove();
             }
         }
-        abilities.runningAbilities().removeAll(toRemove);
-        for(PassiveAbility passiveAbility: abilities.passiveAbilities()) {
-            passiveAbility.tick(player);
-        }
+    }
+
+    @Override
+    public float getDynamicSpeed() {
+        return this.dataTracker.get(DYNAMIC_SPEED_BONUS);
+    }
+
+    @Override
+    public void setDynamicSpeed(float value) {
+        this.dataTracker.set(DYNAMIC_SPEED_BONUS, value);
+    }
+
+    @Override
+    public float getDynamicJumpVelocityMultiplier() {
+        return this.dataTracker.get(DYNAMIC_JUMP_BONUS);
+    }
+
+    @Override
+    public void setDynamicJumpVelocityMultiplier(float value) {
+        this.dataTracker.set(DYNAMIC_JUMP_BONUS, value);
+    }
+
+    @Inject(method = "initDataTracker", at = @At("HEAD"))
+    private void initDataTracker(DataTracker.Builder builder, CallbackInfo ci) {
+        builder.add(DYNAMIC_SPEED_BONUS, 0f);
+        builder.add(DYNAMIC_JUMP_BONUS, 1f);
     }
 
     @Inject(method = "createPlayerAttributes", at = @At("RETURN"), cancellable = true)
     private static void createPlayerAttributes(CallbackInfoReturnable<DefaultAttributeContainer.Builder> cir) {
-        cir.setReturnValue(cir.getReturnValue().add(ModAttributes.ROTATION_RESTRICTION, 360).add(ModAttributes.ROTATION_SPEED, 1));
+        cir.setReturnValue(cir.getReturnValue()
+                .add(ModAttributes.ROTATION_RESTRICTION, 360)
+                .add(ModAttributes.ROTATION_SPEED, 1)
+                .add(ModAttributes.JUMP_VELOCITY_MULTIPLIER, 1));
     }
 
     @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;getAttributeValue(Lnet/minecraft/registry/entry/RegistryEntry;)D"))
@@ -125,9 +177,18 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     private void getMovementSpeed(CallbackInfoReturnable<Float> cir) {
         PlayerEntity player = (PlayerEntity) (Object) this;
         float value = (float) player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
-        Pair<ActionResult, Float> result = PlayerBonusEvents.GET_SPEED_BONUS_EVENT.invoker().interact(player);
 
-        cir.setReturnValue(result.getLeft() == ActionResult.FAIL ? value : value + result.getRight());
+        if(player.getWorld().isClient()) {
+            cir.setReturnValue(value + getDynamicSpeed());
+        }
+        else {
+            Pair<ActionResult, Float> result = PlayerBonusEvents.GET_SPEED_BONUS_EVENT.invoker().interact(player);
+
+            float finalValue = result.getLeft() == ActionResult.FAIL ? value : value + result.getRight();
+
+            setDynamicSpeed(result.getRight());
+            cir.setReturnValue(finalValue);
+        }
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("HEAD"))
@@ -160,6 +221,11 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     }
 
     @Override
+    public void addAbilityTask(AbilityTask task) {
+        this.abilityTasks.add(task);
+    }
+
+    @Override
     public AbilityInstance getAbilityInstance(AbilitySlot slot) {
         return abilities.abilities().get(slot);
     }
@@ -167,6 +233,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     @Override
     public void addAbilityInstance(AbilityInstance instance, AbilitySlot slot) {
         abilities.abilities().put(slot, instance);
+        instance.initializeSlot(slot);
         instance.addDefaultAttributes((PlayerEntity) (Object) this);
         jujutsu$syncAbilitiesToClient();
     }

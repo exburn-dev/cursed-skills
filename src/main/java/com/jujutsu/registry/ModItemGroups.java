@@ -4,7 +4,7 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.passive.FierySoulPassiveAbility;
 import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.ability.passive.WitherMomentumPassiveAbility;
-import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.component.TechniqueComponent.ItemStackBuilder;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -40,8 +40,9 @@ public class ModItemGroups {
 
             ItemStack speedScroll = new ItemStackBuilder(Jujutsu.getId("speedster"))
                     .addAbility(AbilitySlot.ABILITY_SLOT_1, ModAbilities.SHADOW_STEP)
+                    .addAbility(AbilitySlot.ABILITY_SLOT_2, ModAbilities.SONIC_RIFT)
+                    .addAbility(AbilitySlot.ABILITY_SLOT_3, ModAbilities.SUPERSONIC)
                     .addPassiveAbility(new SpeedPassiveAbility())
-                    .addPassiveAbility(new WitherMomentumPassiveAbility())
                     .build();
 
             itemGroup.add(speedScroll);

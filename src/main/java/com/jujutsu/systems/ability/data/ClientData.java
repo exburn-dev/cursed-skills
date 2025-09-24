@@ -1,5 +1,6 @@
-package com.jujutsu.systems.ability;
+package com.jujutsu.systems.ability.data;
 
+import com.jujutsu.systems.ability.core.AbilityInstance;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderTickCounter;

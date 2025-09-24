@@ -2,8 +2,8 @@ package com.jujutsu.component;
 
 import com.jujutsu.registry.ModDataComponents;
 import com.jujutsu.registry.ModItems;
-import com.jujutsu.systems.ability.AbilitySlot;
-import com.jujutsu.systems.ability.AbilityType;
+import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.registry.JujutsuRegistries;
 import com.mojang.serialization.Codec;

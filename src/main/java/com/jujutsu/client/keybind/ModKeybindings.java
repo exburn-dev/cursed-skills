@@ -1,8 +1,7 @@
 package com.jujutsu.client.keybind;
 
-import com.jujutsu.Jujutsu;
 import com.jujutsu.screen.AbilityUpgradesScreen;
-import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.event.client.KeyEvents;
 import com.jujutsu.network.payload.AbilityKeyPressedPayload;
 import com.jujutsu.screen.AbilitiesKeybindingsScreen;
@@ -53,9 +52,11 @@ public class ModKeybindings {
 
             for(AbilityKeyBinding binding: abilityBindings) {
                 if(binding.matchesKey(key, scanCode) && (!wasPressed.containsKey(binding) || !wasPressed.get(binding))) {
-                    ClientPlayNetworking.send(new AbilityKeyPressedPayload(binding.getAbilitySlot(), false));
-                    wasPressed.put(binding, true);
-                    break;
+                    if(client.world != null && client.player != null) {
+                        ClientPlayNetworking.send(new AbilityKeyPressedPayload(binding.getAbilitySlot(), false));
+                        wasPressed.put(binding, true);
+                        break;
+                    }
                 }
             }
 
@@ -63,10 +64,8 @@ public class ModKeybindings {
         });
 
         KeyEvents.KEY_RELEASED_EVENT.register((client, key, scanCode) -> {
-            if (client.currentScreen != null || !AdditionalInputSystem.isEmpty()) return ActionResult.PASS;
-
             for(AbilityKeyBinding binding: abilityBindings) {
-                if(binding.matchesKey(key, scanCode)) {
+                if(binding.matchesKey(key, scanCode) && client.world != null && client.player != null) {
                     ClientPlayNetworking.send(new AbilityKeyPressedPayload(binding.getAbilitySlot(), true));
                     wasPressed.put(binding, false);
                     break;

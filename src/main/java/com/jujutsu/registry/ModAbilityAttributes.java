@@ -21,6 +21,14 @@ public class ModAbilityAttributes {
     public static final RegistryEntry<AbilityAttribute> LAPSE_BLUE_DAMAGE_MULTIPLIER = registerAttribute("lapse_blue_damage_multiplier", MeasureUnit.NUMBER);
     public static final RegistryEntry<AbilityAttribute> LAPSE_BLUE_STUN = registerAttribute("lapse_blue_stun", MeasureUnit.SECONDS);
 
+    public static final RegistryEntry<AbilityAttribute> SONIC_RIFT_DASH_POWER = registerAttribute("sonic_rift_dash_power", MeasureUnit.NUMBER);
+    public static final RegistryEntry<AbilityAttribute> SONIC_RIFT_START_JUMP_POWER = registerAttribute("sonic_rift_start_jump_power", MeasureUnit.NUMBER);
+    public static final RegistryEntry<AbilityAttribute> SONIC_RIFT_ADDITIONAL_DASHES = registerAttribute("sonic_rift_additional_dashes", MeasureUnit.NUMBER);
+    public static final RegistryEntry<AbilityAttribute> SONIC_RIFT_DAMAGE = registerAttribute("sonic_rift_additional_dashes", MeasureUnit.NUMBER);
+
+    public static final RegistryEntry<AbilityAttribute> SUPERSONIC_SPEED = registerAttribute("supersonic_speed", MeasureUnit.NUMBER);
+    public static final RegistryEntry<AbilityAttribute> SUPERSONIC_DURATION = registerAttribute("supersonic_duration", MeasureUnit.SECONDS);
+
     private static RegistryEntry<AbilityAttribute> registerAttribute(String name, MeasureUnit unit) {
         return Registry.registerReference(JujutsuRegistries.ABILITY_ATTRIBUTE, Jujutsu.getId(name), new AbilityAttribute(unit));
     }

@@ -1,7 +1,7 @@
 package com.jujutsu.item;
 
-import com.jujutsu.systems.ability.AbilityInstance;
-import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;

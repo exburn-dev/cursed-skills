@@ -1,6 +1,6 @@
 package com.jujutsu.systems.buff.conditions;
 
-import com.jujutsu.registry.BuffCancellingConditionTypes;
+import com.jujutsu.registry.BuffTypes;
 import com.jujutsu.systems.buff.BuffCancellingCondition;
 import com.jujutsu.systems.buff.BuffCancellingConditionType;
 import com.mojang.serialization.Codec;
@@ -32,6 +32,6 @@ public class AttackCancellingCondition implements BuffCancellingCondition {
 
     @Override
     public BuffCancellingConditionType<?> getType() {
-        return BuffCancellingConditionTypes.ATTACK_CANCELLING_CONDITION;
+        return BuffTypes.ATTACK_CANCELLING_CONDITION;
     }
 }

@@ -1,11 +1,10 @@
 package com.jujutsu.systems.ability.holder;
 
-import com.jujutsu.systems.ability.AbilityInstance;
-import com.jujutsu.systems.ability.AbilitySlot;
-import com.jujutsu.systems.ability.AbilityType;
-import com.jujutsu.systems.ability.attribute.AbilityAttribute;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
+import com.jujutsu.systems.ability.task.AbilityTask;
 import com.jujutsu.systems.ability.upgrade.UpgradesData;
 import net.minecraft.util.Identifier;
 
@@ -33,4 +32,6 @@ public interface IAbilitiesHolder {
     UpgradesData getUpgradesData();
     void setUpgradesId(Identifier id);
     Identifier getUpgradesId();
+
+    void addAbilityTask(AbilityTask task);
 }

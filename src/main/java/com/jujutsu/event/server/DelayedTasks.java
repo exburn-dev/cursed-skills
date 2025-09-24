@@ -17,12 +17,12 @@ public class DelayedTasks {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for(int i = 0; i < delayedTasks.size(); i++) {
                 DelayedTask task = delayedTasks.peek();
-                if(task.serverAgeAdded() + task.delay() <= server.getTicks()) {
+                if(task.serverAgeStamp() + task.delay() <= server.getTicks()) {
                     delayedTasks.poll().task().run();
                 }
             }
         });
     }
 
-    private record DelayedTask(int serverAgeAdded, int delay, Runnable task) {}
+    private record DelayedTask(int serverAgeStamp, int delay, Runnable task) {}
 }

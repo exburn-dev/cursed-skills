@@ -1,7 +1,7 @@
 package com.jujutsu;
 
 import com.jujutsu.command.JujutsuCommand;
-import com.jujutsu.event.server.ServerEventsListeners;
+import com.jujutsu.event.ServerEventListeners;
 import com.jujutsu.network.ModNetworkConstants;
 import com.jujutsu.registry.*;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
@@ -33,10 +33,10 @@ public class Jujutsu implements ModInitializer {
 		ModNetworkConstants.registerServerReceivers();
 
 		JujutsuCommand.register();
-		ServerEventsListeners.register();
+		ServerEventListeners.register();
 
 		ModAbilities.register();
-		BuffCancellingConditionTypes.register();
+		BuffTypes.registerCancellingCondition();
 		ModAbilityAttributes.register();
 		AbilityUpgradeRewardTypes.register();
 

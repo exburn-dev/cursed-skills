@@ -9,24 +9,23 @@ import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
 
-public class Buff {
-    public static final Codec<Buff> CODEC;
-    public static final PacketCodec<RegistryByteBuf, Buff> PACKET_CODEC;
+public class BuffWrapper {
+    public static final Codec<BuffWrapper> CODEC;
+    public static final PacketCodec<RegistryByteBuf, BuffWrapper> PACKET_CODEC;
 
-    private final RegistryEntry<EntityAttribute> attribute;
     private final List<BuffCancellingCondition> conditions;
     private final CancellingPolicy cancellingPolicy;
+    private final IBuff buff;
 
-    private Buff(RegistryEntry<EntityAttribute> attribute, List<BuffCancellingCondition> conditions, CancellingPolicy cancellingPolicy) {
-        this.attribute = attribute;
+    private BuffWrapper(List<BuffCancellingCondition> conditions, CancellingPolicy cancellingPolicy, IBuff buff) {
         this.conditions = conditions;
         this.cancellingPolicy = cancellingPolicy;
+        this.buff = buff;
     }
 
     public boolean checkConditions(LivingEntity entity) {
@@ -54,27 +53,26 @@ public class Buff {
         return true;
     }
 
-    public RegistryEntry<EntityAttribute> getAttribute() {
-        return attribute;
-    }
-
-    public List<BuffCancellingCondition> getConditions() {
+    public List<BuffCancellingCondition> conditions() {
         return conditions;
     }
 
-    public CancellingPolicy getCancellingPolicy() {
+    public CancellingPolicy cancellingPolicy() {
         return cancellingPolicy;
     }
 
-    public static void createBuff(LivingEntity entity, RegistryEntry<EntityAttribute> attribute, ImmutableList<BuffCancellingCondition> conditions,
-                                  CancellingPolicy cancellingPolicy, double value, EntityAttributeModifier.Operation operation, Identifier id) {
-        if(hasBuff(entity, id) || entity.getAttributes().hasModifierForAttribute(attribute, id)) return;
+    public IBuff buff() {
+        return buff;
+    }
 
-        EntityAttributeModifier modifier = new EntityAttributeModifier(id, value, operation);
-        Buff buff = new Buff(attribute, conditions, cancellingPolicy);
+    public static void createBuff(LivingEntity entity, IBuff buff, ImmutableList<BuffCancellingCondition> conditions,
+                                  CancellingPolicy cancellingPolicy, Identifier id) {
+        if(hasBuff(entity, id)) return;
+
+        BuffWrapper buffWrapper = new BuffWrapper(conditions, cancellingPolicy, buff);
         BuffHolder buffHolder = (BuffHolder) entity;
 
-        buffHolder.addBuff(id, buff, modifier);
+        buffHolder.addBuff(id, buffWrapper);
     }
 
     public static boolean hasBuff(LivingEntity entity, Identifier id) {
@@ -84,10 +82,10 @@ public class Buff {
 
     static {
         CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Registries.ATTRIBUTE.getEntryCodec().fieldOf("attribute").forGetter(Buff::getAttribute),
-                BuffCancellingCondition.CODEC.listOf().fieldOf("conditions").forGetter(Buff::getConditions),
-                CancellingPolicy.CODEC.fieldOf("cancellingPolicy").forGetter(Buff::getCancellingPolicy))
-                .apply(instance, Buff::new)
+                BuffCancellingCondition.CODEC.listOf().fieldOf("conditions").forGetter(BuffWrapper::conditions),
+                CancellingPolicy.CODEC.fieldOf("cancellingPolicy").forGetter(BuffWrapper::cancellingPolicy),
+                IBuff.CODEC.fieldOf("buff").forGetter(BuffWrapper::buff)
+                ).apply(instance, BuffWrapper::new)
         );
 
         PACKET_CODEC = new NbtPacketCodec<>(CODEC);

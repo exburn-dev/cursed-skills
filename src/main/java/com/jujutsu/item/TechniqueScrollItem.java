@@ -1,10 +1,11 @@
 package com.jujutsu.item;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.ability.*;
 import com.jujutsu.component.TechniqueComponent;
 import com.jujutsu.network.payload.AbilitiesAcquiredPayload;
 import com.jujutsu.registry.ModDataComponents;
+import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgrade;

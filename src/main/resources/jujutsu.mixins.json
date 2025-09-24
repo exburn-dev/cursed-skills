@@ -4,7 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "FallingBlockAccessor",
-    "LastAttackTimeAccessor",
+    "LivingEntityAccessor",
     "LivingEntityMixin",
     "PlayerEntityMixin"
   ],
@@ -16,6 +16,7 @@
     "DrawContextMixin",
     "HandledScreenAccessor",
     "HeldItemRendererMixin",
+    "InGameHudMixin",
     "ItemRendererAccessor",
     "ItemRendererMixin",
     "KeyboardMixin",

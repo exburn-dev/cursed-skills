@@ -1,5 +1,6 @@
 package com.jujutsu.event.server;
 
+import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.LivingEntity;
@@ -38,6 +39,22 @@ public class PlayerBonusEvents {
             return new Pair<>(ActionResult.PASS, bonus);
     });
 
+    public static final Event<GetJumpVelocityBonusCallback> GET_JUMP_VELOCITY_BONUS_EVENT = EventFactory.createArrayBacked(GetJumpVelocityBonusCallback.class,
+            (listeners) -> (player) -> {
+                float bonus = 0;
+                for(GetJumpVelocityBonusCallback listener: listeners) {
+                    Pair<ActionResult, Float> result = listener.interact(player);
+                    bonus += result.getRight();
+
+                    if(result.getLeft() != ActionResult.PASS) {
+                        return result;
+                    }
+                }
+                ((PlayerDynamicAttributesAccessor) player).setDynamicJumpVelocityMultiplier(bonus);
+
+            return new Pair<>(ActionResult.PASS, bonus);
+    });
+
     @FunctionalInterface
     public interface GetDamageBonusCallback {
         Pair<ActionResult, Float> interact(PlayerEntity player, LivingEntity entity);
@@ -45,6 +62,11 @@ public class PlayerBonusEvents {
 
     @FunctionalInterface
     public interface GetSpeedBonusCallback {
+        Pair<ActionResult, Float> interact(PlayerEntity player);
+    }
+
+    @FunctionalInterface
+    public interface GetJumpVelocityBonusCallback {
         Pair<ActionResult, Float> interact(PlayerEntity player);
     }
 }

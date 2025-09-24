@@ -3,8 +3,8 @@ package com.jujutsu.systems.ability.holder;
 
 import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.ability.AbilityInstance;
-import com.jujutsu.systems.ability.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;

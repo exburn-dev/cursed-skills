@@ -2,7 +2,9 @@ package com.jujutsu.util;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.particle.IVelocityParticleEffect;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -68,6 +70,18 @@ public class ParticleUtils {
         }
         else {
             ((ServerWorld) world).spawnParticles(particle, pos.x, pos.y, pos.z, 1, 0, 0, 0, 0);
+        }
+    }
+
+    public static void renderVec(Vec3d vec, Vec3d pos, World world) {
+        double length = vec.length();
+        Vec3d normalized = vec.normalize();
+
+        for(double i = 0; i < length; i += 0.5) {
+            Vec3d vec1 = normalized.multiply(i);
+            Vec3d particlePos = pos.add(vec1);
+
+            spawnParticle(new DustParticleEffect(new Vector3f(1, 0, 0), 1), particlePos, world, Vec3d.ZERO);
         }
     }
 }

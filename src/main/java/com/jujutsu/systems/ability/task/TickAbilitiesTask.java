@@ -1,0 +1,65 @@
+package com.jujutsu.systems.ability.task;
+
+import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
+import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
+import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
+import com.jujutsu.systems.ability.passive.PassiveAbility;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.ActionResult;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public record TickAbilitiesTask() implements AbilityTask {
+    @Override
+    public ActionResult execute(PlayerEntity player) {
+        IAbilitiesHolder holder = (IAbilitiesHolder) player;
+
+        List<AbilitySlot> toRemove = new ArrayList<>();
+        for(AbilitySlot slot: holder.getRunningSlots()) {
+            AbilityInstance instance = holder.getAbilityInstance(slot);
+
+            if(!instance.slotInitialized()) {
+                instance.initializeSlot(slot);
+            }
+
+            instance.tick(player);
+
+            if((instance.getStatus().isRunning() && instance.isFinished(player)) || instance.getStatus().isCancelled()) {
+                instance.endAbility(player);
+                syncAbilitiesToClient((ServerPlayerEntity) player);
+            }
+            else if(instance.getStatus().onCooldown() && instance.getCooldownTime() <= 0) {
+                toRemove.add(slot);
+                instance.endCooldown();
+                syncAbilitiesToClient((ServerPlayerEntity) player);
+            }
+        }
+        holder.getRunningSlots().removeAll(toRemove);
+
+        for(PassiveAbility passiveAbility: holder.getPassiveAbilities()) {
+            passiveAbility.tick(player);
+        }
+
+        return ActionResult.PASS;
+    }
+
+    public static void syncAbilitiesToClient(ServerPlayerEntity player) {
+        IPlayerJujutsuAbilitiesHolder holder = (IPlayerJujutsuAbilitiesHolder) player;
+        IAbilitiesHolder abilitiesHolder = (IAbilitiesHolder) player;
+
+        if(!player.getWorld().isClient()) {
+            ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncPlayerAbilitiesPayload(new PlayerJujutsuAbilities(
+                    new HashMap<>(holder.getAbilities().abilities()),
+                    holder.getAbilities().runningAbilities(),
+                    holder.getAbilities().passiveAbilities()
+            ), abilitiesHolder.getUpgradesData()));
+        }
+    }
+}

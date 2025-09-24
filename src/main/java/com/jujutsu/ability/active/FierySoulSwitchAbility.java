@@ -2,8 +2,8 @@ package com.jujutsu.ability.active;
 
 import com.jujutsu.ability.passive.FierySoulPassiveAbility;
 import com.jujutsu.registry.ModAbilities;
-import com.jujutsu.systems.ability.AbilityInstance;
-import com.jujutsu.systems.ability.AbilityType;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import net.minecraft.entity.player.PlayerEntity;

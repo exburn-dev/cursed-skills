@@ -3,7 +3,7 @@ package com.jujutsu.registry;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.passive.FierySoulPassiveAbility;
 import com.jujutsu.ability.passive.WitherMomentumPassiveAbility;
-import com.jujutsu.systems.ability.AbilityType;
+import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.ability.active.*;
 import com.jujutsu.ability.passive.SpeedPassiveAbility;
@@ -15,8 +15,13 @@ public class ModAbilities {
     public static final AbilityType INFINITY = registerAbilityType("infinity", new InfinityAbility(1000));
     public static final AbilityType LAPSE_BLUE = registerAbilityType("lapse_blue", new LapseBlueAbility(600));
     public static final AbilityType REVERSAL_RED = registerAbilityType("reversal_red", new ReversalRedAbility(600));
+
     public static final AbilityType SHADOW_STEP = registerAbilityType("shadow_step", new ShadowStepAbility(140));
+    public static final AbilityType SONIC_RIFT = registerAbilityType("sonic_rift", new SonicRiftAbility(320));
+    public static final AbilityType SUPERSONIC = registerAbilityType("supersonic", new SupersonicAbility(400));
+
     public static final AbilityType BLINK = registerAbilityType("blink", new BlinkAbility(600));
+
     public static final AbilityType PHOENIX_ASH = registerAbilityType("phoenix_ash", new PhoenixAshAbility(4000));
     public static final AbilityType PHOENIX_FIREBALL = registerAbilityType("phoenix_fireball", new PhoenixFireballAbility(300));
     public static final AbilityType FIERY_SOUL_SWITCH = registerAbilityType("fiery_soul_switch", new FierySoulSwitchAbility(20));

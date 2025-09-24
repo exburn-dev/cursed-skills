@@ -3,6 +3,7 @@ package com.jujutsu.ability.passive;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAbilities;
 import com.jujutsu.registry.ModAttributes;
+import com.jujutsu.registry.ModEffects;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.systems.ability.passive.PassiveAbilityType;
 import com.mojang.serialization.Codec;
@@ -11,6 +12,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Style;
 import net.minecraft.util.Pair;
@@ -57,6 +59,9 @@ public class FierySoulPassiveAbility extends PassiveAbility {
             if(entity.distanceTo(player) > 3) continue;
 
             entity.setOnFireFor(3);
+            if(!entity.hasStatusEffect(ModEffects.INCINERATION)) {
+                entity.addStatusEffect(new StatusEffectInstance(ModEffects.INCINERATION, 20, 0, false, false, false));
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package com.jujutsu.registry;
 
 import com.jujutsu.Jujutsu;
+import com.jujutsu.effect.IncinerationEffect;
 import com.jujutsu.effect.StunEffect;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -15,6 +16,9 @@ public class ModEffects {
             .addAttributeModifier(EntityAttributes.GENERIC_MOVEMENT_SPEED, Jujutsu.getId("stun"), -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(ModAttributes.ROTATION_SPEED, Jujutsu.getId("stun"), -0.85, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(ModAttributes.ROTATION_RESTRICTION, Jujutsu.getId("stun"), -340, EntityAttributeModifier.Operation.ADD_VALUE));
+
+    public static final RegistryEntry<StatusEffect> INCINERATION = registerEffect("incineration",
+            new IncinerationEffect(StatusEffectCategory.HARMFUL, 0xFF0000));
 
     private static RegistryEntry<StatusEffect> registerEffect(String name, StatusEffect effect) {
         return Registry.registerReference(Registries.STATUS_EFFECT, Jujutsu.getId(name), effect);

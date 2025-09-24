@@ -1,4 +1,4 @@
-package com.jujutsu.systems.ability;
+package com.jujutsu.systems.ability.core;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.network.RegistryByteBuf;

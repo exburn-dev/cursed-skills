@@ -1,6 +1,7 @@
 package com.jujutsu.entity;
 
 import com.jujutsu.Jujutsu;
+import com.jujutsu.registry.ModEffects;
 import com.jujutsu.registry.ModEntityTypes;
 import com.jujutsu.registry.ModSounds;
 import com.jujutsu.util.VisualEffectUtils;
@@ -11,6 +12,7 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.nbt.NbtCompound;
@@ -25,6 +27,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -140,7 +143,21 @@ public class PhoenixFireballEntity extends Entity {
     }
 
     private void explode() {
-        getWorld().playSound(this, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.MASTER, 3, 1);
+        double radius = 3;
+        List<LivingEntity> entities = getWorld().getEntitiesByClass(
+                LivingEntity.class,
+                Box.of(getPos(), radius * 2, radius * 2, radius * 2),
+                (entity) -> getOwner().isEmpty() || !getOwner().get().equals(entity.getUuid()));
+
+        for(LivingEntity entity: entities) {
+            if(entity.distanceTo(this) >= radius) continue;
+
+            entity.addStatusEffect(new StatusEffectInstance(ModEffects.INCINERATION, 60, 0, true, false, false));
+            entity.setOnFireForTicks(60);
+        }
+
+        //getWorld().createExplosion(this, getX(), getY(), getZ(), 2, true, World.ExplosionSourceType.MOB);
+
         kill();
     }
 

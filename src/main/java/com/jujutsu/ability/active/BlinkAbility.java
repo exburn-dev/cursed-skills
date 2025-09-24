@@ -1,9 +1,9 @@
 package com.jujutsu.ability.active;
 
 import com.jujutsu.entity.BlinkMarkerEntity;
-import com.jujutsu.systems.ability.AbilityData;
-import com.jujutsu.systems.ability.AbilityInstance;
-import com.jujutsu.systems.ability.AbilityType;
+import com.jujutsu.systems.ability.data.AbilityData;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;

@@ -174,7 +174,6 @@ public class ReversalRedEntity extends Entity {
             livingEntity.damage(this.getDamageSources().explosion(this, this), (1 + 0.4f * getChargeTime()) * getDamageMultiplier());
         }
 
-
         if(!getWorld().isClient()) {
             ServerWorld world = (ServerWorld) getWorld();
             world.playSound(this, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.MASTER, 3, 1.1f);
@@ -192,9 +191,11 @@ public class ReversalRedEntity extends Entity {
             }
         }
 
-        BlockExplosions.createBlockExplosion(getWorld(), getBlockPos(), 5, state -> random.nextInt(3) == 0);
+        //BlockExplosions.createBlockExplosion(getWorld(), getBlockPos(), 5, state -> random.nextInt(3) == 0);
 
-        //getWorld().createExplosion(this, getX(), getY(), getZ(), getExplosionPower(), false, World.ExplosionSourceType.MOB);
+        getWorld().createExplosion(this, getX(), getY(), getZ(), getExplosionPower(), false, World.ExplosionSourceType.MOB);
+
+        BlockExplosions.applyExplosionConsequences(getPos(), getExplosionPower(), getWorld());
 
         remove(RemovalReason.KILLED);
     }

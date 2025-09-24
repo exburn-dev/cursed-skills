@@ -4,12 +4,16 @@ import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.registry.ModAttributes;
-import com.jujutsu.systems.ability.*;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityType;
+import com.jujutsu.systems.ability.data.AbilityData;
+import com.jujutsu.systems.ability.data.AbilityDataTypes;
+import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.animation.PlayerAnimations;
-import com.jujutsu.systems.buff.Buff;
+import com.jujutsu.systems.buff.BuffWrapper;
 import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
+import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.util.HandAnimationUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.serialization.Codec;
@@ -43,11 +47,14 @@ public class InfinityAbility extends AbilityType {
 
     @Override
     public void start(PlayerEntity player, AbilityInstance instance) {
-        int duration = (int) Math.floor(instance.getAbilityAttributeValue(player, ModAbilityAttributes.INFINITY_DURATION)) * 20;
+        int duration = (int) Math.floor(getAbilityAttributeValue(player, ModAbilityAttributes.INFINITY_DURATION)) * 20;
         instance.setAbilityData(new AbilityDataTypes.Int(duration));
 
-        Buff.createBuff(player, ModAttributes.INVINCIBLE, ImmutableList.of(new TimeCancellingCondition(duration)), Buff.CancellingPolicy.ONE_OR_MORE, 0.5,
-                EntityAttributeModifier.Operation.ADD_VALUE, Jujutsu.getId("infinity"));
+        ConstantBuff buff = new ConstantBuff(ModAttributes.INVINCIBLE,0.5, EntityAttributeModifier.Operation.ADD_VALUE);
+
+        BuffWrapper.createBuff(player, buff, ImmutableList.of(new TimeCancellingCondition(duration)),
+                BuffWrapper.CancellingPolicy.ONE_OR_MORE, Jujutsu.getId("infinity"));
+
         if(player.getWorld().isClient()) return;
         PlayerAnimations.playAnimation((ServerPlayerEntity) player, Jujutsu.getId("infinity"), 1000, 50);
     }

@@ -5,10 +5,11 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
-import com.jujutsu.systems.ability.AbilityInstance;
-import com.jujutsu.systems.ability.AbilityType;
-import com.jujutsu.systems.buff.Buff;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityType;
+import com.jujutsu.systems.buff.BuffWrapper;
 import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
+import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.util.ParticleUtils;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -34,10 +35,14 @@ public class PhoenixAshAbility extends AbilityType {
         Supplier<ParticleEffect> particle = () -> new ColoredSparkParticleEffect(4f, 0.94f, new ColoredSparkParticleEffect.ColorTransition(color, new Vector3f(1, 0, 0)),0, 0.1f, 40);
         ParticleUtils.createCyl(particle, player.getPos().add(0, 1, 0), player.getWorld(), 20, 1, 0.1f);
 
-        Buff.createBuff(player, ModAttributes.INVINCIBLE, ImmutableList.of(new TimeCancellingCondition(60)),
-                Buff.CancellingPolicy.ONE_OR_MORE, 1, EntityAttributeModifier.Operation.ADD_VALUE, Jujutsu.getId("phoenix_invincible"));
-        Buff.createBuff(player, EntityAttributes.GENERIC_MOVEMENT_SPEED, ImmutableList.of(new TimeCancellingCondition(200)),
-                Buff.CancellingPolicy.ONE_OR_MORE, 0.1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, Jujutsu.getId("phoenix_speed"));
+        ConstantBuff invincibilityBuff = new ConstantBuff(ModAttributes.INVINCIBLE, 1, EntityAttributeModifier.Operation.ADD_VALUE);
+        ConstantBuff speedBuff = new ConstantBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+
+        BuffWrapper.createBuff(player, invincibilityBuff, ImmutableList.of(new TimeCancellingCondition(60)),
+                BuffWrapper.CancellingPolicy.ONE_OR_MORE, Jujutsu.getId("phoenix_invincible"));
+
+        BuffWrapper.createBuff(player, speedBuff, ImmutableList.of(new TimeCancellingCondition(200)),
+                BuffWrapper.CancellingPolicy.ONE_OR_MORE, Jujutsu.getId("phoenix_speed"));
 
         List<LivingEntity> entities = player.getWorld().getEntitiesByClass(LivingEntity.class, Box.of(player.getPos(), 16, 16, 16), entity -> !entity.getUuid().equals(player.getUuid()));
         for(LivingEntity entity: entities) {
@@ -46,8 +51,10 @@ public class PhoenixAshAbility extends AbilityType {
 
             entity.addStatusEffect(new StatusEffectInstance(ModEffects.STUN, 60, 0, true, false, false));
 
-            Buff.createBuff(entity, EntityAttributes.GENERIC_MOVEMENT_SPEED, ImmutableList.of(new TimeCancellingCondition(200)),
-                    Buff.CancellingPolicy.ONE_OR_MORE, -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, Jujutsu.getId("phoenix_slowness"));
+            ConstantBuff slownessBuff = new ConstantBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+
+            BuffWrapper.createBuff(entity, slownessBuff, ImmutableList.of(new TimeCancellingCondition(200)),
+                    BuffWrapper.CancellingPolicy.ONE_OR_MORE, Jujutsu.getId("phoenix_slowness"));
         }
     }
 

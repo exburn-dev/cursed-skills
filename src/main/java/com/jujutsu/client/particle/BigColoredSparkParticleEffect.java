@@ -60,7 +60,7 @@ public class BigColoredSparkParticleEffect extends ColoredSparkParticleEffect {
         @Override
         public Particle createParticle(BigColoredSparkParticleEffect parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
             Vector3f velocity = parameters.getVelocity();
-            return new ColoredSparkParticle(world, x, y, z, velocity.x, velocity.y, velocity.z, spriteProvider, parameters);
+            return new BigColoredSparkParticle(world, x, y, z, velocity.x, velocity.y, velocity.z, spriteProvider, parameters);
         }
     }
 

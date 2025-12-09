@@ -4,16 +4,12 @@ import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.mixin.LivingEntityAccessor;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
-import com.jujutsu.systems.ability.data.AbilityAdditionalInput;
-import com.jujutsu.systems.ability.data.AbilityData;
+import com.jujutsu.systems.ability.data.*;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.util.AbilitiesHolderUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
@@ -33,12 +29,10 @@ import net.minecraft.world.RaycastContext;
 import java.util.Optional;
 
 public class SonicRiftAbility extends AbilityType {
-    public static final Codec<SonicRiftData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("dashesLeft").forGetter(SonicRiftData::dashesLeft),
-            Codec.DOUBLE.fieldOf("speedOnStart").forGetter(SonicRiftData::speedOnStart),
-            Codec.BOOL.fieldOf("dashing").forGetter(SonicRiftData::dashing),
-            Codec.INT.fieldOf("dashDelay").forGetter(SonicRiftData::dashDelay)
-    ).apply(instance, SonicRiftData::new));
+    private static final IntAbilityProperty DASHES_LEFT = IntAbilityProperty.of("dashesLeft");
+    private static final DoubleAbilityProperty SPEED_ON_START = DoubleAbilityProperty.of("speedOnStart");
+    private static final BoolAbilityProperty DASHING = BoolAbilityProperty.of("dashing");
+    private static final IntAbilityProperty DASH_DELAY = IntAbilityProperty.of("dashDelay");
 
     public SonicRiftAbility(int cooldownTime) {
         super(cooldownTime, false, new ClientData(null, SonicRiftAbility::renderHud));
@@ -65,39 +59,39 @@ public class SonicRiftAbility extends AbilityType {
             }
             dashes += (int) getAbilityAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_ADDITIONAL_DASHES);
         }
-        instance.setAbilityData(new SonicRiftData(dashes, speed, false, 0));
+
+        setData(instance, dashes, speed, false, 0);
     }
 
     @Override
     public void tick(PlayerEntity player, AbilityInstance instance) {
-        SonicRiftData data = getData(instance);
-        if(data.dashing()) {
+        if(instance.get(DASHING)) {
             HitResult hitResult = getPlayerCollision(player);
             boolean hasCollision = hitResult != null;
-            boolean hasDelay = data.dashDelay() > 0;
+            boolean hasDelay = instance.get(DASH_DELAY) > 0;
 
             if(((!hasDelay && player.isOnGround()) || hasCollision)) {
-                instance.setAbilityData(new SonicRiftData(data.dashesLeft(), data.speedOnStart(), false, 0));
+                setData(instance, instance.get(DASHES_LEFT), instance.get(SPEED_ON_START), false, 0);
 
                 setPlayerUsingRiptide(player, false);
-                if(data.dashesLeft() > 0) {
+                if(instance.get(DASHES_LEFT) > 0) {
                     addLaunchInput(player, instance);
                 }
             }
             else if(hasDelay) {
-                instance.setAbilityData(new SonicRiftData(data.dashesLeft(), data.speedOnStart(), true, data.dashDelay() - 1));
+                setData(instance, instance.get(DASHES_LEFT), instance.get(SPEED_ON_START), true, instance.get(DASH_DELAY) - 1);
             }
 
             if(hasCollision && hitResult.getType() == HitResult.Type.ENTITY) {
                 EntityHitResult ehr = (EntityHitResult) hitResult;
                 double damage = getAbilityAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_DAMAGE);
-                ehr.getEntity().damage(player.getDamageSources().magic(), (float) (damage + data.speedOnStart()));
+                ehr.getEntity().damage(player.getDamageSources().magic(), (float) (damage + instance.get(SPEED_ON_START)));
             }
         }
         else {
-            if (instance.getUseTime() == 0 && data.dashesLeft() > 0) {
+            if (instance.getUseTime() == 0 && instance.get(DASHES_LEFT) > 0) {
                 double startJumpMultiplier = getAbilityAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_START_JUMP_POWER);
-                Vec3d vec = new Vec3d(0f, 0.5f + 1.5f * getAbilityStrength(data.speedOnStart()), 0f).multiply(startJumpMultiplier);
+                Vec3d vec = new Vec3d(0f, 0.5f + 1.5f * getAbilityStrength(instance.get(SPEED_ON_START)), 0f).multiply(startJumpMultiplier);
                 player.addVelocity(vec);
                 player.velocityModified = true;
 
@@ -115,8 +109,7 @@ public class SonicRiftAbility extends AbilityType {
 
     @Override
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
-        SonicRiftData data = getData(instance);
-        return data.dashesLeft() <= 0 && !data.dashing();
+        return instance.get(DASHES_LEFT) <= 0 && !instance.get(DASHING);
     }
 
     private float getAbilityStrength(double speed) {
@@ -179,26 +172,25 @@ public class SonicRiftAbility extends AbilityType {
                     return ActionResult.SUCCESS;
                 },
                 (player1) -> {
-                    instance.setAbilityData(new SonicRiftData(0, 0, false, 20));
+                    setData(instance, 0, 0, false, 20);
                     return ActionResult.SUCCESS;
                 });
     }
 
     private void launch(PlayerEntity player, AbilityInstance instance) {
-        SonicRiftData data = getData(instance);
-        if(data.dashesLeft() > 0) {
+        if(instance.get(DASHES_LEFT) > 0) {
             double dashVelocityMultiplier = getAbilityAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_DASH_POWER);
 
             player.requestTeleport(player.getX(), player.getY() + 1, player.getZ());
             Vec3d vec = player.getRotationVector()
-                    .multiply(0.75 + 0.75 * getAbilityStrength(data.speedOnStart()))
+                    .multiply(0.75 + 0.75 * getAbilityStrength(instance.get(SPEED_ON_START)))
                     .multiply(dashVelocityMultiplier);
             player.addVelocity(vec);
             player.velocityModified = true;
 
             player.playSoundToPlayer(SoundEvents.ENTITY_WIND_CHARGE_WIND_BURST.value(), SoundCategory.MASTER, 1, 1.25f);
 
-            instance.setAbilityData(new SonicRiftData(data.dashesLeft() - 1, data.speedOnStart(), true, 20));
+            setData(instance, instance.get(DASHES_LEFT) - 1, instance.get(SPEED_ON_START), true, 20);
             instance.sync();
         }
         if(!player.getWorld().isClient()) {
@@ -210,18 +202,11 @@ public class SonicRiftAbility extends AbilityType {
         ((LivingEntityAccessor) player).invokeSetLivingFlag(4, value);
     }
 
-    private SonicRiftData getData(AbilityInstance instance) {
-        return instance.getAbilityData(SonicRiftData.class, () -> (SonicRiftData) getInitialData());
-    }
-
-    @Override
-    public AbilityData getInitialData() {
-        return new SonicRiftData(0, 0, false, 0);
-    }
-
-    @Override
-    public Codec<? extends AbilityData> getCodec() {
-        return CODEC;
+    private void setData(AbilityInstance instance, int dashesLeft, double speedOnStart, boolean dashing, int dashDelay) {
+        instance.set(DASHES_LEFT, dashesLeft);
+        instance.set(SPEED_ON_START, speedOnStart);
+        instance.set(DASHING, dashing);
+        instance.set(DASH_DELAY, dashDelay);
     }
 
     @Override
@@ -243,8 +228,7 @@ public class SonicRiftAbility extends AbilityType {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 
-        SonicRiftData data = instance.getAbilityData(SonicRiftData.class, () -> new SonicRiftData(0, 0, false, 0));
-        int dashesLeft = data.dashesLeft();
+        int dashesLeft = instance.get(DASHES_LEFT) == null ? 0 : instance.get(DASHES_LEFT);
 
         MatrixStack matrices = context.getMatrices();
         matrices.push();
@@ -275,6 +259,4 @@ public class SonicRiftAbility extends AbilityType {
 
         matrices.pop();
     }
-
-    public record SonicRiftData(int dashesLeft, double speedOnStart, boolean dashing, int dashDelay) implements AbilityData {}
 }

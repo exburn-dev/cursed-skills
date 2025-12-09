@@ -17,13 +17,6 @@ import net.minecraft.world.BlockStateRaycastContext;
 import net.minecraft.world.RaycastContext;
 
 public class BlinkAbility extends AbilityType {
-    public static final Codec<BlinkAbilityData> CODEc = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("markerId").forGetter(BlinkAbilityData::markerId),
-            Codec.DOUBLE.fieldOf("x").forGetter(BlinkAbilityData::x),
-            Codec.DOUBLE.fieldOf("y").forGetter(BlinkAbilityData::y),
-            Codec.DOUBLE.fieldOf("z").forGetter(BlinkAbilityData::z)
-    ).apply(instance, BlinkAbilityData::new));
-
     public BlinkAbility(int cooldownTime) {
         super(cooldownTime, true);
     }
@@ -36,12 +29,12 @@ public class BlinkAbility extends AbilityType {
         player.getWorld().spawnEntity(entity);
 
         BlinkAbilityData data = new BlinkAbilityData(entity.getId(), entity.getX(), entity.getY(), entity.getZ());
-        instance.setAbilityData(data);
+        //instance.setAbilityData(data);
     }
 
     @Override
     public void tick(PlayerEntity player, AbilityInstance instance) {
-        BlinkAbilityData data = instance.getAbilityData(BlinkAbilityData.class, () -> (BlinkAbilityData) getInitialData());
+        //BlinkAbilityData data = instance.get(BlinkAbilityData.class, () -> (BlinkAbilityData) getInitialData());
         Vec3d pos = player.getEyePos();
         Vec3d vec = player.getRotationVector();
         Vec3d blinkPos = pos.add(vec.multiply(instance.getUseTime() * 0.5));
@@ -71,40 +64,30 @@ public class BlinkAbility extends AbilityType {
 //                new ColoredSparkParticleEffect.ColorTransition(color1, new Vector3f(0.5f, 0, 1)), 0, 0.1f, 50);
 //
 //        ParticleUtils.createCyl(particle1, blinkPos, player.getWorld(), 20, 0.5f, 0.1f);
-        Entity entity = player.getWorld().getEntityById(data.markerId());
-        if(entity instanceof BlinkMarkerEntity marker) {
-            double markerSpeed = 0.15;
-            Vec3d markerVelocity = blinkPos.subtract(marker.getPos()).multiply(markerSpeed);
-            //marker.setPosition(marker.getX(), blinkPos.y, marker.getZ());
-            marker.setVelocity(markerVelocity);
-        }
-        instance.setAbilityData(new BlinkAbilityData(data.markerId(), blinkPos.getX(), blinkPos.getY(), blinkPos.getZ()));
+        //Entity entity = player.getWorld().getEntityById(data.markerId());
+//        if(entity instanceof BlinkMarkerEntity marker) {
+//            double markerSpeed = 0.15;
+//            Vec3d markerVelocity = blinkPos.subtract(marker.getPos()).multiply(markerSpeed);
+//            //marker.setPosition(marker.getX(), blinkPos.y, marker.getZ());
+//            marker.setVelocity(markerVelocity);
+//        }
+        //instance.setAbilityData(new BlinkAbilityData(data.markerId(), blinkPos.getX(), blinkPos.getY(), blinkPos.getZ()));
     }
 
     @Override
     public void end(PlayerEntity player, AbilityInstance instance) {
-        BlinkAbilityData data = instance.getAbilityData(BlinkAbilityData.class, () -> (BlinkAbilityData) getInitialData());
-        player.setPos(data.x, data.y, data.z);
-
-        Entity entity = player.getWorld().getEntityById(data.markerId());
-        if(entity instanceof BlinkMarkerEntity marker) {
-            marker.remove(Entity.RemovalReason.KILLED);
-        }
+        //BlinkAbilityData data = instance.get(BlinkAbilityData.class, () -> (BlinkAbilityData) getInitialData());
+        //player.setPos(data.x, data.y, data.z);
+//
+//        Entity entity = player.getWorld().getEntityById(data.markerId());
+//        if(entity instanceof BlinkMarkerEntity marker) {
+//            marker.remove(Entity.RemovalReason.KILLED);
+//        }
     }
 
     @Override
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
         return instance.getUseTime() >= 200;
-    }
-
-    @Override
-    public AbilityData getInitialData() {
-        return new BlinkAbilityData(0, 0, 0, 0);
-    }
-
-    @Override
-    public Codec<? extends AbilityData> getCodec() {
-        return CODEc;
     }
 
     public record BlinkAbilityData(int markerId, double x, double y, double z) implements AbilityData { }

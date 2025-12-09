@@ -1,15 +1,13 @@
 package com.jujutsu.ability.active;
 
 import com.jujutsu.registry.ModAbilityAttributes;
-import com.jujutsu.systems.ability.data.AbilityData;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.entity.LapseBlueEntity;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.data.IntAbilityProperty;
 import com.jujutsu.util.HandAnimationUtils;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
@@ -22,9 +20,7 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
 public class LapseBlueAbility extends AbilityType {
-    public static final Codec<LapseBlueAbilityData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("entityId").forGetter(LapseBlueAbilityData::entityId)
-    ).apply(instance, LapseBlueAbilityData::new));
+    private static final IntAbilityProperty ENTITY_ID = IntAbilityProperty.of("entityId");
 
     public LapseBlueAbility(int cooldownTime) {
         super(cooldownTime, true, new ClientData.Builder().addAnimation(LapseBlueAbility::renderHand).build());
@@ -36,14 +32,12 @@ public class LapseBlueAbility extends AbilityType {
         entity.setPosition(player.getPos());
         player.getWorld().spawnEntity(entity);
 
-        instance.setAbilityData(new LapseBlueAbilityData(entity.getId()));
+        instance.set(ENTITY_ID, entity.getId());
     }
 
     @Override
     public void tick(PlayerEntity player, AbilityInstance instance) {
-        LapseBlueAbilityData data = getData(instance);
-
-        LapseBlueEntity entity = (LapseBlueEntity) player.getWorld().getEntityById(data.entityId());
+        LapseBlueEntity entity = (LapseBlueEntity) player.getWorld().getEntityById(instance.get(ENTITY_ID));
         if(entity == null) return;
 
         Vec3d vec = player.getPos().add(player.getRotationVector(player.getPitch(), player.getYaw() - 25).multiply(0.75).add(0, 1.5, 0));
@@ -55,8 +49,7 @@ public class LapseBlueAbility extends AbilityType {
     public void end(PlayerEntity player, AbilityInstance instance) {
         if (instance.getStatus().isCancelled() || player.getWorld().isClient()) return;
 
-        LapseBlueAbilityData data = getData(instance);
-        LapseBlueEntity entity = (LapseBlueEntity) player.getWorld().getEntityById(data.entityId());
+        LapseBlueEntity entity = (LapseBlueEntity) player.getWorld().getEntityById(instance.get(ENTITY_ID));
         if(entity == null) return;
 
         entity.setCharging(false);
@@ -97,10 +90,6 @@ public class LapseBlueAbility extends AbilityType {
         return true;
     }
 
-    private LapseBlueAbilityData getData(AbilityInstance instance) {
-        return instance.getAbilityData(LapseBlueAbilityData.class, () -> (LapseBlueAbilityData) getInitialData());
-    }
-
     @Override
     public AbilityAttributesContainer getDefaultAttributes() {
         return new AbilityAttributesContainer.Builder()
@@ -108,16 +97,4 @@ public class LapseBlueAbility extends AbilityType {
                 .addBaseModifier(ModAbilityAttributes.LAPSE_BLUE_STUN, 0)
                 .build();
     }
-
-    @Override
-    public AbilityData getInitialData() {
-        return new LapseBlueAbilityData(0);
-    }
-
-    @Override
-    public Codec<? extends AbilityData> getCodec() {
-        return CODEC;
-    }
-
-    public record LapseBlueAbilityData(int entityId) implements AbilityData {}
 }

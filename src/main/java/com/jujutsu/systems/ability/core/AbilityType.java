@@ -55,14 +55,6 @@ public abstract class AbilityType {
         return AbilitiesHolderUtils.getAbilityAttributeValue(player, attribute);
     }
 
-    public AbilityData getInitialData() {
-        return AbilityData.EMPTY;
-    }
-
-    public Codec<? extends AbilityData> getCodec() {
-        return DATA_CODEC;
-    }
-
     public AbilityAttributesContainer getDefaultAttributes() {
         return new AbilityAttributesContainer.Builder().build();
     }

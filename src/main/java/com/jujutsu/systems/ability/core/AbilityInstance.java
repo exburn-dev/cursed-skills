@@ -4,30 +4,23 @@ import com.jujutsu.network.NbtPacketCodec;
 import com.jujutsu.network.payload.SyncAbilityAdditionalInputPayload;
 import com.jujutsu.registry.JujutsuRegistries;
 import com.jujutsu.systems.ability.data.AbilityAdditionalInput;
-import com.jujutsu.systems.ability.data.AbilityData;
-import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.data.AbilityProperty;
 import com.jujutsu.systems.ability.task.AbilityTask;
 import com.jujutsu.systems.ability.task.TickAbilitiesTask;
-import com.jujutsu.util.AbilitiesHolderUtils;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 public final class AbilityInstance {
     public static final Codec<AbilityInstance> CODEC;
@@ -38,21 +31,20 @@ public final class AbilityInstance {
     private final HashMap<AbilityAdditionalInput, InputData> additionalInput = new HashMap<>();
 
     private AbilityStatus status = AbilityStatus.NONE;
-    private AbilityData abilityData;
     private AbilitySlot slot;
     private int useTime;
     private int cooldownTime;
     private boolean syncNeeded;
 
+    private final Map<AbilityProperty<?>, Comparable<?>> runtimeData = new HashMap<>();
+
     public AbilityInstance(AbilityType type) {
         this.type = type;
-        abilityData = type.getInitialData();
         this.slot = null;
     }
 
-    private AbilityInstance(AbilityType type, AbilityData data, int useTime, int cooldownTime, AbilityStatus status) {
+    private AbilityInstance(AbilityType type, int useTime, int cooldownTime, AbilityStatus status) {
         this.type = type;
-        this.abilityData = data;
         this.useTime = useTime;
         this.cooldownTime = cooldownTime;
         this.status = status;
@@ -192,14 +184,22 @@ public final class AbilityInstance {
         }
     }
 
-    public void setAbilityData(AbilityData abilityData) {
-        this.abilityData = abilityData;
+    public <T extends Comparable<T>> void set(AbilityProperty<T> property, T value) {
+        this.runtimeData.put(property, value);
     }
 
-    public <T extends AbilityData> T getAbilityData(Class<T> expectedClass, Supplier<T> fallback) {
-        return expectedClass.equals(abilityData.getClass())
-                ? expectedClass.cast(abilityData)
-                : fallback.get();
+    public <T extends Comparable<T>> T get(AbilityProperty<T> property) {
+        var optional = getAbilityProperty(property);
+        return optional.orElse(null);
+    }
+
+    public <T extends Comparable<T>> Optional<T> getAbilityProperty(AbilityProperty<T> property) {
+        if(runtimeData.containsKey(property)) {
+            return Optional.of( (T) runtimeData.get(property));
+        }
+        else {
+            return Optional.empty();
+        }
     }
 
     public boolean isFinished(PlayerEntity player) {
@@ -276,23 +276,13 @@ public final class AbilityInstance {
 
             AbilityType type = JujutsuRegistries.ABILITY_TYPE.get(typeId);
 
-            Codec<? extends AbilityData> dataCodec = type.getCodec();
-            AbilityData data = dataCodec.parse(dynamic.get("data").orElseEmptyMap())
-                    .result()
-                    .orElse(null);
-            if(data == null) {
-                data = AbilityData.NoData.EMPTY;
-            }
-
             int cooldownTime = dynamic.get("cooldownTime").asInt(0);
             int useTime = dynamic.get("useTime").asInt(0);
             AbilityStatus status = AbilityStatus.CODEC.parse(dynamic.get("status").orElseEmptyMap())
                     .result()
                     .orElse(AbilityStatus.NONE);
 
-
-
-            return DataResult.success(new Pair<>(new AbilityInstance(type, data, useTime, cooldownTime, status), input));
+            return DataResult.success(new Pair<>(new AbilityInstance(type, useTime, cooldownTime, status), input));
         }
 
         @Override
@@ -307,12 +297,6 @@ public final class AbilityInstance {
             builder.add("cooldownTime", ops.createInt(instance.cooldownTime));
             builder.add("useTime", ops.createInt(instance.useTime));
             builder.add("status", ops.createInt(instance.status.getId()));
-
-            Codec<AbilityData> dataCodec = (Codec<AbilityData>) instance.type.getCodec();
-            DataResult<T> encodedData = dataCodec.encodeStart(ops, instance.abilityData == AbilityData.EMPTY ? instance.getType().getInitialData() : instance.abilityData);
-            if (encodedData.result().isPresent()) {
-                builder.add("data", encodedData.result().get());
-            }
 
             return builder.build(t);
         }

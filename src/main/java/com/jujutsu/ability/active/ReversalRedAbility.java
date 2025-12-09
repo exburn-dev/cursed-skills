@@ -6,11 +6,9 @@ import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.AbilityAdditionalInput;
-import com.jujutsu.systems.ability.data.AbilityData;
 import com.jujutsu.systems.ability.data.ClientData;
+import com.jujutsu.systems.ability.data.IntAbilityProperty;
 import com.jujutsu.util.HandAnimationUtils;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
@@ -25,10 +23,8 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
 public class ReversalRedAbility extends AbilityType {
-    public static final Codec<ReversalRedAbilityData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("entityId").forGetter(ReversalRedAbilityData::entityId),
-            Codec.INT.fieldOf("chargeTime").forGetter(ReversalRedAbilityData::chargeTime)
-    ).apply(instance, ReversalRedAbilityData::new));
+    private static final IntAbilityProperty ENTITY_ID = IntAbilityProperty.of("entityId");
+    private static final IntAbilityProperty CHARGE_TIME = IntAbilityProperty.of("chargeTime");
 
     public ReversalRedAbility(int cooldownTime) {
         super(cooldownTime, true, new ClientData(ReversalRedAbility::renderHand, null));
@@ -42,13 +38,12 @@ public class ReversalRedAbility extends AbilityType {
         player.getWorld().spawnEntity(entity);
 
         int chargeTime = (int) Math.floor(getAbilityAttributeValue(player, ModAbilityAttributes.REVERSAL_RED_CHARGE_TIME)) * 20;
-        instance.setAbilityData(new ReversalRedAbilityData(entity.getId(), chargeTime));
+        setData(instance, entity.getId(), chargeTime);
     }
 
     @Override
     public void tick(PlayerEntity player, AbilityInstance instance) {
-        ReversalRedAbilityData data = getData(instance);
-        ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(data.entityId());
+        ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(instance.get(ENTITY_ID));
         if(entity == null) return;
 
         Vec3d vec = player.getPos().add(player.getRotationVector(player.getPitch(), player.getYaw() - 25).multiply(0.75 + 0.002 * instance.getUseTime()).add(0, 1.5, 0));
@@ -59,7 +54,7 @@ public class ReversalRedAbility extends AbilityType {
             entity.increaseChargeTime();
         }
 
-        if(instance.getUseTime() == data.chargeTime() - 2) {
+        if(instance.getUseTime() == instance.get(CHARGE_TIME) - 2) {
             instance.addAdditionalInput(player, new AbilityAdditionalInput(-1, -1, 0, -1, true), (player1) -> ActionResult.SUCCESS, null);
             if(!player.getWorld().isClient()) {
                 player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1, 1);
@@ -69,7 +64,7 @@ public class ReversalRedAbility extends AbilityType {
 
     @Override
     public void end(PlayerEntity player, AbilityInstance instance) {
-        ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(getData(instance).entityId());
+        ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(instance.get(ENTITY_ID));
         if(player.getWorld().isClient() || entity == null) return;
 
         entity.setCharging(false);
@@ -85,7 +80,7 @@ public class ReversalRedAbility extends AbilityType {
 
     @Override
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
-        int chargeTime = getData(instance).chargeTime();
+        int chargeTime = instance.get(CHARGE_TIME);
         return instance.getUseTime() >= chargeTime;
     }
 
@@ -120,19 +115,8 @@ public class ReversalRedAbility extends AbilityType {
         return true;
     }
 
-    private ReversalRedAbilityData getData(AbilityInstance instance) {
-        return instance.getAbilityData(ReversalRedAbilityData.class, () -> (ReversalRedAbilityData) getInitialData());
+    private void setData(AbilityInstance instance, int entityId, int chargeTime) {
+        instance.set(ENTITY_ID, entityId);
+        instance.set(CHARGE_TIME, chargeTime);
     }
-
-    @Override
-    public AbilityData getInitialData() {
-        return new ReversalRedAbilityData(0, 0);
-    }
-
-    @Override
-    public Codec<? extends AbilityData> getCodec() {
-        return CODEC;
-    }
-
-    public record ReversalRedAbilityData(int entityId, int chargeTime) implements AbilityData {}
 }

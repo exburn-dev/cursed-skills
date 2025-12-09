@@ -29,7 +29,7 @@ public record SupersonicBuff(AbilitySlot slot) implements IDynamicBuff {
         AbilityInstance instance = holder.getAbilityInstance(slot);
         if(instance != null && instance.getType() instanceof SupersonicAbility ability) {
 
-            return Math.sqrt(ability.getData(instance).distance()) *
+            return Math.sqrt(instance.get(SupersonicAbility.DISTANCE)) *
                     AbilitiesHolderUtils.getAbilityAttributeValue((PlayerEntity) entity, ModAbilityAttributes.SUPERSONIC_SPEED);
         }
 

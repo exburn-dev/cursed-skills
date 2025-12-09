@@ -8,8 +8,8 @@ import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.AbilityData;
-import com.jujutsu.systems.ability.data.AbilityDataTypes;
 import com.jujutsu.systems.ability.data.ClientData;
+import com.jujutsu.systems.ability.data.IntAbilityProperty;
 import com.jujutsu.systems.animation.PlayerAnimations;
 import com.jujutsu.systems.buff.BuffWrapper;
 import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
@@ -41,6 +41,8 @@ import net.minecraft.world.RaycastContext;
 import java.util.List;
 
 public class InfinityAbility extends AbilityType {
+    private static final IntAbilityProperty DURATION = IntAbilityProperty.of("duration");
+
     public InfinityAbility(int cooldownTime) {
         super(cooldownTime, false, new ClientData.Builder().addAnimation(InfinityAbility::renderHand).addOverlay(InfinityAbility::renderHud).build());
     }
@@ -48,7 +50,7 @@ public class InfinityAbility extends AbilityType {
     @Override
     public void start(PlayerEntity player, AbilityInstance instance) {
         int duration = (int) Math.floor(getAbilityAttributeValue(player, ModAbilityAttributes.INFINITY_DURATION)) * 20;
-        instance.setAbilityData(new AbilityDataTypes.Int(duration));
+        instance.set(DURATION, duration);
 
         ConstantBuff buff = new ConstantBuff(ModAttributes.INVINCIBLE,0.5, EntityAttributeModifier.Operation.ADD_VALUE);
 
@@ -97,21 +99,11 @@ public class InfinityAbility extends AbilityType {
     }
 
     @Override
-    public AbilityData getInitialData() {
-        return new AbilityDataTypes.Int(0);
-    }
-
-    @Override
-    public Codec<? extends AbilityData> getCodec() {
-        return AbilityDataTypes.INTEGER;
-    }
-
-    @Override
     public void end(PlayerEntity player, AbilityInstance instance) {}
 
     @Override
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
-        int abilityDuration = instance.getAbilityData(AbilityDataTypes.Int.class, () -> new AbilityDataTypes.Int(0)).value();
+        int abilityDuration = instance.get(DURATION);
         return instance.getUseTime() >= abilityDuration;
     }
 
@@ -144,7 +136,7 @@ public class InfinityAbility extends AbilityType {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 
-        int abilityDuration = instance.getAbilityData(AbilityDataTypes.Int.class, () -> new AbilityDataTypes.Int(0)).value();
+        int abilityDuration = instance.get(DURATION);
         float alpha;
         if(instance.getUseTime() >= abilityDuration - 20) {
             alpha = MathHelper.clampedLerp(0.35f, 0, (float) (instance.getUseTime() - abilityDuration + 20 ) / 20);

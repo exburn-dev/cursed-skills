@@ -7,12 +7,12 @@ import com.jujutsu.registry.ModEffects;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.data.AbilityData;
+import com.jujutsu.systems.ability.data.BoolAbilityProperty;
+import com.jujutsu.systems.ability.data.DoubleAbilityProperty;
+import com.jujutsu.systems.ability.data.IntAbilityProperty;
 import com.jujutsu.systems.buff.BuffWrapper;
 import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
 import com.jujutsu.systems.buff.type.SupersonicBuff;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Style;
@@ -21,12 +21,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 
 public class SupersonicAbility extends AbilityType {
-    public static final Codec<SupersonicData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("distanceOnStart").forGetter(SupersonicData::distanceOnStart),
-            Codec.DOUBLE.fieldOf("distance").forGetter(SupersonicData::distance),
-            Codec.INT.fieldOf("duration").forGetter(SupersonicData::duration),
-            Codec.BOOL.fieldOf("crashed").forGetter(SupersonicData::crashed)
-    ).apply(instance, SupersonicData::new));
+    public static final DoubleAbilityProperty DISTANCE_ON_START = DoubleAbilityProperty.of("distanceOnStart");
+    public static final DoubleAbilityProperty DISTANCE = DoubleAbilityProperty.of("distance");
+    public static final IntAbilityProperty DURATION = IntAbilityProperty.of("duration");
+    public static final BoolAbilityProperty CRASHED = BoolAbilityProperty.of("crashed");
 
     public SupersonicAbility(int cooldownTime) {
         super(cooldownTime, false);
@@ -37,7 +35,7 @@ public class SupersonicAbility extends AbilityType {
         double startDistance = player.distanceTraveled;
 
         int duration = 20 * (int) getAbilityAttributeValue(player, ModAbilityAttributes.SUPERSONIC_DURATION);
-        instance.setAbilityData(new SupersonicData(startDistance, 0, duration, false));
+        setData(instance, startDistance, 0, duration, false);
 
         SupersonicBuff buff = new SupersonicBuff(instance.getSlot());
         BuffWrapper.createBuff(player, buff, ImmutableList.of(new TimeCancellingCondition(duration)),
@@ -46,11 +44,9 @@ public class SupersonicAbility extends AbilityType {
 
     @Override
     public void tick(PlayerEntity player, AbilityInstance instance) {
-        SupersonicData data = getData(instance);
-        double distance = player.distanceTraveled - data.distanceOnStart();
+        double distance = player.distanceTraveled - instance.get(DISTANCE_ON_START);
 
-        data = new SupersonicData(data.distanceOnStart(), distance, data.duration(), data.crashed());
-        instance.setAbilityData(data);
+        setData(instance, instance.get(DISTANCE_ON_START), distance, instance.get(DURATION), instance.get(CRASHED));
 
         Vec3d movement = player.getMovement().normalize();
         Vec3d horizontal = new Vec3d(movement.x, 0, movement.z).multiply(1.25);
@@ -67,9 +63,9 @@ public class SupersonicAbility extends AbilityType {
                     player
             ));
 
-            if (hit.getType() != HitResult.Type.MISS && !data.crashed()) {
+            if (hit.getType() != HitResult.Type.MISS && !instance.get(CRASHED)) {
                 player.addStatusEffect(new StatusEffectInstance(ModEffects.STUN, 20, 0, true, false, false));
-                instance.setAbilityData(new SupersonicData(data.distanceOnStart(), data.distance(),  data.duration, true));
+                setData(instance, instance.get(DISTANCE_ON_START), instance.get(DISTANCE),  instance.get(DURATION), true);
             }
         }
     }
@@ -89,28 +85,18 @@ public class SupersonicAbility extends AbilityType {
 
     @Override
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
-        SupersonicData data = getData(instance);
-        return instance.getUseTime() >= data.duration();
+        return instance.getUseTime() >= instance.get(DURATION);
     }
 
-    @Override
-    public Codec<? extends AbilityData> getCodec() {
-        return CODEC;
-    }
-
-    public SupersonicData getData(AbilityInstance instance) {
-        return instance.getAbilityData(SupersonicData.class, () -> (SupersonicData) getInitialData());
-    }
-
-    @Override
-    public AbilityData getInitialData() {
-        return new SupersonicData(0, 0, 0, false);
+    private void setData(AbilityInstance instance, double distanceOnStart, double distance, int duration, boolean crashed) {
+        instance.set(DISTANCE_ON_START, distanceOnStart);
+        instance.set(DISTANCE, distance);
+        instance.set(DURATION, duration);
+        instance.set(CRASHED, crashed);
     }
 
     @Override
     public Style getStyle() {
         return Style.EMPTY.withColor(0x3869c9);
     }
-
-    public record SupersonicData(double distanceOnStart, double distance, int duration, boolean crashed) implements AbilityData {}
 }

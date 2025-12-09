@@ -9,6 +9,8 @@ import com.jujutsu.registry.BuffTypes;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
@@ -49,6 +51,11 @@ public class ServerEventListeners {
             if(entity.isPlayer()) {
                 IAbilitiesHolder holder = (IAbilitiesHolder) entity;
                 holder.getPassiveAbilities().forEach(passiveAbility -> passiveAbility.onGained((PlayerEntity) entity));
+                for (AbilitySlot runningSlot : holder.getRunningSlots()) {
+                    AbilityInstance instance = holder.getAbilityInstance(runningSlot);
+
+                    instance.endCooldown();
+                }
 
                 AbilityUpgradesReloadListener.getInstance().syncUpgrades((ServerPlayerEntity) entity);
             }

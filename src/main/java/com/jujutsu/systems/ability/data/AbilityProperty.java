@@ -25,19 +25,4 @@ public abstract class AbilityProperty<T extends Comparable<T>> {
     }
 
     public abstract Codec<T> getCodec();
-
-    public static class AbilityPropertiesCodec implements Codec<Map<AbilityProperty<?>, Comparable<?>>> {
-
-        @Override
-        public <T> DataResult<Pair<Map<AbilityProperty<?>, Comparable<?>>, T>> decode(DynamicOps<T> dynamicOps, T t) {
-            return null;
-        }
-
-        @Override
-        public <T> DataResult<T> encode(Map<AbilityProperty<?>, Comparable<?>> abilityPropertyComparableMap, DynamicOps<T> dynamicOps, T t) {
-
-
-            return null;
-        }
-    }
 }

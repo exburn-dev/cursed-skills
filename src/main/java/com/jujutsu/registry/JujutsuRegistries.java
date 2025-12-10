@@ -3,7 +3,6 @@ package com.jujutsu.registry;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
-import com.jujutsu.systems.ability.data.AbilityProperty;
 import com.jujutsu.systems.ability.passive.PassiveAbilityType;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradeRewardType;
 import com.jujutsu.systems.buff.BuffCancellingConditionType;
@@ -41,11 +40,6 @@ public class JujutsuRegistries {
 
     public static final RegistryKey<Registry<AbilityUpgradeRewardType<?>>> ABILITY_UPGRADE_REWARD_TYPE_REGISTRY_KEY = RegistryKey.ofRegistry(Jujutsu.getId("ability_upgrade_type"));
     public static final Registry<AbilityUpgradeRewardType<?>> ABILITY_UPGRADE_REWARD_TYPE = FabricRegistryBuilder.createSimple(ABILITY_UPGRADE_REWARD_TYPE_REGISTRY_KEY)
-            .attribute(RegistryAttribute.SYNCED)
-            .buildAndRegister();
-
-    public static final RegistryKey<Registry<Class<? extends AbilityProperty<?>>>> ABILITY_PROPERTY_REGISTRY_KEY = RegistryKey.ofRegistry(Jujutsu.getId("ability_property"));
-    public static final Registry<Class<? extends AbilityProperty<?>>> ABILITY_PROPERTY = FabricRegistryBuilder.createSimple(ABILITY_PROPERTY_REGISTRY_KEY)
             .attribute(RegistryAttribute.SYNCED)
             .buildAndRegister();
 }

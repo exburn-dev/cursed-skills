@@ -1,28 +1,25 @@
 package com.jujutsu.systems.ability.data;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
+import net.minecraft.util.StringIdentifiable;
 
-import java.util.Map;
-
-public abstract class AbilityProperty<T extends Comparable<T>> {
+public abstract class AbilityProperty<T extends Comparable<T>> implements StringIdentifiable {
     private final String name;
-    private final Class<T> type;
 
-    protected AbilityProperty(String name, Class<T> type) {
+    protected AbilityProperty(String name) {
         this.name = name;
-        this.type = type;
     }
 
-    public Class<T> type() {
-        return this.type;
-    }
+    public abstract String type();
+
+    public abstract Codec<T> getCodec();
 
     public String name() {
         return this.name;
     }
 
-    public abstract Codec<T> getCodec();
+    @Override
+    public String asString() {
+        return type();
+    }
 }

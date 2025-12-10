@@ -4,15 +4,20 @@ import com.mojang.serialization.Codec;
 
 public class BoolAbilityProperty extends AbilityProperty<Boolean> {
     protected BoolAbilityProperty(String name) {
-        super(name, Boolean.class);
+        super(name);
     }
 
-    public static BoolAbilityProperty of(String name) {
-        return new BoolAbilityProperty(name);
+    @Override
+    public String type() {
+        return "bool";
     }
 
     @Override
     public Codec<Boolean> getCodec() {
         return Codec.BOOL;
+    }
+
+    public static BoolAbilityProperty of(String name) {
+        return new BoolAbilityProperty(name);
     }
 }

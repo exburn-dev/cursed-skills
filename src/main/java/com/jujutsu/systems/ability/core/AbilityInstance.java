@@ -36,7 +36,7 @@ public final class AbilityInstance {
     private int cooldownTime;
     private boolean syncNeeded;
 
-    private final Map<AbilityProperty<?>, Comparable<?>> runtimeData = new HashMap<>();
+    private Map<AbilityProperty<?>, Comparable<?>> runtimeData = new HashMap<>();
 
     public AbilityInstance(AbilityType type) {
         this.type = type;
@@ -282,13 +282,14 @@ public final class AbilityInstance {
                     .result()
                     .orElse(AbilityStatus.NONE);
 
-            return DataResult.success(new Pair<>(new AbilityInstance(type, useTime, cooldownTime, status), input));
+            AbilityInstance instance = new AbilityInstance(type, useTime, cooldownTime, status);
+
+            return DataResult.success(new Pair<>(instance, input));
         }
 
         @Override
         public <T> DataResult<T> encode(AbilityInstance instance, DynamicOps<T> ops, T t) {
             RecordBuilder<T> builder = ops.mapBuilder();
-
 
             Identifier typeId = JujutsuRegistries.ABILITY_TYPE.getId(instance.type);
             if (typeId == null) return DataResult.error(() -> "Unregistered ability type: " + instance.type);

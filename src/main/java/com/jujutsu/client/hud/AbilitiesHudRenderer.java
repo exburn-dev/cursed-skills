@@ -46,7 +46,7 @@ public class AbilitiesHudRenderer {
 
         for(AdditionalInputSystem.InputData inputData: AdditionalInputSystem.getAdditionalInput()) {
             RequestedInputKey input = inputData.input;
-            if (input.showOnScreen() && input.mouseButton() >= 0) {
+            if (input.mouseButton() >= 0) {
                 int x = context.getScaledWindowWidth() / 2 - 8;
                 int y = context.getScaledWindowHeight() / 2 - 8;
                 Identifier texture = input.mouseButton() == 0 ? Jujutsu.getId("additional_input/mouse_left")

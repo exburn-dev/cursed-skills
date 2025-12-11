@@ -55,7 +55,7 @@ public class ReversalRedAbility extends AbilityType {
         }
 
         if(instance.getUseTime() == instance.get(CHARGE_TIME) - 2) {
-            instance.requestInput(player, new RequestedInputKey(-1, -1, 0, -1, true), (player1) -> ActionResult.SUCCESS, null);
+            instance.requestInput(player, new RequestedInputKey(-1, 0), -1, true, (player1) -> ActionResult.SUCCESS, null);
             if(!player.getWorld().isClient()) {
                 player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1, 1);
             }

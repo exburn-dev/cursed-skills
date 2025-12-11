@@ -1,6 +1,7 @@
 package com.jujutsu.systems.ability.core;
 
 import com.jujutsu.network.NbtPacketCodec;
+import com.jujutsu.network.payload.AbilityRuntimeDataSyncS2CPacket;
 import com.jujutsu.network.payload.SyncAbilityAdditionalInputPayload;
 import com.jujutsu.registry.JujutsuRegistries;
 import com.jujutsu.systems.ability.data.InputRequest;
@@ -33,7 +34,8 @@ public final class AbilityInstance {
     private AbilitySlot slot;
     private int useTime;
     private int cooldownTime;
-    private boolean syncNeeded;
+    private boolean sync;
+    private boolean syncRuntimeData;
 
     private Set<InputRequest> inputRequests = new HashSet<>();
     private Map<AbilityProperty<?>, Comparable<?>> runtimeData = new HashMap<>();
@@ -70,9 +72,13 @@ public final class AbilityInstance {
             cooldown();
         }
 
-        if(syncNeeded) {
+        if(sync) {
             TickAbilitiesTask.syncAbilitiesToClient((ServerPlayerEntity) player);
-            syncNeeded = false;
+            sync = false;
+        }
+        if(syncRuntimeData) {
+            ServerPlayNetworking.send((ServerPlayerEntity) player, new AbilityRuntimeDataSyncS2CPacket.Payload(slot, runtimeData));
+            syncRuntimeData = false;
         }
     }
 
@@ -107,7 +113,11 @@ public final class AbilityInstance {
     }
 
     public void sync() {
-        syncNeeded = true;
+        sync = true;
+    }
+
+    public void syncRuntimeData() {
+        syncRuntimeData = true;
     }
 
     public void endAbility(PlayerEntity player) {

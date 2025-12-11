@@ -36,6 +36,8 @@ public class AbilityRuntimeDataSyncS2CPacket {
             IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
             AbilityInstance instance = holder.getAbilityInstance(payload.slot());
 
+            Jujutsu.LOGGER.info("Synced runtime data: {}", payload.data());
+
             instance.setRuntimeData(payload.data);
         }));
     }

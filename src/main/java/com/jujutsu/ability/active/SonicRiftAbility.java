@@ -166,7 +166,7 @@ public class SonicRiftAbility extends AbilityType {
 
     private void addLaunchInput(PlayerEntity player, AbilityInstance instance) {
         instance.requestInput(player,
-                new RequestedInputKey(-1, -1, 0, 70, true),
+                new RequestedInputKey(-1, 0), 70, true,
                 (player1) -> {
                     launch(player1, instance);
                     return ActionResult.SUCCESS;
@@ -192,6 +192,7 @@ public class SonicRiftAbility extends AbilityType {
 
             setData(instance, instance.get(DASHES_LEFT) - 1, instance.get(SPEED_ON_START), true, 20);
             instance.sync();
+            instance.syncRuntimeData();
         }
         if(!player.getWorld().isClient()) {
             setPlayerUsingRiptide(player, true);

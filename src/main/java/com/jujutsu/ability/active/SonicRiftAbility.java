@@ -165,8 +165,8 @@ public class SonicRiftAbility extends AbilityType {
     }
 
     private void addLaunchInput(PlayerEntity player, AbilityInstance instance) {
-        instance.addAdditionalInput(player,
-                new AbilityAdditionalInput(-1, -1, 0, 70, true),
+        instance.requestInput(player,
+                new RequestedInputKey(-1, -1, 0, 70, true),
                 (player1) -> {
                     launch(player1, instance);
                     return ActionResult.SUCCESS;

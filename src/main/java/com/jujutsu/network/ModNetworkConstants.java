@@ -71,6 +71,7 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(SyncAbilityAttributesPayload.ID, SyncAbilityAttributesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncAbilityUpgradesPayload.ID, SyncAbilityUpgradesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SpawnParticlesPayload.ID, SpawnParticlesPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(AbilityRuntimeDataSyncS2CPacket.PAYLOAD_ID, AbilityRuntimeDataSyncS2CPacket.CODEC);
     }
 
     public static void registerServerReceivers() {
@@ -207,5 +208,7 @@ public class ModNetworkConstants {
         ClientPlayNetworking.registerGlobalReceiver(SpawnParticlesPayload.ID, SpawnParticlesPayload::receiveOnClient);
 
         AbilityUpgradesReloadListener.registerClientReceiver();
+
+        AbilityRuntimeDataSyncS2CPacket.register();
     }
 }

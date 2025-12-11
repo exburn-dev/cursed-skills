@@ -1,22 +1,4 @@
 {
-  "music_disc.allah": {
-    "subtitle": "sounds.jujutsu.allah",
-    "sounds": [
-      "jujutsu:allah"
-    ]
-  },
-  "music_disc.snus": {
-    "subtitle": "sounds.jujutsu.snus",
-    "sounds": [
-      "jujutsu:snus"
-    ]
-  },
-  "music_disc.allah_danger": {
-    "subtitle": "sounds.jujutsu.allah",
-    "sounds": [
-      "jujutsu:allah_danger"
-    ]
-  },
   "abilities.phoenix_fireball_cast": {
     "subtitle": "sounds.jujutsu.phoenix_fireball_cast",
     "sounds": [

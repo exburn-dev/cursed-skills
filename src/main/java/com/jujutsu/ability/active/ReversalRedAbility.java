@@ -5,7 +5,7 @@ import com.jujutsu.entity.ReversalRedEntity;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.data.AbilityAdditionalInput;
+import com.jujutsu.systems.ability.data.RequestedInputKey;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.ability.data.IntAbilityProperty;
 import com.jujutsu.util.HandAnimationUtils;
@@ -55,7 +55,7 @@ public class ReversalRedAbility extends AbilityType {
         }
 
         if(instance.getUseTime() == instance.get(CHARGE_TIME) - 2) {
-            instance.addAdditionalInput(player, new AbilityAdditionalInput(-1, -1, 0, -1, true), (player1) -> ActionResult.SUCCESS, null);
+            instance.requestInput(player, new RequestedInputKey(-1, -1, 0, -1, true), (player1) -> ActionResult.SUCCESS, null);
             if(!player.getWorld().isClient()) {
                 player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1, 1);
             }

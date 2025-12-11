@@ -2,9 +2,15 @@ package com.jujutsu.network.payload;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.network.NbtPacketCodec;
+import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.data.AbilityProperty;
+import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -18,17 +24,30 @@ import java.util.Map;
 public class AbilityRuntimeDataSyncS2CPacket {
     public static final Identifier PACKET_ID = Jujutsu.getId("ability_runtime_data_sync");
     public static final CustomPayload.Id<Payload> PAYLOAD_ID = new CustomPayload.Id<>(PACKET_ID);
-    public static final Codec<Payload> PAYLOAD_CODEC = (new PayloadCodec()).xmap(Payload::new, Payload::data);
+    public static final Codec<Map<AbilityProperty<?>, Comparable<?>>> RUNTIME_DATA_CODEC = new RuntimeDataCodec();
+    public static final Codec<Payload> PAYLOAD_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            AbilitySlot.CODEC.fieldOf("slot").forGetter(Payload::slot),
+            RUNTIME_DATA_CODEC.fieldOf("data").forGetter(Payload::data)
+    ).apply(instance, Payload::new));
     public static final PacketCodec<RegistryByteBuf, Payload> CODEC = new NbtPacketCodec<>(PAYLOAD_CODEC);
 
-    public record Payload(Map<AbilityProperty<?>, Comparable<?>> data) implements CustomPayload {
+    public static void register() {
+        ClientPlayNetworking.registerGlobalReceiver(PAYLOAD_ID, ((payload, context) -> {
+            IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
+            AbilityInstance instance = holder.getAbilityInstance(payload.slot());
+
+            instance.setRuntimeData(payload.data);
+        }));
+    }
+
+    public record Payload(AbilitySlot slot, Map<AbilityProperty<?>, Comparable<?>> data) implements CustomPayload {
         @Override
         public Id<? extends CustomPayload> getId() {
             return PAYLOAD_ID;
         }
     }
 
-    public static class PayloadCodec implements Codec<Map<AbilityProperty<?>, Comparable<?>>> {
+    public static class RuntimeDataCodec implements Codec<Map<AbilityProperty<?>, Comparable<?>>> {
 
         @Override
         public <T> DataResult<Pair<Map<AbilityProperty<?>, Comparable<?>>, T>> decode(DynamicOps<T> ops, T t) {

@@ -3,11 +3,8 @@ package com.jujutsu.client.keybind;
 import com.jujutsu.event.client.KeyEvents;
 import com.jujutsu.network.payload.AdditionalInputPressedPayload;
 import com.jujutsu.systems.ability.core.AbilitySlot;
-import com.jujutsu.systems.ability.data.AbilityAdditionalInput;
+import com.jujutsu.systems.ability.data.RequestedInputKey;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 
 import java.util.ArrayList;
@@ -104,7 +101,7 @@ public class AdditionalInputSystem {
         }
     }
 
-    public static void addAdditionalInput(AbilitySlot slot, AbilityAdditionalInput input) {
+    public static void addAdditionalInput(AbilitySlot slot, RequestedInputKey input) {
         InputData data = new InputData(input);
         data.keyPressed = input.keyCode() < 0;
         data.mouseClicked = input.mouseButton() < 0;
@@ -138,11 +135,11 @@ public class AdditionalInputSystem {
     }
 
     public static class InputData {
-        public final AbilityAdditionalInput input;
+        public final RequestedInputKey input;
         private boolean keyPressed;
         private boolean mouseClicked;
 
-        private InputData(AbilityAdditionalInput input) {
+        private InputData(RequestedInputKey input) {
             this.input = input;
         }
     }

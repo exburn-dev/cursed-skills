@@ -3,7 +3,8 @@ package com.jujutsu.systems.ability.core;
 import com.jujutsu.network.NbtPacketCodec;
 import com.jujutsu.network.payload.SyncAbilityAdditionalInputPayload;
 import com.jujutsu.registry.JujutsuRegistries;
-import com.jujutsu.systems.ability.data.AbilityAdditionalInput;
+import com.jujutsu.systems.ability.data.InputRequest;
+import com.jujutsu.systems.ability.data.RequestedInputKey;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
@@ -28,14 +29,13 @@ public final class AbilityInstance {
 
     private final AbilityType type;
 
-    private final HashMap<AbilityAdditionalInput, InputData> additionalInput = new HashMap<>();
-
     private AbilityStatus status = AbilityStatus.NONE;
     private AbilitySlot slot;
     private int useTime;
     private int cooldownTime;
     private boolean syncNeeded;
 
+    private Set<InputRequest> inputRequests = new HashSet<>();
     private Map<AbilityProperty<?>, Comparable<?>> runtimeData = new HashMap<>();
 
     public AbilityInstance(AbilityType type) {
@@ -77,25 +77,23 @@ public final class AbilityInstance {
     }
 
     private void waitingTick(PlayerEntity player) {
-        if(additionalInput.isEmpty()) {
+        if(inputRequests.isEmpty()) {
             this.status = AbilityStatus.RUNNING;
             return;
         }
 
-        for(AbilityAdditionalInput input: additionalInput.keySet()) {
-            if(input.timeout() <= 0) continue;
-            InputData inputData = additionalInput.get(input);
+        for(InputRequest input: inputRequests) {
+            if(input.timeout <= 0) continue;
 
-            if(inputData.timeoutTime >= input.timeout()) {
-                if(inputData.timeoutTask != null) {
-                    inputData.timeoutTask.execute(player);
-                }
-                removeAdditionalInput(input);
+            if(input.timeoutTime >= input.timeout) {
+                input.executeTimeoutTask(player);
+                inputRequests.remove(input);
+
                 syncAdditionalInput(player, true);
                 return;
             }
 
-            inputData.timeoutTime++;
+            input.timeoutTime++;
         }
     }
 
@@ -119,7 +117,7 @@ public final class AbilityInstance {
         status = AbilityStatus.ON_COOLDOWN;
         cooldownTime = type.getCooldownTime(player, this);
 
-        additionalInput.clear();
+        inputRequests.clear();
         syncAdditionalInput(player, true);
     }
 
@@ -152,10 +150,12 @@ public final class AbilityInstance {
         }
     }
 
-    public void addAdditionalInput(PlayerEntity player, AbilityAdditionalInput additionalInput, AbilityTask task, @Nullable AbilityTask timeoutTask) {
+    public void requestInput(PlayerEntity player, RequestedInputKey key, int timeout, boolean showOnScreen, AbilityTask task, @Nullable AbilityTask timeoutTask) {
         if(!slotInitialized()) return;
 
-        this.additionalInput.put(additionalInput, new InputData(task, timeoutTask));
+        InputRequest request = new InputRequest(key, task, timeoutTask, timeout, showOnScreen);
+        inputRequests.add(request);
+
         this.status = AbilityStatus.WAITING;
 
         if(player instanceof ServerPlayerEntity) {
@@ -163,24 +163,27 @@ public final class AbilityInstance {
         }
     }
 
-    private void removeAdditionalInput(AbilityAdditionalInput input) {
-        additionalInput.remove(input);
+    private void removeAdditionalInput(InputRequest input) {
+        inputRequests.remove(input);
 
-        if(additionalInput.isEmpty()) {
+        if(inputRequests.isEmpty()) {
             this.status = AbilityStatus.RUNNING;
         }
     }
 
     private void syncAdditionalInput(PlayerEntity player, boolean clear) {
-        ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncAbilityAdditionalInputPayload(this.additionalInput.keySet().stream().toList(), slot, clear));
+        ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncAbilityAdditionalInputPayload(inputRequests.stream().map(request -> request.key).toList(), slot, clear));
     }
 
-    public void checkAdditionalInput(PlayerEntity player, AbilityAdditionalInput input) {
-        if(this.additionalInput.isEmpty()) return;
+    public void checkAdditionalInput(PlayerEntity player, RequestedInputKey key) {
+        if(inputRequests.isEmpty()) return;
 
-        if(additionalInput.containsKey(input)) {
-            additionalInput.get(input).task.execute(player);
-            removeAdditionalInput(input);
+        for(InputRequest request : inputRequests) {
+            if(request.key.equals(key)) {
+                request.task.execute(player);
+                removeAdditionalInput(request);
+                return;
+            }
         }
     }
 
@@ -191,6 +194,10 @@ public final class AbilityInstance {
     public <T extends Comparable<T>> T get(AbilityProperty<T> property) {
         var optional = getAbilityProperty(property);
         return optional.orElse(null);
+    }
+
+    public void setRuntimeData(Map<AbilityProperty<?>, Comparable<?>> data) {
+        runtimeData = data;
     }
 
     public <T extends Comparable<T>> Optional<T> getAbilityProperty(AbilityProperty<T> property) {
@@ -251,18 +258,6 @@ public final class AbilityInstance {
     static {
         CODEC = new AbilityInstanceCodec();
         PACKET_CODEC = new NbtPacketCodec<>(CODEC);
-    }
-
-    private static class InputData {
-        private final AbilityTask task;
-        @Nullable
-        private final AbilityTask timeoutTask;
-        private int timeoutTime = 0;
-
-        private InputData(AbilityTask task, @Nullable AbilityTask timeoutTask) {
-            this.task = task;
-            this.timeoutTask = timeoutTask;
-        }
     }
 
     private static class AbilityInstanceCodec implements Codec<AbilityInstance> {

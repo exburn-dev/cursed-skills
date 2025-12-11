@@ -22,4 +22,12 @@ public abstract class AbilityProperty<T extends Comparable<T>> implements String
     public String asString() {
         return type();
     }
+
+    public static AbilityProperty<?> fromType(String name, String type) {
+        return switch (type) {
+            case "int" -> new IntAbilityProperty(name);
+            case "double" -> new DoubleAbilityProperty(name);
+            default -> new BoolAbilityProperty(name);
+        };
+    }
 }

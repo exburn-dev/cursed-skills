@@ -1,5 +1,6 @@
 package com.jujutsu.systems.ability.core;
 
+import com.jujutsu.Jujutsu;
 import com.jujutsu.network.NbtPacketCodec;
 import com.jujutsu.network.payload.AbilityRuntimeDataSyncS2CPacket;
 import com.jujutsu.network.payload.SyncAbilityAdditionalInputPayload;
@@ -77,6 +78,7 @@ public final class AbilityInstance {
             sync = false;
         }
         if(syncRuntimeData) {
+            Jujutsu.LOGGER.info("Sending runtime data sync packet...");
             ServerPlayNetworking.send((ServerPlayerEntity) player, new AbilityRuntimeDataSyncS2CPacket.Payload(slot, runtimeData));
             syncRuntimeData = false;
         }

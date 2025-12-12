@@ -52,6 +52,7 @@ public class ModNetworkConstants {
     public static final Identifier SYNC_ABILITY_ATTRIBUTES_ID = Jujutsu.getId("sync_ability_attributes");
     public static final Identifier SYNC_ABILITY_UPGRADES_ID = Jujutsu.getId("sync_ability_upgrades");
     public static final Identifier SPAWN_PARTICLES_ID = Jujutsu.getId("spawn_particles");
+    public static final Identifier SYNC_RUNTIME_DATA_ID = Jujutsu.getId("ability_runtime_data_sync");
 
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(AbilityKeyPressedPayload.ID, AbilityKeyPressedPayload.CODEC);
@@ -71,7 +72,7 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(SyncAbilityAttributesPayload.ID, SyncAbilityAttributesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncAbilityUpgradesPayload.ID, SyncAbilityUpgradesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SpawnParticlesPayload.ID, SpawnParticlesPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(AbilityRuntimeDataSyncS2CPacket.PAYLOAD_ID, AbilityRuntimeDataSyncS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(AbilityRuntimeDataSyncS2CPacket.ID, AbilityRuntimeDataSyncS2CPacket.CODEC);
     }
 
     public static void registerServerReceivers() {
@@ -209,6 +210,13 @@ public class ModNetworkConstants {
 
         AbilityUpgradesReloadListener.registerClientReceiver();
 
-        AbilityRuntimeDataSyncS2CPacket.register();
+        ClientPlayNetworking.registerGlobalReceiver(AbilityRuntimeDataSyncS2CPacket.ID, ((payload, context) -> {
+            IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
+            AbilityInstance instance = holder.getAbilityInstance(payload.slot());
+
+            Jujutsu.LOGGER.info("Synced runtime data: {}", payload.data());
+
+            instance.setRuntimeData(payload.data());
+        }));
     }
 }

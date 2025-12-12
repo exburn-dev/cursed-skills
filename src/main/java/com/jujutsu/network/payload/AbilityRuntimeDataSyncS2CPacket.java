@@ -1,6 +1,7 @@
 package com.jujutsu.network.payload;
 
 import com.jujutsu.Jujutsu;
+import com.jujutsu.network.ModNetworkConstants;
 import com.jujutsu.network.NbtPacketCodec;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilitySlot;
@@ -22,8 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AbilityRuntimeDataSyncS2CPacket {
-    public static final Identifier PACKET_ID = Jujutsu.getId("ability_runtime_data_sync");
-    public static final CustomPayload.Id<Payload> PAYLOAD_ID = new CustomPayload.Id<>(PACKET_ID);
+    public static final CustomPayload.Id<Payload> ID = new CustomPayload.Id<>(ModNetworkConstants.SYNC_RUNTIME_DATA_ID);
     public static final Codec<Map<AbilityProperty<?>, Comparable<?>>> RUNTIME_DATA_CODEC = new RuntimeDataCodec();
     public static final Codec<Payload> PAYLOAD_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             AbilitySlot.CODEC.fieldOf("slot").forGetter(Payload::slot),
@@ -32,20 +32,13 @@ public class AbilityRuntimeDataSyncS2CPacket {
     public static final PacketCodec<RegistryByteBuf, Payload> CODEC = new NbtPacketCodec<>(PAYLOAD_CODEC);
 
     public static void register() {
-        ClientPlayNetworking.registerGlobalReceiver(PAYLOAD_ID, ((payload, context) -> {
-            IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
-            AbilityInstance instance = holder.getAbilityInstance(payload.slot());
 
-            Jujutsu.LOGGER.info("Synced runtime data: {}", payload.data());
-
-            instance.setRuntimeData(payload.data);
-        }));
     }
 
     public record Payload(AbilitySlot slot, Map<AbilityProperty<?>, Comparable<?>> data) implements CustomPayload {
         @Override
         public Id<? extends CustomPayload> getId() {
-            return PAYLOAD_ID;
+            return ID;
         }
     }
 

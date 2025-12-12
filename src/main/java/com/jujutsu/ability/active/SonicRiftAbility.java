@@ -48,15 +48,8 @@ public class SonicRiftAbility extends AbilityType {
             SpeedPassiveAbility passiveAbility = optional.get();
             speed = passiveAbility.getDistance();
             float strength = getAbilityStrength(speed);
-            if(strength == 1f) {
-                dashes = 3;
-            }
-            else if(strength >= 0.5f) {
-                dashes = 2;
-            }
-            else if(strength >= 0f) {
-                dashes = 1;
-            }
+
+            dashes = (int) Math.floor(clampValue(strength, 1, 3));
             dashes += (int) getAbilityAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_ADDITIONAL_DASHES);
         }
 
@@ -114,6 +107,10 @@ public class SonicRiftAbility extends AbilityType {
 
     private float getAbilityStrength(double speed) {
         return (float) Math.min(1f, speed / 10f);
+    }
+
+    private float clampValue(float percentage, float min, float max) {
+        return min + (max - min) * percentage;
     }
 
     private HitResult getPlayerCollision(PlayerEntity player) {
@@ -191,7 +188,7 @@ public class SonicRiftAbility extends AbilityType {
             player.playSoundToPlayer(SoundEvents.ENTITY_WIND_CHARGE_WIND_BURST.value(), SoundCategory.MASTER, 1, 1.25f);
 
             setData(instance, instance.get(DASHES_LEFT) - 1, instance.get(SPEED_ON_START), true, 20);
-            instance.sync();
+            //instance.sync();
             instance.syncRuntimeData();
         }
         if(!player.getWorld().isClient()) {

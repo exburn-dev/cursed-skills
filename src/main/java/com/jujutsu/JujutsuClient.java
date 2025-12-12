@@ -75,5 +75,7 @@ public class JujutsuClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register((drawContext, counter) -> {
             ShaderUtils.renderStunEffect(counter.getTickDelta(false));
         });
+
+        
     }
 }

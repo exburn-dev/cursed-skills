@@ -54,10 +54,13 @@ public class SonicRiftAbility extends AbilityType {
         }
 
         setData(instance, dashes, speed, false, 0);
+        instance.syncRuntimeData();
     }
 
     @Override
     public void tick(PlayerEntity player, AbilityInstance instance) {
+        if(player.getWorld().isClient()) return;
+
         if(instance.get(DASHING)) {
             HitResult hitResult = getPlayerCollision(player);
             boolean hasCollision = hitResult != null;
@@ -198,6 +201,7 @@ public class SonicRiftAbility extends AbilityType {
 
     private void setPlayerUsingRiptide(PlayerEntity player, boolean value) {
         ((LivingEntityAccessor) player).invokeSetLivingFlag(4, value);
+        player.setNoGravity(value);
     }
 
     private void setData(AbilityInstance instance, int dashesLeft, double speedOnStart, boolean dashing, int dashDelay) {

@@ -28,6 +28,7 @@ import java.util.*;
 public final class AbilityInstance {
     public static final Codec<AbilityInstance> CODEC;
     public static final PacketCodec<RegistryByteBuf, AbilityInstance> PACKET_CODEC;
+    public static final PacketCodec<RegistryByteBuf, AbilityInstance> PACKET_CODEC_RUNTIME_DATA;
 
     private final AbilityType type;
 
@@ -78,7 +79,6 @@ public final class AbilityInstance {
             sync = false;
         }
         if(syncRuntimeData) {
-            Jujutsu.LOGGER.info("Sending runtime data sync packet...");
             ServerPlayNetworking.send((ServerPlayerEntity) player, new AbilityRuntimeDataSyncS2CPacket.Payload(slot, runtimeData));
             syncRuntimeData = false;
         }
@@ -270,6 +270,22 @@ public final class AbilityInstance {
     static {
         CODEC = new AbilityInstanceCodec();
         PACKET_CODEC = new NbtPacketCodec<>(CODEC);
+        PACKET_CODEC_RUNTIME_DATA = new PacketCodec<RegistryByteBuf, AbilityInstance>() {
+            @Override
+            public AbilityInstance decode(RegistryByteBuf buf) {
+                AbilityInstance instance = PACKET_CODEC.decode(buf);
+                AbilityRuntimeDataSyncS2CPacket.Payload payload = AbilityRuntimeDataSyncS2CPacket.CODEC.decode(buf);
+                instance.setRuntimeData(payload.data());
+
+                return instance;
+            }
+
+            @Override
+            public void encode(RegistryByteBuf buf, AbilityInstance instance) {
+                PACKET_CODEC.encode(buf, instance);
+                AbilityRuntimeDataSyncS2CPacket.CODEC.encode(buf, new AbilityRuntimeDataSyncS2CPacket.Payload(instance.slot, instance.runtimeData));
+            }
+        };
     }
 
     private static class AbilityInstanceCodec implements Codec<AbilityInstance> {

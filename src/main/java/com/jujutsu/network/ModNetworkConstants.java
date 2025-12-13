@@ -214,8 +214,6 @@ public class ModNetworkConstants {
             IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
             AbilityInstance instance = holder.getAbilityInstance(payload.slot());
 
-            Jujutsu.LOGGER.info("Synced runtime data: {}", payload.data());
-
             instance.setRuntimeData(payload.data());
         }));
     }

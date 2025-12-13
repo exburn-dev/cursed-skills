@@ -3,6 +3,8 @@ package com.jujutsu.systems.ability.data;
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringIdentifiable;
 
+import java.util.Objects;
+
 public abstract class AbilityProperty<T extends Comparable<T>> implements StringIdentifiable {
     private final String name;
 
@@ -21,6 +23,16 @@ public abstract class AbilityProperty<T extends Comparable<T>> implements String
     @Override
     public String asString() {
         return type();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof AbilityProperty<?> property && Objects.equals(property.type(), type()) && Objects.equals(property.name, name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode() + type().hashCode();
     }
 
     public static AbilityProperty<?> fromType(String name, String type) {

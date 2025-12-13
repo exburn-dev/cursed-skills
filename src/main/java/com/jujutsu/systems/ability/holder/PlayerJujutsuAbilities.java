@@ -45,7 +45,7 @@ public record PlayerJujutsuAbilities(HashMap<AbilitySlot, AbilityInstance> abili
                     .apply(instance, PlayerJujutsuAbilities::new);
         });
 
-        PACKET_CODEC = PacketCodec.tuple(PacketCodecs.map(HashMap::new, AbilitySlot.PACKET_CODEC, AbilityInstance.PACKET_CODEC), PlayerJujutsuAbilities::abilities,
+        PACKET_CODEC = PacketCodec.tuple(PacketCodecs.map(HashMap::new, AbilitySlot.PACKET_CODEC, AbilityInstance.PACKET_CODEC_RUNTIME_DATA), PlayerJujutsuAbilities::abilities,
                 AbilitySlot.PACKET_CODEC.collect(PacketCodecs.toCollection(ArrayList::new)), PlayerJujutsuAbilities::runningAbilities,
                 PassiveAbility.PACKET_CODEC.collect(PacketCodecs.toCollection(ArrayList::new)), PlayerJujutsuAbilities::passiveAbilities,
                 PlayerJujutsuAbilities::new);

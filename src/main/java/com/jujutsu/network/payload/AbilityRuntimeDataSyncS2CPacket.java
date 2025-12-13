@@ -1,23 +1,15 @@
 package com.jujutsu.network.payload;
 
-import com.jujutsu.Jujutsu;
 import com.jujutsu.network.ModNetworkConstants;
 import com.jujutsu.network.NbtPacketCodec;
-import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.data.AbilityProperty;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;

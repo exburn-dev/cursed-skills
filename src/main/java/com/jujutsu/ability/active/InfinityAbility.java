@@ -7,16 +7,14 @@ import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.data.AbilityData;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.ability.data.IntAbilityProperty;
 import com.jujutsu.systems.animation.PlayerAnimations;
-import com.jujutsu.systems.buff.BuffWrapper;
+import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
 import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.util.HandAnimationUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.serialization.Codec;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -54,11 +52,11 @@ public class InfinityAbility extends AbilityType {
 
         ConstantBuff buff = new ConstantBuff(ModAttributes.INVINCIBLE,0.5, EntityAttributeModifier.Operation.ADD_VALUE);
 
-        BuffWrapper.createBuff(player, buff, ImmutableList.of(new TimeCancellingCondition(duration)),
-                BuffWrapper.CancellingPolicy.ONE_OR_MORE, Jujutsu.getId("infinity"));
+        Buff.createBuff(player, buff, ImmutableList.of(new TimeCancellingCondition(duration)),
+                Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("infinity"));
 
         if(player.getWorld().isClient()) return;
-        PlayerAnimations.playAnimation((ServerPlayerEntity) player, Jujutsu.getId("infinity"), 1000, 50);
+        PlayerAnimations.playAnimation((ServerPlayerEntity) player, Jujutsu.id("infinity"), 1000, 50);
     }
 
     @Override

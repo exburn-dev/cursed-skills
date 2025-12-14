@@ -31,11 +31,11 @@ public class ModAbilities {
     public static final PassiveAbilityType<?> FIERY_SOUL = registerPassiveAbilityType("fiery_soul", new PassiveAbilityType<>(FierySoulPassiveAbility.CODEC));
 
     private static AbilityType registerAbilityType(String name, AbilityType abilityType) {
-        return Registry.register(JujutsuRegistries.ABILITY_TYPE, Jujutsu.getId(name), abilityType);
+        return Registry.register(JujutsuRegistries.ABILITY_TYPE, Jujutsu.id(name), abilityType);
     }
 
     private static <T extends PassiveAbility> PassiveAbilityType<T> registerPassiveAbilityType(String name, PassiveAbilityType<T> type) {
-        return Registry.register(JujutsuRegistries.PASSIVE_ABILITY_TYPE, Jujutsu.getId(name), type);
+        return Registry.register(JujutsuRegistries.PASSIVE_ABILITY_TYPE, Jujutsu.id(name), type);
     }
 
     public static void register() {

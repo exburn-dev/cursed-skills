@@ -16,7 +16,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Style;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 
 public class SpeedPassiveAbility extends PassiveAbility {
@@ -53,11 +52,11 @@ public class SpeedPassiveAbility extends PassiveAbility {
         addAttributes(player,
                 new Pair<>(
                         EntityAttributes.GENERIC_STEP_HEIGHT,
-                        new EntityAttributeModifier(Jujutsu.getId("step_height"), 0.4, EntityAttributeModifier.Operation.ADD_VALUE)
+                        new EntityAttributeModifier(Jujutsu.id("step_height"), 0.4, EntityAttributeModifier.Operation.ADD_VALUE)
                 ),
                 new Pair<>(
                         EntityAttributes.GENERIC_MOVEMENT_SPEED,
-                        new EntityAttributeModifier(Jujutsu.getId("movement_speed"), 0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+                        new EntityAttributeModifier(Jujutsu.id("movement_speed"), 0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
                 ));
     }
 
@@ -94,10 +93,10 @@ public class SpeedPassiveAbility extends PassiveAbility {
         EntityAttributeInstance stepHeight = player.getAttributes().getCustomInstance(EntityAttributes.GENERIC_STEP_HEIGHT);
         EntityAttributeInstance movementSpeed = player.getAttributes().getCustomInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
         if(stepHeight != null) {
-            stepHeight.removeModifier(Jujutsu.getId("step_height"));
+            stepHeight.removeModifier(Jujutsu.id("step_height"));
         }
         if(movementSpeed != null) {
-            movementSpeed.removeModifier(Jujutsu.getId("movement_speed"));
+            movementSpeed.removeModifier(Jujutsu.id("movement_speed"));
         }
     }
 

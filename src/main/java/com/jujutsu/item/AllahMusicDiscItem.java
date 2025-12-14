@@ -12,7 +12,7 @@ public class AllahMusicDiscItem extends Item implements IBorderTooltipItem {
 
     @Override
     public TooltipBorderData getBorderData() {
-        return new TooltipBorderData.Builder().addUpperCentralElement(Jujutsu.getId("tooltip/allah/upper_central_element"), 16, 16, 2).build();
+        return new TooltipBorderData.Builder().addUpperCentralElement(Jujutsu.id("tooltip/allah/upper_central_element"), 16, 16, 2).build();
     }
 
     @Override
@@ -22,8 +22,8 @@ public class AllahMusicDiscItem extends Item implements IBorderTooltipItem {
 
     @Override
     public void render(DrawContext context, int x, int y, int width, int height) {
-        Identifier topTile = Jujutsu.getId("tooltip/allah/upper_tile");
-        Identifier bottomTile = Jujutsu.getId("tooltip/allah/bottom_tile");
+        Identifier topTile = Jujutsu.id("tooltip/allah/upper_tile");
+        Identifier bottomTile = Jujutsu.id("tooltip/allah/bottom_tile");
 
         context.drawGuiTexture(topTile, x, y, 500, width, height / 2);
         context.drawGuiTexture(bottomTile, x, y + height / 2, 500, width, height / 2);

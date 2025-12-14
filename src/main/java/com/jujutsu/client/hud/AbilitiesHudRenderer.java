@@ -49,8 +49,8 @@ public class AbilitiesHudRenderer {
             if (input.mouseButton() >= 0) {
                 int x = context.getScaledWindowWidth() / 2 - 8;
                 int y = context.getScaledWindowHeight() / 2 - 8;
-                Identifier texture = input.mouseButton() == 0 ? Jujutsu.getId("additional_input/mouse_left")
-                        : Jujutsu.getId("additional_input/mouse_right");
+                Identifier texture = input.mouseButton() == 0 ? Jujutsu.id("additional_input/mouse_left")
+                        : Jujutsu.id("additional_input/mouse_right");
                 context.drawGuiTexture(texture, x, y, 16, 16);
             }
         }

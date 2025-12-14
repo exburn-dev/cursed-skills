@@ -11,7 +11,7 @@ public class ModDataComponents {
             new ComponentType.Builder<TechniqueComponent>().codec(TechniqueComponent.CODEC).packetCodec(TechniqueComponent.PACKET_CODEC));
 
     private static <T> ComponentType<T> registerComponent(String name, ComponentType.Builder<T> builder) {
-        return Registry.register(Registries.DATA_COMPONENT_TYPE, Jujutsu.getId(name), builder.build());
+        return Registry.register(Registries.DATA_COMPONENT_TYPE, Jujutsu.id(name), builder.build());
     }
 
     public static void register() {

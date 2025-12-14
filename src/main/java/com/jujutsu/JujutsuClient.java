@@ -67,7 +67,7 @@ public class JujutsuClient implements ClientModInitializer {
 
                     @Override
                     public Identifier getFabricId() {
-                        return Jujutsu.getId("stun_shader_loader");
+                        return Jujutsu.id("stun_shader_loader");
                     }
                 }
         );

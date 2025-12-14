@@ -73,11 +73,11 @@ public class UpgradeResetScrollItem extends Item implements IBorderTooltipItem, 
 
     @Override
     public TooltipBorderData getBorderData() {
-        return new TooltipBorderData.Builder(Jujutsu.getId("tooltip/upgrade_reset_scroll/main"))
-                .addUpperTile(Jujutsu.getId("tooltip/upgrade_reset_scroll/upper_tile"))
-                .addUpperDecorTile(Jujutsu.getId("tooltip/upgrade_reset_scroll/upper_decor_tile"))
-                .addBottomTile(Jujutsu.getId("tooltip/upgrade_reset_scroll/bottom_tile"))
-                .addBottomDecorTile(Jujutsu.getId("tooltip/upgrade_reset_scroll/bottom_decor_tile"))
+        return new TooltipBorderData.Builder(Jujutsu.id("tooltip/upgrade_reset_scroll/main"))
+                .addUpperTile(Jujutsu.id("tooltip/upgrade_reset_scroll/upper_tile"))
+                .addUpperDecorTile(Jujutsu.id("tooltip/upgrade_reset_scroll/upper_decor_tile"))
+                .addBottomTile(Jujutsu.id("tooltip/upgrade_reset_scroll/bottom_tile"))
+                .addBottomDecorTile(Jujutsu.id("tooltip/upgrade_reset_scroll/bottom_decor_tile"))
                 .build();
     }
 
@@ -88,6 +88,6 @@ public class UpgradeResetScrollItem extends Item implements IBorderTooltipItem, 
 
     @Override
     public Identifier getModel() {
-        return Jujutsu.getId("upgrade_reset_scroll_3d");
+        return Jujutsu.id("upgrade_reset_scroll_3d");
     }
 }

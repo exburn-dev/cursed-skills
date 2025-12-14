@@ -85,7 +85,7 @@ public class BuffIconsRenderer {
     }
 
     static {
-        icons.put(EntityAttributes.GENERIC_MOVEMENT_SPEED, Jujutsu.getId("buff/movement_speed"));
-        icons.put(ModAttributes.INVINCIBLE, Jujutsu.getId("buff/invincible"));
+        icons.put(EntityAttributes.GENERIC_MOVEMENT_SPEED, Jujutsu.id("buff/movement_speed"));
+        icons.put(ModAttributes.INVINCIBLE, Jujutsu.id("buff/invincible"));
     }
 }

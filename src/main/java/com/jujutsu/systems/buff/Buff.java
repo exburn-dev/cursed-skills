@@ -5,24 +5,21 @@ import com.jujutsu.network.NbtPacketCodec;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
 
-public class BuffWrapper {
-    public static final Codec<BuffWrapper> CODEC;
-    public static final PacketCodec<RegistryByteBuf, BuffWrapper> PACKET_CODEC;
+public class Buff {
+    public static final Codec<Buff> CODEC;
+    public static final PacketCodec<RegistryByteBuf, Buff> PACKET_CODEC;
 
     private final List<BuffCancellingCondition> conditions;
     private final CancellingPolicy cancellingPolicy;
     private final IBuff buff;
 
-    private BuffWrapper(List<BuffCancellingCondition> conditions, CancellingPolicy cancellingPolicy, IBuff buff) {
+    private Buff(List<BuffCancellingCondition> conditions, CancellingPolicy cancellingPolicy, IBuff buff) {
         this.conditions = conditions;
         this.cancellingPolicy = cancellingPolicy;
         this.buff = buff;
@@ -69,7 +66,7 @@ public class BuffWrapper {
                                   CancellingPolicy cancellingPolicy, Identifier id) {
         if(hasBuff(entity, id)) return;
 
-        BuffWrapper buffWrapper = new BuffWrapper(conditions, cancellingPolicy, buff);
+        Buff buffWrapper = new Buff(conditions, cancellingPolicy, buff);
         BuffHolder buffHolder = (BuffHolder) entity;
 
         buffHolder.addBuff(id, buffWrapper);
@@ -82,10 +79,10 @@ public class BuffWrapper {
 
     static {
         CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                BuffCancellingCondition.CODEC.listOf().fieldOf("conditions").forGetter(BuffWrapper::conditions),
-                CancellingPolicy.CODEC.fieldOf("cancellingPolicy").forGetter(BuffWrapper::cancellingPolicy),
-                IBuff.CODEC.fieldOf("buff").forGetter(BuffWrapper::buff)
-                ).apply(instance, BuffWrapper::new)
+                BuffCancellingCondition.CODEC.listOf().fieldOf("conditions").forGetter(Buff::conditions),
+                CancellingPolicy.CODEC.fieldOf("cancellingPolicy").forGetter(Buff::cancellingPolicy),
+                IBuff.CODEC.fieldOf("buff").forGetter(Buff::buff)
+                ).apply(instance, Buff::new)
         );
 
         PACKET_CODEC = new NbtPacketCodec<>(CODEC);

@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 
@@ -37,7 +36,7 @@ public class CrosshairMarkRenderer {
         RenderSystem.setShaderColor(r, g, b, alpha);
         RenderSystem.enableBlend();
 
-        context.drawGuiTexture(Jujutsu.getId("hud/crosshair_mark"), context.getScaledWindowWidth() / 2 - 8, context.getScaledWindowHeight() / 2 - 8, 16, 16);
+        context.drawGuiTexture(Jujutsu.id("hud/crosshair_mark"), context.getScaledWindowWidth() / 2 - 8, context.getScaledWindowHeight() / 2 - 8, 16, 16);
 
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1, 1, 1,1);

@@ -63,7 +63,7 @@ public class AbilityUpgradesReloadListener implements SimpleSynchronousResourceR
 
     @Override
     public Identifier getFabricId() {
-        return Jujutsu.getId("ability_upgrades");
+        return Jujutsu.id("ability_upgrades");
     }
 
     @Override
@@ -80,7 +80,7 @@ public class AbilityUpgradesReloadListener implements SimpleSynchronousResourceR
                 var result =  codec.decode(new Dynamic<>(JsonOps.INSTANCE, jsonElement));
                 List<AbilityUpgradeBranch> branches = result.result().get().getFirst();
 
-                Identifier key = Jujutsu.getId(id.toString().replace("jujutsu:ability_upgrade/", "").replace(".json", ""));
+                Identifier key = Jujutsu.id(id.toString().replace("jujutsu:ability_upgrade/", "").replace(".json", ""));
 
                 upgrades.put(key, branches);
             }

@@ -11,8 +11,8 @@ public class SnusMusicDiscItem extends Item implements IBorderTooltipItem {
     @Override
     public TooltipBorderData getBorderData() {
         return new TooltipBorderData.Builder()
-                .addMainBorder(Jujutsu.getId("tooltip/snus/main"))
-                .addUpperCentralElement(Jujutsu.getId("tooltip/snus/upper_central_element"), 16, 16, 2)
+                .addMainBorder(Jujutsu.id("tooltip/snus/main"))
+                .addUpperCentralElement(Jujutsu.id("tooltip/snus/upper_central_element"), 16, 16, 2)
                 .build();
     }
 

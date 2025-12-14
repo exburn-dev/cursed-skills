@@ -69,7 +69,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     @Unique
     private AbilityAttributesContainer abilityAttributes = new AbilityAttributesContainer(new HashMap<>());
     @Unique
-    private UpgradesData upgradesData = new UpgradesData(Jujutsu.getId(""), 0, new HashMap<>());
+    private UpgradesData upgradesData = new UpgradesData(Jujutsu.id(""), 0, new HashMap<>());
     @Unique
     private List<AbilityTask> abilityTasks = new ArrayList<>();
 
@@ -217,7 +217,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
         this.abilities = PlayerJujutsuAbilities.deserialize(new Dynamic<>(NbtOps.INSTANCE, abilitiesCompound));
         this.abilityAttributes = AbilityAttributesContainer.deserialize(new Dynamic<>(NbtOps.INSTANCE, attributesCompound));
         this.upgradesData = CodecUtils.deserialize(UpgradesData.CODEC, new Dynamic<>(NbtOps.INSTANCE, upgradesCompound),
-                () -> new UpgradesData(Jujutsu.getId(""), 0, new HashMap<>()), (e) -> Jujutsu.LOGGER.error("Failed to deserialize rewards data {}", e));
+                () -> new UpgradesData(Jujutsu.id(""), 0, new HashMap<>()), (e) -> Jujutsu.LOGGER.error("Failed to deserialize rewards data {}", e));
     }
 
     @Override

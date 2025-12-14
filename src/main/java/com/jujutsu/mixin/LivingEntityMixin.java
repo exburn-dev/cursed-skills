@@ -1,13 +1,12 @@
 package com.jujutsu.mixin;
 
-import com.jujutsu.Jujutsu;
 import com.jujutsu.client.hud.BuffDisplayData;
 import com.jujutsu.event.server.PlayerBonusEvents;
 import com.jujutsu.network.payload.SyncBuffsForDisplaying;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
 import com.jujutsu.registry.tag.ModDamageTypeTags;
-import com.jujutsu.systems.buff.BuffWrapper;
+import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.BuffHashMapStorage;
 import com.jujutsu.systems.buff.BuffHolder;
 import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
@@ -84,11 +83,11 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Bu
 
         List<Identifier> toRemove = new ArrayList<>();
 
-        for(Map.Entry<Identifier, BuffWrapper> entry: buffStorage.buffs().entrySet()) {
+        for(Map.Entry<Identifier, Buff> entry: buffStorage.buffs().entrySet()) {
             Identifier id = entry.getKey();
-            BuffWrapper buffWrapper = entry.getValue();
+            Buff buff = entry.getValue();
 
-            if(buffWrapper.checkConditions(entity)) {
+            if(buff.checkConditions(entity)) {
                 toRemove.add(id);
             }
         }
@@ -192,16 +191,16 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Bu
     }
 
     @Override
-    public BuffWrapper getBuff(Identifier id) {
+    public Buff getBuff(Identifier id) {
         return buffStorage.buffs().get(id);
     }
 
     @Override
-    public void addBuff(Identifier id, BuffWrapper buffWrapper) {
+    public void addBuff(Identifier id, Buff buff) {
         LivingEntity entity = (LivingEntity) (Object) this;
 
-        buffWrapper.buff().apply(entity, id);
-        buffStorage.buffs().put(id, buffWrapper);
+        buff.buff().apply(entity, id);
+        buffStorage.buffs().put(id, buff);
 
         syncBuffs(entity);
     }
@@ -211,9 +210,9 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Bu
         if(!buffStorage.buffs().containsKey(id)) return;
 
         LivingEntity entity = (LivingEntity) (Object) this;
-        BuffWrapper buffWrapper = buffStorage.buffs().get(id);
+        Buff buff = buffStorage.buffs().get(id);
 
-        buffWrapper.buff().remove(entity, id);
+        buff.buff().remove(entity, id);
         buffStorage.buffs().remove(id);
 
         syncBuffs(entity);
@@ -223,18 +222,18 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Bu
     private void syncBuffs(LivingEntity entity) {
         if(entity.isPlayer() && !entity.getWorld().isClient()) {
             List<BuffDisplayData> list = new ArrayList<>();
-            for(BuffWrapper buffWrapper : buffStorage.buffs().values()) {
-                if(buffWrapper.cancellingPolicy() != BuffWrapper.CancellingPolicy.ONE_OR_MORE
-                        || !(buffWrapper.buff() instanceof ConstantBuff constantBuff) ) continue;
+            for(Buff buff : buffStorage.buffs().values()) {
+                if(buff.cancellingPolicy() != Buff.CancellingPolicy.ONE_OR_MORE
+                        || !(buff.buff() instanceof ConstantBuff constantBuff) ) continue;
 
-                list.add(new BuffDisplayData(constantBuff.attribute(), buffWrapper.conditions().getFirst()));
+                list.add(new BuffDisplayData(constantBuff.attribute(), buff.conditions().getFirst()));
             }
 
             ServerPlayNetworking.send((ServerPlayerEntity) entity, new SyncBuffsForDisplaying(list));
         }
     }
 
-    public List<BuffWrapper> getBuffs() {
+    public List<Buff> getBuffs() {
         return buffStorage.buffs().values().stream().toList();
     }
 

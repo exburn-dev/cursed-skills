@@ -27,7 +27,7 @@ public class ModParticleTypes {
             (type) -> BigColoredSparkParticleEffect.PACKET_CODEC);
 
     private static <T extends ParticleType<?>> T registerParticle(String name, T type) {
-        return Registry.register(Registries.PARTICLE_TYPE, Jujutsu.getId(name), type);
+        return Registry.register(Registries.PARTICLE_TYPE, Jujutsu.id(name), type);
     }
 
     private static <T extends ParticleEffect> ParticleType<T> registerParticle(String name, boolean alwaysShow, Function<ParticleType<T>, MapCodec<T>> codec, Function<ParticleType<T>, PacketCodec<RegistryByteBuf, T>> packetCodec) {
@@ -42,7 +42,7 @@ public class ModParticleTypes {
                 return packetCodec.apply(this);
             }
         };
-        return Registry.register(Registries.PARTICLE_TYPE, Jujutsu.getId(name), type);
+        return Registry.register(Registries.PARTICLE_TYPE, Jujutsu.id(name), type);
     }
 
     public static void register() {

@@ -40,11 +40,11 @@ public class FierySoulPassiveAbility extends PassiveAbility {
                 player,
                 new Pair<>(
                         ModAttributes.FIRE_RESISTANCE,
-                        new EntityAttributeModifier(Jujutsu.getId("fiery_soul"), 1, EntityAttributeModifier.Operation.ADD_VALUE)
+                        new EntityAttributeModifier(Jujutsu.id("fiery_soul"), 1, EntityAttributeModifier.Operation.ADD_VALUE)
                 ),
                 new Pair<>(
                         ModAttributes.BLAST_RESISTANCE,
-                        new EntityAttributeModifier(Jujutsu.getId("fiery_soul"), 1, EntityAttributeModifier.Operation.ADD_VALUE)
+                        new EntityAttributeModifier(Jujutsu.id("fiery_soul"), 1, EntityAttributeModifier.Operation.ADD_VALUE)
                 )
         );
     }
@@ -68,9 +68,9 @@ public class FierySoulPassiveAbility extends PassiveAbility {
     @Override
     public void onRemoved(PlayerEntity player) {
         EntityAttributeInstance instance = player.getAttributes().getCustomInstance(ModAttributes.FIRE_RESISTANCE);
-        instance.removeModifier(Jujutsu.getId("fiery_soul"));
+        instance.removeModifier(Jujutsu.id("fiery_soul"));
         EntityAttributeInstance instance1 = player.getAttributes().getCustomInstance(ModAttributes.BLAST_RESISTANCE);
-        instance1.removeModifier(Jujutsu.getId("fiery_soul"));
+        instance1.removeModifier(Jujutsu.id("fiery_soul"));
     }
 
     public void setEnabled(boolean value) {

@@ -145,7 +145,7 @@ public class AbilityUpgradesScreen extends Screen {
         int x = width / 2 - panelWidth / 2;
         int y = height - panelHeight / 2 - 16;
         context.fill(x , y, x + panelWidth, y + panelHeight, 0xFF454545);
-        context.drawGuiTexture(Jujutsu.getId("screen/abilities_upgrades/upgrade_tooltip_border"), x - 4, y - 4, panelWidth + 8, panelHeight + 8);
+        context.drawGuiTexture(Jujutsu.id("screen/abilities_upgrades/upgrade_tooltip_border"), x - 4, y - 4, panelWidth + 8, panelHeight + 8);
         context.drawText(client.textRenderer, panelText, x + 2, y + panelHeight / 2 - textRenderer.fontHeight / 2 + 1, 0xFFFFFFFF, true);
 
         matrices.translate(0, 0, -20);
@@ -255,9 +255,9 @@ public class AbilityUpgradesScreen extends Screen {
                 r = 0.545f; g = 0.769f; b = 0.145f;
             }
 
-            ShaderUtils.renderHexMask(context, context.getMatrices(), getX() - 6, getY() - 6, getWidth() + 12, hoverProgress, softPx, r, g, b, 0.5f, Jujutsu.getId("textures/gui/square.png"));
-            ShaderUtils.renderHexMask(context, context.getMatrices(), getX() - 4, getY() - 4, getWidth() + 8, hoverProgress, softPx, r + 0.4f, g + 0.4f, b + 0.50f, 1f, Jujutsu.getId("textures/gui/square.png"));
-            ShaderUtils.renderHexMask(context, context.getMatrices(), getX(), getY(), getWidth(), hoverProgress, softPx, r, g, b, 0.5f, Jujutsu.getId("textures/gui/square.png"));
+            ShaderUtils.renderHexMask(context, context.getMatrices(), getX() - 6, getY() - 6, getWidth() + 12, hoverProgress, softPx, r, g, b, 0.5f, Jujutsu.id("textures/gui/square.png"));
+            ShaderUtils.renderHexMask(context, context.getMatrices(), getX() - 4, getY() - 4, getWidth() + 8, hoverProgress, softPx, r + 0.4f, g + 0.4f, b + 0.50f, 1f, Jujutsu.id("textures/gui/square.png"));
+            ShaderUtils.renderHexMask(context, context.getMatrices(), getX(), getY(), getWidth(), hoverProgress, softPx, r, g, b, 0.5f, Jujutsu.id("textures/gui/square.png"));
 
             renderIcon(context);
 
@@ -276,10 +276,10 @@ public class AbilityUpgradesScreen extends Screen {
 
             }
             else if(purchased) {
-                context.drawGuiTexture(Jujutsu.getId("screen/abilities_upgrades/checkmark"), getX() + getWidth() / 2 - 12, getY() + getHeight() - 10, -1, 24, 24);
+                context.drawGuiTexture(Jujutsu.id("screen/abilities_upgrades/checkmark"), getX() + getWidth() / 2 - 12, getY() + getHeight() - 10, -1, 24, 24);
             }
             else if(!purchased && !canBePurchased) {
-                context.drawGuiTexture(Jujutsu.getId("screen/abilities_upgrades/lock"), getX() + getWidth() / 2 - 12, getY() + getHeight() - 10, -1, 24, 24);
+                context.drawGuiTexture(Jujutsu.id("screen/abilities_upgrades/lock"), getX() + getWidth() / 2 - 12, getY() + getHeight() - 10, -1, 24, 24);
             }
         }
 
@@ -294,7 +294,7 @@ public class AbilityUpgradesScreen extends Screen {
 
             int height = textRenderer.fontHeight * tooltip.size();
             context.fill(x, y, x + tooltipWidth, y + height, 0x8B454545);
-            context.drawGuiTexture(Jujutsu.getId("screen/abilities_upgrades/upgrade_tooltip_border"), x - 4, y - 4, tooltipWidth + 8, height + 8);
+            context.drawGuiTexture(Jujutsu.id("screen/abilities_upgrades/upgrade_tooltip_border"), x - 4, y - 4, tooltipWidth + 8, height + 8);
 
             for(int i = 0; i < tooltip.size(); i++) {
                 MutableText text = tooltip.get(i);

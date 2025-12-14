@@ -22,7 +22,6 @@ import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.systems.buff.type.SupersonicBuff;
 import com.jujutsu.util.AbilitiesHolderUtils;
 import com.jujutsu.util.AttributeUtils;
-import com.jujutsu.util.IOldPosHolder;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.entity.LivingEntity;
@@ -115,8 +114,8 @@ public class ServerEventListeners {
 
                 ConstantBuff buff = new ConstantBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
-                BuffWrapper.createBuff(entity, buff, ImmutableList.of(new TimeCancellingCondition(20)), BuffWrapper.CancellingPolicy.ONE_OR_MORE,
-                        Jujutsu.getId("wither_momentum"));
+                Buff.createBuff(entity, buff, ImmutableList.of(new TimeCancellingCondition(20)), Buff.CancellingPolicy.ONE_OR_MORE,
+                        Jujutsu.id("wither_momentum"));
             }
 
             return new Pair<>(ActionResult.PASS, bonus);
@@ -126,7 +125,7 @@ public class ServerEventListeners {
             BuffHolder holder = (BuffHolder) player;
             float bonus = 0;
             if(!holder.getBuffs().isEmpty()) {
-                for(BuffWrapper buffWrapper: holder.getBuffs()) {
+                for(Buff buffWrapper: holder.getBuffs()) {
                     IBuff buff = buffWrapper.buff();
                     if(buff.getType().equals(BuffTypes.SUPERSONIC_BUFF_TYPE)) {
                         double value = ((SupersonicBuff) buff).getValue(player);

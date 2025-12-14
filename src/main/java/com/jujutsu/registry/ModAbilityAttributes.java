@@ -30,7 +30,7 @@ public class ModAbilityAttributes {
     public static final RegistryEntry<AbilityAttribute> SUPERSONIC_DURATION = registerAttribute("supersonic_duration", MeasureUnit.SECONDS);
 
     private static RegistryEntry<AbilityAttribute> registerAttribute(String name, MeasureUnit unit) {
-        return Registry.registerReference(JujutsuRegistries.ABILITY_ATTRIBUTE, Jujutsu.getId(name), new AbilityAttribute(unit));
+        return Registry.registerReference(JujutsuRegistries.ABILITY_ATTRIBUTE, Jujutsu.id(name), new AbilityAttribute(unit));
     }
 
     public static void register() {

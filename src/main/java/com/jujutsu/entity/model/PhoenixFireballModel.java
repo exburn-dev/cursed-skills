@@ -12,7 +12,7 @@ import net.minecraft.client.util.math.MatrixStack;
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
 public class PhoenixFireballModel extends EntityModel<PhoenixFireballEntity> {
-	public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Jujutsu.getId("phoenix_fireball"), "main");
+	public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Jujutsu.id("phoenix_fireball"), "main");
 
 	private final ModelPart main;
 

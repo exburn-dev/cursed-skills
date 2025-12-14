@@ -124,7 +124,7 @@ public class AbilitiesHolderUtils {
         for(var entry: container.attributes().entrySet()) {
             RegistryEntry<AbilityAttribute> attribute = entry.getKey();
             for(var entry1: entry.getValue().entrySet()) {
-                if(entry1.getKey().equals(Jujutsu.getId("base"))) {
+                if(entry1.getKey().equals(Jujutsu.id("base"))) {
                     HashMap<Identifier, AbilityAttributeModifier> map = newContainer.attributes().getOrDefault(attribute, new HashMap<>());
                     map.put(entry1.getKey(), entry1.getValue());
                     newContainer.attributes().put(attribute, map);

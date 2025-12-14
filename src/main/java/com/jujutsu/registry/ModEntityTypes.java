@@ -25,7 +25,7 @@ public class ModEntityTypes {
             EntityType.Builder.<PhoenixFireballEntity>create(PhoenixFireballEntity::new, SpawnGroup.MISC).dimensions(1f, 1f).build());
 
     private static <T extends Entity> EntityType<T> registerEntityType(String name, EntityType<T> type) {
-        return Registry.register(Registries.ENTITY_TYPE, Jujutsu.getId(name), type);
+        return Registry.register(Registries.ENTITY_TYPE, Jujutsu.id(name), type);
     }
 
     public static void register() {

@@ -1,5 +1,7 @@
 package com.jujutsu.ability.active;
 
+import com.google.common.collect.ImmutableList;
+import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.mixin.LivingEntityAccessor;
 import com.jujutsu.registry.ModAbilityAttributes;
@@ -8,12 +10,18 @@ import com.jujutsu.systems.ability.data.*;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
+import com.jujutsu.systems.buff.Buff;
+import com.jujutsu.systems.buff.IBuff;
+import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
+import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.util.AbilitiesHolderUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.sound.SoundCategory;
@@ -69,7 +77,7 @@ public class SonicRiftAbility extends AbilityType {
             if(((!hasDelay && player.isOnGround()) || hasCollision)) {
                 setData(instance, instance.get(DASHES_LEFT), instance.get(SPEED_ON_START), false, 0);
 
-                setPlayerUsingRiptide(player, false);
+                setDashingProperties(player, false);
                 if(instance.get(DASHES_LEFT) > 0) {
                     addLaunchInput(player, instance);
                 }
@@ -100,7 +108,7 @@ public class SonicRiftAbility extends AbilityType {
 
     @Override
     public void end(PlayerEntity player, AbilityInstance instance) {
-        setPlayerUsingRiptide(player, false);
+        setDashingProperties(player, false);
     }
 
     @Override
@@ -195,13 +203,22 @@ public class SonicRiftAbility extends AbilityType {
             instance.syncRuntimeData();
         }
         if(!player.getWorld().isClient()) {
-            setPlayerUsingRiptide(player, true);
+            setDashingProperties(player, true);
+        }
+    }
+
+    private void setDashingProperties(PlayerEntity player, boolean isDashing) {
+        setPlayerUsingRiptide(player, isDashing);
+
+        if(isDashing) {
+            IBuff buff = new ConstantBuff(EntityAttributes.GENERIC_GRAVITY, -0.75, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+            Buff.createBuff(player, buff, ImmutableList.of(new TimeCancellingCondition(40)),
+                    Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("sonicrift_gravity"));
         }
     }
 
     private void setPlayerUsingRiptide(PlayerEntity player, boolean value) {
         ((LivingEntityAccessor) player).invokeSetLivingFlag(4, value);
-        player.setNoGravity(value);
     }
 
     private void setData(AbilityInstance instance, int dashesLeft, double speedOnStart, boolean dashing, int dashDelay) {

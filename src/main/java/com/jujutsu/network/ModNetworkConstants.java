@@ -6,7 +6,6 @@ import com.jujutsu.client.hud.BuffIconsRenderer;
 import com.jujutsu.client.hud.ColorModifierHudRenderer;
 import com.jujutsu.client.hud.CrosshairMarkRenderer;
 import com.jujutsu.client.hud.FlashSystemHudRenderer;
-import com.jujutsu.client.keybind.AdditionalInputSystem;
 import com.jujutsu.client.toast.AbilitiesAcquiredToast;
 import com.jujutsu.network.payload.*;
 import com.jujutsu.screen.AbilityUpgradesScreen;
@@ -32,27 +31,26 @@ import net.minecraft.world.World;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 public class ModNetworkConstants {
-    public static final Identifier ABILITY_KEY_PRESSED_ID = Jujutsu.getId("ability_key_pressed");
-    public static final Identifier ADDITIONAL_INPUT_PRESSED_ID = Jujutsu.getId("additional_input_pressed");
-    public static final Identifier ABILITY_UPGRADE_PURCHASED_ID = Jujutsu.getId("ability_upgrade_purchased");
+    public static final Identifier ABILITY_KEY_PRESSED_ID = Jujutsu.id("ability_key_pressed");
+    public static final Identifier ADDITIONAL_INPUT_PRESSED_ID = Jujutsu.id("additional_input_pressed");
+    public static final Identifier ABILITY_UPGRADE_PURCHASED_ID = Jujutsu.id("ability_upgrade_purchased");
 
-    public static final Identifier SYNC_PLAYER_ABILITIES_ID = Jujutsu.getId("sync_player_abilities");
-    public static final Identifier OPEN_HAND_SETTING_SCREEN_ID = Jujutsu.getId("open_hand_setting_screen");
-    public static final Identifier ABILITIES_ACQUIRED_ID = Jujutsu.getId("abilities_acquired");
-    public static final Identifier PLAY_CLIENT_SOUND_ID = Jujutsu.getId("play_client_sound");
-    public static final Identifier PLAY_ANIMATION_ID = Jujutsu.getId("play_animation");
-    public static final Identifier SYNC_BUFFS_FOR_DISPLAYING_ID = Jujutsu.getId("sync_buffs");
-    public static final Identifier SHOW_SCREEN_FLASH_ID = Jujutsu.getId("show_screen_flash");
-    public static final Identifier SHOW_CROSSHAIR_MARK_ID = Jujutsu.getId("show_crosshair_mark");
-    public static final Identifier SHOW_SCREEN_COLOR_MODIFIER_ID = Jujutsu.getId("show_screen_color_modifier");
-    public static final Identifier SYNC_ABILITY_ADDITIONAL_INPUT_ID = Jujutsu.getId("sync_ability_additional_input");
-    public static final Identifier SYNC_ABILITY_ATTRIBUTES_ID = Jujutsu.getId("sync_ability_attributes");
-    public static final Identifier SYNC_ABILITY_UPGRADES_ID = Jujutsu.getId("sync_ability_upgrades");
-    public static final Identifier SPAWN_PARTICLES_ID = Jujutsu.getId("spawn_particles");
-    public static final Identifier SYNC_RUNTIME_DATA_ID = Jujutsu.getId("ability_runtime_data_sync");
+    public static final Identifier SYNC_PLAYER_ABILITIES_ID = Jujutsu.id("sync_player_abilities");
+    public static final Identifier OPEN_HAND_SETTING_SCREEN_ID = Jujutsu.id("open_hand_setting_screen");
+    public static final Identifier ABILITIES_ACQUIRED_ID = Jujutsu.id("abilities_acquired");
+    public static final Identifier PLAY_CLIENT_SOUND_ID = Jujutsu.id("play_client_sound");
+    public static final Identifier PLAY_ANIMATION_ID = Jujutsu.id("play_animation");
+    public static final Identifier SYNC_BUFFS_FOR_DISPLAYING_ID = Jujutsu.id("sync_buffs");
+    public static final Identifier SHOW_SCREEN_FLASH_ID = Jujutsu.id("show_screen_flash");
+    public static final Identifier SHOW_CROSSHAIR_MARK_ID = Jujutsu.id("show_crosshair_mark");
+    public static final Identifier SHOW_SCREEN_COLOR_MODIFIER_ID = Jujutsu.id("show_screen_color_modifier");
+    public static final Identifier SYNC_ABILITY_ADDITIONAL_INPUT_ID = Jujutsu.id("sync_ability_additional_input");
+    public static final Identifier SYNC_ABILITY_ATTRIBUTES_ID = Jujutsu.id("sync_ability_attributes");
+    public static final Identifier SYNC_ABILITY_UPGRADES_ID = Jujutsu.id("sync_ability_upgrades");
+    public static final Identifier SPAWN_PARTICLES_ID = Jujutsu.id("spawn_particles");
+    public static final Identifier SYNC_RUNTIME_DATA_ID = Jujutsu.id("ability_runtime_data_sync");
 
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(AbilityKeyPressedPayload.ID, AbilityKeyPressedPayload.CODEC);

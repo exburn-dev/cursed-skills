@@ -20,7 +20,7 @@ public abstract class ModelLoaderMixin {
 
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/model/ModelLoader;loadItemModel(Lnet/minecraft/client/util/ModelIdentifier;)V"))
     private void init(BlockColors blockColors, Profiler profiler, Map jsonUnbakedModels, Map blockStates, CallbackInfo ci) {
-        this.loadItemModel(new ModelIdentifier(Jujutsu.getId("technique_scroll_3d"), "inventory"));
-        this.loadItemModel(new ModelIdentifier(Jujutsu.getId("upgrade_reset_scroll_3d"), "inventory"));
+        this.loadItemModel(new ModelIdentifier(Jujutsu.id("technique_scroll_3d"), "inventory"));
+        this.loadItemModel(new ModelIdentifier(Jujutsu.id("upgrade_reset_scroll_3d"), "inventory"));
     }
 }

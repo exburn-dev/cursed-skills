@@ -16,7 +16,7 @@ public class ModAttributes {
     public static final RegistryEntry<EntityAttribute> JUMP_VELOCITY_MULTIPLIER = registerAttribute("jump_velocity_multiplier", new ClampedEntityAttribute("attribute.jujutsu.jump_velocity_multiplier", 1, 0, 10).setTracked(true));
 
     private static RegistryEntry<EntityAttribute> registerAttribute(String name, EntityAttribute attribute) {
-        return Registry.registerReference(Registries.ATTRIBUTE, Jujutsu.getId(name), attribute);
+        return Registry.registerReference(Registries.ATTRIBUTE, Jujutsu.id(name), attribute);
     }
 
     public static void register() {

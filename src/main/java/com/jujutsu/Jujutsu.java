@@ -44,7 +44,7 @@ public class Jujutsu implements ModInitializer {
 		DelayedTasks.init();
 	}
 
-	public static Identifier getId(String id) {
+	public static Identifier id(String id) {
 		return Identifier.of(MODID, id);
 	}
 }

@@ -4,7 +4,6 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.entity.PhoenixFireballEntity;
 import com.jujutsu.entity.model.PhoenixFireballModel;
-import com.jujutsu.util.ParticleUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -13,7 +12,6 @@ import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.particle.ParticleEffect;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
@@ -21,10 +19,8 @@ import net.minecraft.util.math.Vec3d;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.function.Supplier;
-
 public class PhoenixFireballRenderer extends EntityRenderer<PhoenixFireballEntity> {
-    private static final Identifier TEXTURE = Jujutsu.getId("textures/entity/phoenix_fireball.png");
+    private static final Identifier TEXTURE = Jujutsu.id("textures/entity/phoenix_fireball.png");
 
     private final PhoenixFireballModel model;
 

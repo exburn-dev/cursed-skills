@@ -12,7 +12,7 @@ import net.minecraft.client.util.math.MatrixStack;
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
 public class BlinkMarkerModel extends EntityModel<BlinkMarkerEntity> {
-	public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Jujutsu.getId("blink_marker"), "main");
+	public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Jujutsu.id("blink_marker"), "main");
 
 	private final ModelPart bb_main;
 	public BlinkMarkerModel(ModelPart root) {

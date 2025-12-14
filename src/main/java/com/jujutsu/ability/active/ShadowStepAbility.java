@@ -7,7 +7,7 @@ import com.jujutsu.registry.ModSounds;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
-import com.jujutsu.systems.buff.BuffWrapper;
+import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
 import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.util.VisualEffectUtils;
@@ -37,14 +37,14 @@ public class ShadowStepAbility extends AbilityType {
         ConstantBuff invincibilityBuff = new ConstantBuff(ModAttributes.INVINCIBLE, 1, EntityAttributeModifier.Operation.ADD_VALUE);
         ConstantBuff speedBuff = new ConstantBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, 2.5, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
-        BuffWrapper.createBuff(player, damageBuff, ImmutableList.of(new TimeCancellingCondition(30)),
-                BuffWrapper.CancellingPolicy.ONE_OR_MORE, Jujutsu.getId("shadow_step_damage"));
+        Buff.createBuff(player, damageBuff, ImmutableList.of(new TimeCancellingCondition(30)),
+                Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("shadow_step_damage"));
 
-        BuffWrapper.createBuff(player, invincibilityBuff, ImmutableList.of(new TimeCancellingCondition(30)),
-                BuffWrapper.CancellingPolicy.ONE_OR_MORE, Jujutsu.getId("shadow_step_invincible"));
+        Buff.createBuff(player, invincibilityBuff, ImmutableList.of(new TimeCancellingCondition(30)),
+                Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("shadow_step_invincible"));
 
-        BuffWrapper.createBuff(player, speedBuff, ImmutableList.of(new TimeCancellingCondition(30)),
-                BuffWrapper.CancellingPolicy.ONE_OR_MORE, Jujutsu.getId("shadow_step_speed"));
+        Buff.createBuff(player, speedBuff, ImmutableList.of(new TimeCancellingCondition(30)),
+                Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("shadow_step_speed"));
 
         player.playSoundToPlayer(ModSounds.SHADOW_STEP_CAST, SoundCategory.MASTER, 2, 1.1f);
 

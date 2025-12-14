@@ -12,7 +12,7 @@ public class ModItems {
     public static final Item REARM = registerItem("rearm", new RearmItem(new Item.Settings().maxCount(1)));
     
     private static Item registerItem(String name, Item item) {
-        return Registry.register(Registries.ITEM, Jujutsu.getId(name), item);
+        return Registry.register(Registries.ITEM, Jujutsu.id(name), item);
     }
 
     public static void register() {

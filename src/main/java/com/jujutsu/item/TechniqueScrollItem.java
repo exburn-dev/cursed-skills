@@ -103,11 +103,11 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
 
     @Override
     public TooltipBorderData getBorderData() {
-        return new TooltipBorderData.Builder(Jujutsu.getId("tooltip/technique_scroll/main"))
-                .addUpperTile(Jujutsu.getId("tooltip/technique_scroll/upper_tile"))
-                .addUpperDecorTile(Jujutsu.getId("tooltip/technique_scroll/upper_decor_tile"))
-                .addBottomTile(Jujutsu.getId("tooltip/technique_scroll/bottom_tile"))
-                .addBottomDecorTile(Jujutsu.getId("tooltip/technique_scroll/bottom_decor_tile"))
+        return new TooltipBorderData.Builder(Jujutsu.id("tooltip/technique_scroll/main"))
+                .addUpperTile(Jujutsu.id("tooltip/technique_scroll/upper_tile"))
+                .addUpperDecorTile(Jujutsu.id("tooltip/technique_scroll/upper_decor_tile"))
+                .addBottomTile(Jujutsu.id("tooltip/technique_scroll/bottom_tile"))
+                .addBottomDecorTile(Jujutsu.id("tooltip/technique_scroll/bottom_decor_tile"))
                 .build();
     }
 
@@ -118,6 +118,6 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
 
     @Override
     public Identifier getModel() {
-        return Jujutsu.getId("technique_scroll_3d");
+        return Jujutsu.id("technique_scroll_3d");
     }
 }

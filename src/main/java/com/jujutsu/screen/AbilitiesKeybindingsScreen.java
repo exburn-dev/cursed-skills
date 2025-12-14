@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Optional;
 
 public class AbilitiesKeybindingsScreen extends Screen {
-    private static final Identifier BACKGROUND = Jujutsu.getId("screen/abilities_menu/background");
-    private static final Identifier PANEL_BACKGROUND = Jujutsu.getId("screen/abilities_menu/panel_background");
-    private static final Identifier ABILITY_BACKGROUND = Jujutsu.getId("screen/abilities_menu/ability_background");
-    private static final Identifier SELECTED_ABILITY_BACKGROUND = Jujutsu.getId("screen/abilities_menu/selected_ability_background");
-    private static final Identifier PAGE_SWITCH_BACKGROUND = Jujutsu.getId("screen/abilities_menu/page_switch_background");
-    private static final Identifier PAGE_SWITCH_ARROW_LEFT = Jujutsu.getId("screen/abilities_menu/page_switch_arrow_left");
-    private static final Identifier PAGE_SWITCH_ARROW_RIGHT = Jujutsu.getId("screen/abilities_menu/page_switch_arrow_right");
+    private static final Identifier BACKGROUND = Jujutsu.id("screen/abilities_menu/background");
+    private static final Identifier PANEL_BACKGROUND = Jujutsu.id("screen/abilities_menu/panel_background");
+    private static final Identifier ABILITY_BACKGROUND = Jujutsu.id("screen/abilities_menu/ability_background");
+    private static final Identifier SELECTED_ABILITY_BACKGROUND = Jujutsu.id("screen/abilities_menu/selected_ability_background");
+    private static final Identifier PAGE_SWITCH_BACKGROUND = Jujutsu.id("screen/abilities_menu/page_switch_background");
+    private static final Identifier PAGE_SWITCH_ARROW_LEFT = Jujutsu.id("screen/abilities_menu/page_switch_arrow_left");
+    private static final Identifier PAGE_SWITCH_ARROW_RIGHT = Jujutsu.id("screen/abilities_menu/page_switch_arrow_right");
 
     private AbilitiesBindingsPanel panel;
     private AbilityKeyBindingButton activeButton = null;

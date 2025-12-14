@@ -42,7 +42,7 @@ public class HollowPurpleAbility extends AbilityType {
     @Override
     public void start(PlayerEntity player, AbilityInstance instance) {
         if(player.getWorld().isClient()) return;
-        PlayerAnimations.playAnimation((ServerPlayerEntity) player, Jujutsu.getId("hollow_purple"), 1000, 50);
+        PlayerAnimations.playAnimation((ServerPlayerEntity) player, Jujutsu.id("hollow_purple"), 1000, 50);
     }
 
     @Override

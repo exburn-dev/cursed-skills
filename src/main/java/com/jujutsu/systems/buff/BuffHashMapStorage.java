@@ -10,9 +10,9 @@ import net.minecraft.util.Identifier;
 import java.util.HashMap;
 import java.util.Optional;
 
-public record BuffHashMapStorage(HashMap<Identifier, BuffWrapper> buffs) {
+public record BuffHashMapStorage(HashMap<Identifier, Buff> buffs) {
     public static final Codec<BuffHashMapStorage> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.unboundedMap(Identifier.CODEC, BuffWrapper.CODEC).xmap(HashMap::new, HashMap::new).fieldOf("buffs").forGetter(BuffHashMapStorage::buffs))
+            Codec.unboundedMap(Identifier.CODEC, Buff.CODEC).xmap(HashMap::new, HashMap::new).fieldOf("buffs").forGetter(BuffHashMapStorage::buffs))
             .apply(instance, BuffHashMapStorage::new)
     );
 

@@ -32,7 +32,7 @@ import net.minecraft.util.Identifier;
 
 public class JujutsuCommand {
     public static void register() {
-        ArgumentTypeRegistry.registerArgumentType(Jujutsu.getId("ability_slot"), AbilitySlotArgument.class, ConstantArgumentSerializer.of(AbilitySlotArgument::new));
+        ArgumentTypeRegistry.registerArgumentType(Jujutsu.id("ability_slot"), AbilitySlotArgument.class, ConstantArgumentSerializer.of(AbilitySlotArgument::new));
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(CommandManager.literal("jujutsu")
@@ -105,7 +105,7 @@ public class JujutsuCommand {
 
     private static int playAnimation(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "player");
-        PlayerAnimations.playAnimation(player, Jujutsu.getId("test"), 1000, 50);
+        PlayerAnimations.playAnimation(player, Jujutsu.id("test"), 1000, 50);
 
         return 1;
     }

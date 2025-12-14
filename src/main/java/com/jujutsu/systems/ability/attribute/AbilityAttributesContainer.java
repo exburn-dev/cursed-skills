@@ -79,7 +79,7 @@ public record AbilityAttributesContainer(HashMap<RegistryEntry<AbilityAttribute>
         }
 
         public Builder addBaseModifier(RegistryEntry<AbilityAttribute> attribute, double value) {
-            return addModifier(attribute, Jujutsu.getId("base"), value, AbilityAttributeModifier.Type.ADD);
+            return addModifier(attribute, Jujutsu.id("base"), value, AbilityAttributeModifier.Type.ADD);
         }
 
         public AbilityAttributesContainer build() {

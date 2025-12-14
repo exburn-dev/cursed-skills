@@ -23,11 +23,11 @@ public final class AbilitySlot {
         }
     };
 
-    public static final AbilitySlot ABILITY_SLOT_1 = new AbilitySlot(Jujutsu.getId("slot_1"));
-    public static final AbilitySlot ABILITY_SLOT_2 = new AbilitySlot(Jujutsu.getId("slot_2"));
-    public static final AbilitySlot ABILITY_SLOT_3 = new AbilitySlot(Jujutsu.getId("slot_3"));
-    public static final AbilitySlot ABILITY_SLOT_4 = new AbilitySlot(Jujutsu.getId("slot_4"));
-    public static final AbilitySlot ABILITY_SLOT_ON_DEATH = new AbilitySlot(Jujutsu.getId("slot_on_death"));
+    public static final AbilitySlot ABILITY_SLOT_1 = new AbilitySlot(Jujutsu.id("slot_1"));
+    public static final AbilitySlot ABILITY_SLOT_2 = new AbilitySlot(Jujutsu.id("slot_2"));
+    public static final AbilitySlot ABILITY_SLOT_3 = new AbilitySlot(Jujutsu.id("slot_3"));
+    public static final AbilitySlot ABILITY_SLOT_4 = new AbilitySlot(Jujutsu.id("slot_4"));
+    public static final AbilitySlot ABILITY_SLOT_ON_DEATH = new AbilitySlot(Jujutsu.id("slot_on_death"));
 
     private final Identifier id;
 

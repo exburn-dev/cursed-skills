@@ -14,7 +14,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
 public class BlinkMarkerEntityRenderer extends EntityRenderer<BlinkMarkerEntity> {
-    public static final Identifier TEXTURE = Jujutsu.getId("textures/entity/blink_marker.png");
+    public static final Identifier TEXTURE = Jujutsu.id("textures/entity/blink_marker.png");
 
     private final BlinkMarkerModel model;
 

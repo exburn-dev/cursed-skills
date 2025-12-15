@@ -1,6 +1,6 @@
 package com.jujutsu.item;
 
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,7 +24,7 @@ public class RearmItem extends Item {
 
         if (holder.getSlots().isEmpty()) return TypedActionResult.pass(stack);
         for(AbilitySlot slot: holder.getSlots()) {
-            AbilityInstance instance = holder.getAbilityInstance(slot);
+            AbilityInstanceOld instance = holder.getAbilityInstance(slot);
             instance.setCooldownTime(0);
         }
 

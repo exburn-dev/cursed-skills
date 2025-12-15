@@ -2,7 +2,7 @@ package com.jujutsu.util;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
@@ -60,11 +60,11 @@ public class AbilitiesHolderUtils {
         return totalValue * totalMultiplier;
     }
 
-    public static <T extends AbilityType> Optional<AbilityInstance> findAbility(IAbilitiesHolder holder, Class<T> ability) {
+    public static <T extends AbilityType> Optional<AbilityInstanceOld> findAbility(IAbilitiesHolder holder, Class<T> ability) {
         if(holder.getSlots().isEmpty()) return Optional.empty();
 
         for(AbilitySlot slot: holder.getSlots()) {
-            AbilityInstance instance = holder.getAbilityInstance(slot);
+            AbilityInstanceOld instance = holder.getAbilityInstance(slot);
 
             if(ability.equals(instance.getType().getClass())) {
                 return Optional.of(instance);

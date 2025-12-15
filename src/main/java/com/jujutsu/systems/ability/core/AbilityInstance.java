@@ -1,328 +1,144 @@
 package com.jujutsu.systems.ability.core;
 
-import com.jujutsu.Jujutsu;
-import com.jujutsu.network.NbtPacketCodec;
-import com.jujutsu.network.payload.AbilityRuntimeDataSyncS2CPacket;
-import com.jujutsu.network.payload.SyncAbilityAdditionalInputPayload;
-import com.jujutsu.registry.JujutsuRegistries;
-import com.jujutsu.systems.ability.data.InputRequest;
-import com.jujutsu.systems.ability.data.RequestedInputKey;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
-import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.data.AbilityPropertiesContainer;
 import com.jujutsu.systems.ability.data.AbilityProperty;
-import com.jujutsu.systems.ability.task.AbilityTask;
-import com.jujutsu.systems.ability.task.TickAbilitiesTask;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.*;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import com.jujutsu.systems.ability.data.InputRequest;
+import com.jujutsu.systems.entitydata.EntityServerData;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+public class AbilityInstance implements EntityServerData {
+    private final PlayerEntity player;
+    private AbilityType type;
 
-public final class AbilityInstance {
-    public static final Codec<AbilityInstance> CODEC;
-    public static final PacketCodec<RegistryByteBuf, AbilityInstance> PACKET_CODEC;
-    public static final PacketCodec<RegistryByteBuf, AbilityInstance> PACKET_CODEC_RUNTIME_DATA;
-
-    private final AbilityType type;
-
-    private AbilityStatus status = AbilityStatus.NONE;
     private AbilitySlot slot;
+    private AbilityStatus status;
     private int useTime;
     private int cooldownTime;
-    private boolean sync;
-    private boolean syncRuntimeData;
 
-    private Set<InputRequest> inputRequests = new HashSet<>();
-    private Map<AbilityProperty<?>, Comparable<?>> runtimeData = new HashMap<>();
+    private AbilityPropertiesContainer runtimeData = new AbilityPropertiesContainer();
 
-    public AbilityInstance(AbilityType type) {
-        this.type = type;
-        this.slot = null;
+    private AbilityInstance(PlayerEntity player) {
+        this.player = player;
     }
 
-    private AbilityInstance(AbilityType type, int useTime, int cooldownTime, AbilityStatus status) {
-        this.type = type;
-        this.useTime = useTime;
-        this.cooldownTime = cooldownTime;
-        this.status = status;
+    public AbilityInstance(PlayerEntity player, AbilityType type) {
+        this.player = player;
+        this.type= type;
     }
 
-    public void start(PlayerEntity player) {
+    public AbilityInstance(PlayerEntity player, AbilityInstanceData data) {
+        this(player, data.type());
+        this.slot = data.slot();
+        this.status = data.status();
+        this.useTime = data.useTime();
+        this.cooldownTime = data.cooldownTime();
+    }
+
+    public void start() {
         if(!status.isNone()) return;
 
         status = AbilityStatus.RUNNING;
-        type.start(player, this);
+        //type.start(player, this);
     }
 
-    public void tick(PlayerEntity player) {
+    public void tick() {
+        processStatus();
+        //TODO: sync
+    }
+
+    public void endAbility() {
+        if(!(isFinished() || type.isCancelable())) return;
+
+        //type.end(player, this);
+        status = AbilityStatus.ON_COOLDOWN;
+        //cooldownTime = type.getCooldownTime(player, this);
+        useTime = 0;
+        //TODO: clear input request
+    }
+
+    public void endCooldown() {
+        status = AbilityStatus.NONE;
+    }
+
+    public boolean isFinished() {
+        //return type.isFinished(player, this);
+        return true;
+    }
+
+    private void processStatus() {
         if(status.isRunning()) {
-            type.tick(player, this);
+            //TODO: type be able to work w new AbilityInstance
+            //type.tick(player, this);
             useTime++;
         }
-        else if (status.isWaiting()) {
-            type.tick(player, this);
-            waitingTick(player);
+        else if(status.isWaiting()) {
+            //type.tick(player, this);
+            if(AbilityComponent.get(player).hasInputRequest(slot)) {
+                status = AbilityStatus.RUNNING;
+            }
         }
         else if(status.onCooldown()) {
             cooldown();
         }
-
-        if(sync) {
-            TickAbilitiesTask.syncAbilitiesToClient((ServerPlayerEntity) player);
-            sync = false;
-        }
-        if(syncRuntimeData) {
-            ServerPlayNetworking.send((ServerPlayerEntity) player, new AbilityRuntimeDataSyncS2CPacket.Payload(slot, runtimeData));
-            syncRuntimeData = false;
-        }
     }
 
-    private void waitingTick(PlayerEntity player) {
-        if(inputRequests.isEmpty()) {
-            this.status = AbilityStatus.RUNNING;
-            return;
-        }
-
-        for(InputRequest input: inputRequests) {
-            if(input.timeout <= 0) continue;
-
-            if(input.timeoutTime >= input.timeout) {
-                input.executeTimeoutTask(player);
-                inputRequests.remove(input);
-
-                syncAdditionalInput(player, true);
-                return;
-            }
-
-            input.timeoutTime++;
-        }
-    }
-
-    public void tickClient() {
-        if(status.onCooldown()) {
-            cooldown();
-        }
-        else if(status.isRunning()) {
-            useTime++;
-        }
-    }
-
-    public void sync() {
-        sync = true;
-    }
-
-    public void syncRuntimeData() {
-        syncRuntimeData = true;
-    }
-
-    public void endAbility(PlayerEntity player) {
-        if(!isFinished(player) && !type.isCancelable()) return;
-
-        type.end(player, this);
-        status = AbilityStatus.ON_COOLDOWN;
-        cooldownTime = type.getCooldownTime(player, this);
-
-        inputRequests.clear();
-        syncAdditionalInput(player, true);
-    }
-
-    public void endCooldown() {
-        useTime = 0;
-        status = AbilityStatus.NONE;
-    }
-
-    public void cancel() {
-        if(type.isCancelable() && status.isRunning()) {
-            status = AbilityStatus.CANCELLED;
-        }
-    }
-
-    public void addDefaultAttributes(PlayerEntity player) {
-        if(player.getWorld().isClient()) return;
-        AbilityAttributesContainer container = type.getDefaultAttributes();
-        AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) player;
-
-        if(container.attributes().isEmpty()) return;
-        for(var entry: container.attributes().entrySet()) {
-            HashMap<Identifier, AbilityAttributeModifier> holderModifiers = holder.getAbilityAttributes().getModifiers(entry.getKey());
-            if(holderModifiers == null) {
-                HashMap<Identifier, AbilityAttributeModifier> map = new HashMap<>(entry.getValue());
-                holder.getAbilityAttributes().attributes().put(entry.getKey(), map);
-            }
-            else {
-                holderModifiers.putAll(entry.getValue());
-            }
-        }
-    }
-
-    public void requestInput(PlayerEntity player, RequestedInputKey key, int timeout, boolean showOnScreen, AbilityTask task, @Nullable AbilityTask timeoutTask) {
-        if(!slotInitialized()) return;
-
-        InputRequest request = new InputRequest(key, task, timeoutTask, timeout, showOnScreen);
-        inputRequests.add(request);
-
-        this.status = AbilityStatus.WAITING;
-
-        if(player instanceof ServerPlayerEntity) {
-            syncAdditionalInput(player, false);
-        }
-    }
-
-    private void removeAdditionalInput(InputRequest input) {
-        inputRequests.remove(input);
-
-        if(inputRequests.isEmpty()) {
-            this.status = AbilityStatus.RUNNING;
-        }
-    }
-
-    private void syncAdditionalInput(PlayerEntity player, boolean clear) {
-        ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncAbilityAdditionalInputPayload(inputRequests.stream().map(request -> request.key).toList(), slot, clear));
-    }
-
-    public void checkAdditionalInput(PlayerEntity player, RequestedInputKey key) {
-        if(inputRequests.isEmpty()) return;
-
-        for(InputRequest request : inputRequests) {
-            if(request.key.equals(key)) {
-                request.task.execute(player);
-                removeAdditionalInput(request);
-                return;
-            }
-        }
-    }
-
-    public <T extends Comparable<T>> void set(AbilityProperty<T> property, T value) {
-        this.runtimeData.put(property, value);
-    }
-
-    public <T extends Comparable<T>> T get(AbilityProperty<T> property) {
-        var optional = getAbilityProperty(property);
-        return optional.orElse(null);
-    }
-
-    public void setRuntimeData(Map<AbilityProperty<?>, Comparable<?>> data) {
-        runtimeData = data;
-    }
-
-    public <T extends Comparable<T>> Optional<T> getAbilityProperty(AbilityProperty<T> property) {
-        if(runtimeData.containsKey(property)) {
-            return Optional.of( (T) runtimeData.get(property));
-        }
-        else {
-            return Optional.empty();
-        }
-    }
-
-    public boolean isFinished(PlayerEntity player) {
-        return this.type.isFinished(player, this);
-    }
-
-    public void cooldown() {
+    private void cooldown() {
         if(cooldownTime > 0) cooldownTime--;
     }
 
-    public AbilityStatus getStatus() {
-        return status;
+    public <T extends Comparable<T>> T get(AbilityProperty<T> property) {
+        return runtimeData.get(property);
     }
 
-    public int getUseTime() {
-        return this.useTime;
+    public <T extends Comparable<T>> void set(AbilityProperty<T> property, T value) {
+        runtimeData.set(property, value);
     }
 
-    public int getCooldownTime() {
-        return this.cooldownTime;
+    public void requestInput(InputRequest request) {
+        status = AbilityStatus.WAITING;
+
+        component().addInputRequest(slot, request);
     }
 
-    public void setCooldownTime(int value) {
-        this.cooldownTime = value;
+    private AbilityComponent component() {
+        return AbilityComponent.get(player);
     }
 
-    public AbilityType getType() {
-        return this.type;
+    public int useTime() {
+        return useTime;
     }
 
-    public boolean slotInitialized() {
-        return this.slot != null;
-    }
-
-    public void initializeSlot(AbilitySlot slot) {
-        if(slotInitialized()) return;
-        this.slot = slot;
-    }
-
-    public AbilitySlot getSlot() {
-        return this.slot;
+    public AbilityInstanceData writeData() {
+        return new AbilityInstanceData(type, slot, status, useTime, cooldownTime);
     }
 
     @Override
-    public String toString() {
-        return String.format("type: %s, cooldown: %s, status: %s, useTime: %s", type.getName().getString(), getCooldownTime(), getStatus(), getUseTime());
+    public void saveToNbt(NbtCompound nbt) {
+        AbilityInstanceData data = writeData();
+        AbilityInstanceData.CODEC.encode(data, NbtOps.INSTANCE, nbt);
     }
 
-    static {
-        CODEC = new AbilityInstanceCodec();
-        PACKET_CODEC = new NbtPacketCodec<>(CODEC);
-        PACKET_CODEC_RUNTIME_DATA = new PacketCodec<RegistryByteBuf, AbilityInstance>() {
-            @Override
-            public AbilityInstance decode(RegistryByteBuf buf) {
-                AbilityInstance instance = PACKET_CODEC.decode(buf);
-                AbilityRuntimeDataSyncS2CPacket.Payload payload = AbilityRuntimeDataSyncS2CPacket.CODEC.decode(buf);
-                instance.setRuntimeData(payload.data());
-
-                return instance;
-            }
-
-            @Override
-            public void encode(RegistryByteBuf buf, AbilityInstance instance) {
-                PACKET_CODEC.encode(buf, instance);
-                AbilityRuntimeDataSyncS2CPacket.CODEC.encode(buf, new AbilityRuntimeDataSyncS2CPacket.Payload(instance.slot, instance.runtimeData));
-            }
-        };
+    @Override
+    public void readFromNbt(NbtCompound nbt) {
+        AbilityInstanceData data = AbilityInstanceData.CODEC.parse(NbtOps.INSTANCE, nbt).getOrThrow();
+        this.type = data.type();
+        this.slot = data.slot();
+        this.status = data.status();
+        this.useTime = data.useTime();
+        this.cooldownTime = data.cooldownTime();
     }
 
-    private static class AbilityInstanceCodec implements Codec<AbilityInstance> {
-        @Override
-        public <T> DataResult<Pair<AbilityInstance, T>> decode(DynamicOps<T> ops, T input) {
-            Dynamic<T> dynamic = new Dynamic<>(ops, input);
+    public static AbilityInstance fromNbt(PlayerEntity player, NbtCompound nbt) {
+        AbilityInstance instance = new AbilityInstance(player);
+        instance.readFromNbt(nbt);
+        return instance;
+    }
 
-            Optional<String> typeIdOpt = dynamic.get("type").asString().result();
-            if (typeIdOpt.isEmpty()) return DataResult.error(() -> "Missing 'type' field");
-            Identifier typeId = Identifier.of(typeIdOpt.get());
-
-            AbilityType type = JujutsuRegistries.ABILITY_TYPE.get(typeId);
-
-            int cooldownTime = dynamic.get("cooldownTime").asInt(0);
-            int useTime = dynamic.get("useTime").asInt(0);
-            AbilityStatus status = AbilityStatus.CODEC.parse(dynamic.get("status").orElseEmptyMap())
-                    .result()
-                    .orElse(AbilityStatus.NONE);
-
-            AbilityInstance instance = new AbilityInstance(type, useTime, cooldownTime, status);
-
-            return DataResult.success(new Pair<>(instance, input));
-        }
-
-        @Override
-        public <T> DataResult<T> encode(AbilityInstance instance, DynamicOps<T> ops, T t) {
-            RecordBuilder<T> builder = ops.mapBuilder();
-
-            Identifier typeId = JujutsuRegistries.ABILITY_TYPE.getId(instance.type);
-            if (typeId == null) return DataResult.error(() -> "Unregistered ability type: " + instance.type);
-
-            builder.add("type", ops.createString(typeId.toString()));
-            builder.add("cooldownTime", ops.createInt(instance.cooldownTime));
-            builder.add("useTime", ops.createInt(instance.useTime));
-            builder.add("status", ops.createInt(instance.status.getId()));
-
-            return builder.build(t);
-        }
+    @Override
+    public void sendToClient(RegistryByteBuf buf) {
+        AbilityInstanceData.PACKET_CODEC.encode(buf, writeData());
     }
 }

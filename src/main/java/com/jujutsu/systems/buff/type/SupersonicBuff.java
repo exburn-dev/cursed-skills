@@ -1,10 +1,9 @@
 package com.jujutsu.systems.buff.type;
 
-import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.active.SupersonicAbility;
 import com.jujutsu.registry.BuffTypes;
 import com.jujutsu.registry.ModAbilityAttributes;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.buff.BuffType;
@@ -26,7 +25,7 @@ public record SupersonicBuff(AbilitySlot slot) implements IDynamicBuff {
         if(!entity.isPlayer()) return 0;
 
         IAbilitiesHolder holder = (IAbilitiesHolder) entity;
-        AbilityInstance instance = holder.getAbilityInstance(slot);
+        AbilityInstanceOld instance = holder.getAbilityInstance(slot);
         if(instance != null && instance.getType() instanceof SupersonicAbility ability) {
 
             return Math.sqrt(instance.get(SupersonicAbility.DISTANCE)) *

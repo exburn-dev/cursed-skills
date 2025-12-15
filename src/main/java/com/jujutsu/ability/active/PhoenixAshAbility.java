@@ -5,7 +5,7 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
@@ -30,7 +30,7 @@ public class PhoenixAshAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstance instance) {
+    public void start(PlayerEntity player, AbilityInstanceOld instance) {
         Vector3f color = new Vector3f(1, 0.306f, 0);
         Supplier<ParticleEffect> particle = () -> new ColoredSparkParticleEffect(4f, 0.94f, new ColoredSparkParticleEffect.ColorTransition(color, new Vector3f(1, 0, 0)),0, 0.1f, 40);
         ParticleUtils.createCyl(particle, player.getPos().add(0, 1, 0), player.getWorld(), 20, 1, 0.1f);
@@ -59,17 +59,17 @@ public class PhoenixAshAbility extends AbilityType {
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstance instance) {
+    public void tick(PlayerEntity player, AbilityInstanceOld instance) {
 
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstance instance) {
+    public void end(PlayerEntity player, AbilityInstanceOld instance) {
 
     }
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+    public boolean isFinished(PlayerEntity player, AbilityInstanceOld instance) {
         return instance.getUseTime() >= 20;
     }
 

@@ -34,7 +34,7 @@ public abstract class AbilityType {
         this.clientData = clientData;
     }
 
-    public int getCooldownTime(PlayerEntity player, AbilityInstance instance) {
+    public int getCooldownTime(PlayerEntity player, AbilityInstanceOld instance) {
         return this.cooldownTime;
     }
 
@@ -46,10 +46,10 @@ public abstract class AbilityType {
         return this.clientData;
     }
 
-    public abstract void start(PlayerEntity player, AbilityInstance instance);
-    public abstract void tick(PlayerEntity player, AbilityInstance instance);
-    public abstract void end(PlayerEntity player, AbilityInstance instance);
-    public abstract boolean isFinished(PlayerEntity player, AbilityInstance instance);
+    public abstract void start(PlayerEntity player, AbilityInstanceOld instance);
+    public abstract void tick(PlayerEntity player, AbilityInstanceOld instance);
+    public abstract void end(PlayerEntity player, AbilityInstanceOld instance);
+    public abstract boolean isFinished(PlayerEntity player, AbilityInstanceOld instance);
 
     protected double getAbilityAttributeValue(PlayerEntity player, RegistryEntry<AbilityAttribute> attribute) {
         return AbilitiesHolderUtils.getAbilityAttributeValue(player, attribute);
@@ -76,7 +76,7 @@ public abstract class AbilityType {
         return optional.map(abilityTypeRegistryKey -> abilityTypeRegistryKey.getValue().toTranslationKey("ability")).orElse("");
     }
 
-    public AbilityInstance getDefaultInstance() {
-        return new AbilityInstance(this);
+    public AbilityInstanceOld getDefaultInstance() {
+        return new AbilityInstanceOld(this);
     }
 }

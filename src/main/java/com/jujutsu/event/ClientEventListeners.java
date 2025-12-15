@@ -4,7 +4,7 @@ import com.jujutsu.event.client.CameraEvents;
 import com.jujutsu.event.client.HandRenderingEvents;
 import com.jujutsu.event.client.TooltipRenderingEvents;
 import com.jujutsu.registry.ModAbilities;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
@@ -22,7 +22,7 @@ public class ClientEventListeners {
             IAbilitiesHolder holder = (IAbilitiesHolder) player;
 
             for(AbilitySlot slot: holder.getRunningSlots()) {
-                AbilityInstance instance = holder.getAbilityInstance(slot);
+                AbilityInstanceOld instance = holder.getAbilityInstance(slot);
                 if(!instance.getStatus().isRunning() && !instance.getStatus().isWaiting()) continue;
 
                 ClientData clientData = instance.getType().getClientData();

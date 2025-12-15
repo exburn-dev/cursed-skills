@@ -7,7 +7,7 @@ import com.jujutsu.mixin.LivingEntityAccessor;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.data.*;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.buff.Buff;
@@ -47,7 +47,7 @@ public class SonicRiftAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstance instance) {
+    public void start(PlayerEntity player, AbilityInstanceOld instance) {
         Optional<SpeedPassiveAbility> optional = AbilitiesHolderUtils.findPassiveAbility((IAbilitiesHolder) player, SpeedPassiveAbility.class);
         double speed = 0;
         int dashes = 0;
@@ -66,7 +66,7 @@ public class SonicRiftAbility extends AbilityType {
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstance instance) {
+    public void tick(PlayerEntity player, AbilityInstanceOld instance) {
         if(player.getWorld().isClient()) return;
 
         if(instance.get(DASHING)) {
@@ -107,12 +107,12 @@ public class SonicRiftAbility extends AbilityType {
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstance instance) {
+    public void end(PlayerEntity player, AbilityInstanceOld instance) {
         setDashingProperties(player, false);
     }
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+    public boolean isFinished(PlayerEntity player, AbilityInstanceOld instance) {
         return instance.get(DASHES_LEFT) <= 0 && !instance.get(DASHING);
     }
 
@@ -172,7 +172,7 @@ public class SonicRiftAbility extends AbilityType {
         return finalHit;
     }
 
-    private void addLaunchInput(PlayerEntity player, AbilityInstance instance) {
+    private void addLaunchInput(PlayerEntity player, AbilityInstanceOld instance) {
         instance.requestInput(player,
                 new RequestedInputKey(-1, 0), 70, true,
                 (player1) -> {
@@ -185,7 +185,7 @@ public class SonicRiftAbility extends AbilityType {
                 });
     }
 
-    private void launch(PlayerEntity player, AbilityInstance instance) {
+    private void launch(PlayerEntity player, AbilityInstanceOld instance) {
         if(instance.get(DASHES_LEFT) > 0) {
             double dashVelocityMultiplier = getAbilityAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_DASH_POWER);
 
@@ -221,7 +221,7 @@ public class SonicRiftAbility extends AbilityType {
         ((LivingEntityAccessor) player).invokeSetLivingFlag(4, value);
     }
 
-    private void setData(AbilityInstance instance, int dashesLeft, double speedOnStart, boolean dashing, int dashDelay) {
+    private void setData(AbilityInstanceOld instance, int dashesLeft, double speedOnStart, boolean dashing, int dashDelay) {
         instance.set(DASHES_LEFT, dashesLeft);
         instance.set(SPEED_ON_START, speedOnStart);
         instance.set(DASHING, dashing);
@@ -243,7 +243,7 @@ public class SonicRiftAbility extends AbilityType {
                 .build();
     }
 
-    public static void renderHud(DrawContext context, RenderTickCounter counter, AbilityInstance instance) {
+    public static void renderHud(DrawContext context, RenderTickCounter counter, AbilityInstanceOld instance) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 

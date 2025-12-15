@@ -1,7 +1,7 @@
 package com.jujutsu.ability.active;
 
 import com.jujutsu.registry.ModAbilityAttributes;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.entity.LapseBlueEntity;
@@ -27,7 +27,7 @@ public class LapseBlueAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstance instance) {
+    public void start(PlayerEntity player, AbilityInstanceOld instance) {
         LapseBlueEntity entity = new LapseBlueEntity(player.getWorld(), player.getUuid());
         entity.setPosition(player.getPos());
         player.getWorld().spawnEntity(entity);
@@ -36,7 +36,7 @@ public class LapseBlueAbility extends AbilityType {
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstance instance) {
+    public void tick(PlayerEntity player, AbilityInstanceOld instance) {
         LapseBlueEntity entity = (LapseBlueEntity) player.getWorld().getEntityById(instance.get(ENTITY_ID));
         if(entity == null) return;
 
@@ -46,7 +46,7 @@ public class LapseBlueAbility extends AbilityType {
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstance instance) {
+    public void end(PlayerEntity player, AbilityInstanceOld instance) {
         if (instance.getStatus().isCancelled() || player.getWorld().isClient()) return;
 
         LapseBlueEntity entity = (LapseBlueEntity) player.getWorld().getEntityById(instance.get(ENTITY_ID));
@@ -63,7 +63,7 @@ public class LapseBlueAbility extends AbilityType {
     }
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+    public boolean isFinished(PlayerEntity player, AbilityInstanceOld instance) {
         return instance.getUseTime() >= 70;
     }
 
@@ -72,7 +72,7 @@ public class LapseBlueAbility extends AbilityType {
         return Style.EMPTY.withColor(0x306ed9);
     }
 
-    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstance instance, ClientPlayerEntity player, PlayerEntityRenderer playerRenderer, float equipProgress, float swingProgress, int light) {
+    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstanceOld instance, ClientPlayerEntity player, PlayerEntityRenderer playerRenderer, float equipProgress, float swingProgress, int light) {
         matrices.push();
 
         double currentTime = Util.getMeasuringTimeMs() / 1000.0;

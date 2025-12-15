@@ -1,6 +1,6 @@
 package com.jujutsu.client.hud;
 
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.client.MinecraftClient;
@@ -30,7 +30,7 @@ public class AbilityCooldownRenderer {
         IAbilitiesHolder holder = (IAbilitiesHolder) client.player;
         for(AbilitySlot slot: holder.getSlots()) {
             boolean onCooldown = holder.onCooldown(slot);
-            AbilityInstance instance = holder.getAbilityInstance(slot);
+            AbilityInstanceOld instance = holder.getAbilityInstance(slot);
 
             if(cooldownElements.containsKey(slot) && cooldownElements.get(slot).instance != instance) {
                 cooldownElements.get(slot).setInstance(instance);
@@ -67,9 +67,9 @@ public class AbilityCooldownRenderer {
 
     private static class AbilityCooldownElement extends HudElement {
         private final TextRenderer textRenderer;
-        private AbilityInstance instance;
+        private AbilityInstanceOld instance;
 
-        public AbilityCooldownElement(int x, int y, int width, int height, AbilityInstance instance, TextRenderer textRenderer) {
+        public AbilityCooldownElement(int x, int y, int width, int height, AbilityInstanceOld instance, TextRenderer textRenderer) {
             super(x, y, width, height);
             this.instance = instance;
             this.textRenderer = textRenderer;
@@ -102,7 +102,7 @@ public class AbilityCooldownRenderer {
             context.getVertexConsumers().draw();
         }
 
-        public void setInstance(AbilityInstance instance) {
+        public void setInstance(AbilityInstanceOld instance) {
             this.instance = instance;
         }
 

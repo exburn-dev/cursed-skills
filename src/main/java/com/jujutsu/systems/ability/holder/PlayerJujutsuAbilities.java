@@ -3,7 +3,7 @@ package com.jujutsu.systems.ability.holder;
 
 import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.mojang.serialization.Codec;
@@ -16,7 +16,7 @@ import net.minecraft.network.codec.PacketCodecs;
 
 import java.util.*;
 
-public record PlayerJujutsuAbilities(HashMap<AbilitySlot, AbilityInstance> abilities, ArrayList<AbilitySlot> runningAbilities, ArrayList<PassiveAbility> passiveAbilities) {
+public record PlayerJujutsuAbilities(HashMap<AbilitySlot, AbilityInstanceOld> abilities, ArrayList<AbilitySlot> runningAbilities, ArrayList<PassiveAbility> passiveAbilities) {
     public static final Codec<PlayerJujutsuAbilities> CODEC;
     public static final PacketCodec<RegistryByteBuf, PlayerJujutsuAbilities> PACKET_CODEC;
 
@@ -39,13 +39,13 @@ public record PlayerJujutsuAbilities(HashMap<AbilitySlot, AbilityInstance> abili
 
     static {
         CODEC = RecordCodecBuilder.create(instance -> {
-            return instance.group(Codec.unboundedMap(AbilitySlot.CODEC, AbilityInstance.CODEC).xmap(HashMap::new, HashMap::new).fieldOf("abilities").forGetter(PlayerJujutsuAbilities::abilities),
+            return instance.group(Codec.unboundedMap(AbilitySlot.CODEC, AbilityInstanceOld.CODEC).xmap(HashMap::new, HashMap::new).fieldOf("abilities").forGetter(PlayerJujutsuAbilities::abilities),
                             AbilitySlot.CODEC.listOf().xmap(ArrayList::new, ImmutableList::copyOf).fieldOf("runningAbilities").forGetter(PlayerJujutsuAbilities::runningAbilities),
                             PassiveAbility.CODEC.listOf().xmap(ArrayList::new, ImmutableList::copyOf).fieldOf("passiveAbilities").forGetter(PlayerJujutsuAbilities::passiveAbilities))
                     .apply(instance, PlayerJujutsuAbilities::new);
         });
 
-        PACKET_CODEC = PacketCodec.tuple(PacketCodecs.map(HashMap::new, AbilitySlot.PACKET_CODEC, AbilityInstance.PACKET_CODEC_RUNTIME_DATA), PlayerJujutsuAbilities::abilities,
+        PACKET_CODEC = PacketCodec.tuple(PacketCodecs.map(HashMap::new, AbilitySlot.PACKET_CODEC, AbilityInstanceOld.PACKET_CODEC_RUNTIME_DATA), PlayerJujutsuAbilities::abilities,
                 AbilitySlot.PACKET_CODEC.collect(PacketCodecs.toCollection(ArrayList::new)), PlayerJujutsuAbilities::runningAbilities,
                 PassiveAbility.PACKET_CODEC.collect(PacketCodecs.toCollection(ArrayList::new)), PlayerJujutsuAbilities::passiveAbilities,
                 PlayerJujutsuAbilities::new);

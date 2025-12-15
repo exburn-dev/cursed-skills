@@ -9,7 +9,7 @@ import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.toast.AbilitiesAcquiredToast;
 import com.jujutsu.network.payload.*;
 import com.jujutsu.screen.AbilityUpgradesScreen;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
@@ -88,7 +88,7 @@ public class ModNetworkConstants {
             IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
 
             for(AbilitySlot slot: holder.getRunningSlots()) {
-                AbilityInstance instance = holder.getAbilityInstance(slot);
+                AbilityInstanceOld instance = holder.getAbilityInstance(slot);
                 if(instance.getStatus().isWaiting()) {
                     instance.checkAdditionalInput(context.player(), payload.additionalInput());
                 }
@@ -210,7 +210,7 @@ public class ModNetworkConstants {
 
         ClientPlayNetworking.registerGlobalReceiver(AbilityRuntimeDataSyncS2CPacket.ID, ((payload, context) -> {
             IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
-            AbilityInstance instance = holder.getAbilityInstance(payload.slot());
+            AbilityInstanceOld instance = holder.getAbilityInstance(payload.slot());
 
             instance.setRuntimeData(payload.data());
         }));

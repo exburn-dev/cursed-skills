@@ -3,7 +3,7 @@ package com.jujutsu.client.hud;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.keybind.AdditionalInputSystem;
 import com.jujutsu.systems.ability.data.RequestedInputKey;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
@@ -24,7 +24,7 @@ public class AbilitiesHudRenderer {
         matrices.push();
 
         for(AbilitySlot slot: holder.getRunningSlots()) {
-            AbilityInstance instance = holder.getAbilityInstance(slot);
+            AbilityInstanceOld instance = holder.getAbilityInstance(slot);
 
             renderHud(instance, context, counter);
         }
@@ -32,7 +32,7 @@ public class AbilitiesHudRenderer {
         matrices.pop();
     }
 
-    private static void renderHud(AbilityInstance instance, DrawContext context, RenderTickCounter counter) {
+    private static void renderHud(AbilityInstanceOld instance, DrawContext context, RenderTickCounter counter) {
         if(!instance.getStatus().isRunning() && !instance.getStatus().isWaiting()) return;
 
         ClientData clientData = instance.getType().getClientData();

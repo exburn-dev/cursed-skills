@@ -2,7 +2,7 @@ package com.jujutsu.systems.entitydata;
 
 import net.minecraft.util.Identifier;
 
-public class EntityComponentKey<T extends EntityServerData> {
+public class EntityComponentKey<T extends EntityComponent> {
     private final Identifier id;
     private final Class<T> type;
 

@@ -1,7 +1,7 @@
 package com.jujutsu.systems.ability.task;
 
 import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
@@ -23,7 +23,7 @@ public record TickAbilitiesTask() implements AbilityTask {
 
         List<AbilitySlot> toRemove = new ArrayList<>();
         for(AbilitySlot slot: holder.getRunningSlots()) {
-            AbilityInstance instance = holder.getAbilityInstance(slot);
+            AbilityInstanceOld instance = holder.getAbilityInstance(slot);
 
             if(!instance.slotInitialized()) {
                 instance.initializeSlot(slot);

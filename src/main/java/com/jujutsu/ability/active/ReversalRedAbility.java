@@ -3,7 +3,7 @@ package com.jujutsu.ability.active;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.entity.ReversalRedEntity;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.RequestedInputKey;
 import com.jujutsu.systems.ability.data.ClientData;
@@ -31,7 +31,7 @@ public class ReversalRedAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstance instance) {
+    public void start(PlayerEntity player, AbilityInstanceOld instance) {
         if(player.getWorld().isClient()) return;
         ReversalRedEntity entity = new ReversalRedEntity(player.getWorld(), player.getUuid());
         entity.setPosition(player.getPos());
@@ -42,7 +42,7 @@ public class ReversalRedAbility extends AbilityType {
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstance instance) {
+    public void tick(PlayerEntity player, AbilityInstanceOld instance) {
         ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(instance.get(ENTITY_ID));
         if(entity == null) return;
 
@@ -63,7 +63,7 @@ public class ReversalRedAbility extends AbilityType {
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstance instance) {
+    public void end(PlayerEntity player, AbilityInstanceOld instance) {
         ReversalRedEntity entity = (ReversalRedEntity) player.getWorld().getEntityById(instance.get(ENTITY_ID));
         if(player.getWorld().isClient() || entity == null) return;
 
@@ -79,7 +79,7 @@ public class ReversalRedAbility extends AbilityType {
     }
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+    public boolean isFinished(PlayerEntity player, AbilityInstanceOld instance) {
         int chargeTime = instance.get(CHARGE_TIME);
         return instance.getUseTime() >= chargeTime;
     }
@@ -99,7 +99,7 @@ public class ReversalRedAbility extends AbilityType {
                 .build();
     }
 
-    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstance instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light) {
+    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstanceOld instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light) {
         matrices.push();
 
         HandAnimationUtils.applyDefaultHandTransform(matrices, false);
@@ -115,7 +115,7 @@ public class ReversalRedAbility extends AbilityType {
         return true;
     }
 
-    private void setData(AbilityInstance instance, int entityId, int chargeTime) {
+    private void setData(AbilityInstanceOld instance, int entityId, int chargeTime) {
         instance.set(ENTITY_ID, entityId);
         instance.set(CHARGE_TIME, chargeTime);
     }

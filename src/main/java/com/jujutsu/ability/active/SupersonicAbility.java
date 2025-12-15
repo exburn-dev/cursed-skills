@@ -5,7 +5,7 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.registry.ModEffects;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.BoolAbilityProperty;
 import com.jujutsu.systems.ability.data.DoubleAbilityProperty;
@@ -31,7 +31,7 @@ public class SupersonicAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstance instance) {
+    public void start(PlayerEntity player, AbilityInstanceOld instance) {
         double startDistance = player.distanceTraveled;
 
         int duration = 20 * (int) getAbilityAttributeValue(player, ModAbilityAttributes.SUPERSONIC_DURATION);
@@ -43,7 +43,7 @@ public class SupersonicAbility extends AbilityType {
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstance instance) {
+    public void tick(PlayerEntity player, AbilityInstanceOld instance) {
         double distance = player.distanceTraveled - instance.get(DISTANCE_ON_START);
 
         setData(instance, instance.get(DISTANCE_ON_START), distance, instance.get(DURATION), instance.get(CRASHED));
@@ -71,7 +71,7 @@ public class SupersonicAbility extends AbilityType {
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstance instance) {
+    public void end(PlayerEntity player, AbilityInstanceOld instance) {
 
     }
 
@@ -84,11 +84,11 @@ public class SupersonicAbility extends AbilityType {
     }
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+    public boolean isFinished(PlayerEntity player, AbilityInstanceOld instance) {
         return instance.getUseTime() >= instance.get(DURATION);
     }
 
-    private void setData(AbilityInstance instance, double distanceOnStart, double distance, int duration, boolean crashed) {
+    private void setData(AbilityInstanceOld instance, double distanceOnStart, double distance, int duration, boolean crashed) {
         instance.set(DISTANCE_ON_START, distanceOnStart);
         instance.set(DISTANCE, distance);
         instance.set(DURATION, duration);

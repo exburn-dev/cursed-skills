@@ -1,6 +1,6 @@
 package com.jujutsu.systems.ability.holder;
 
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
@@ -11,8 +11,8 @@ import net.minecraft.util.Identifier;
 import java.util.List;
 
 public interface IAbilitiesHolder {
-    AbilityInstance getAbilityInstance(AbilitySlot slot);
-    void addAbilityInstance(AbilityInstance instance, AbilitySlot slot);
+    AbilityInstanceOld getAbilityInstance(AbilitySlot slot);
+    void addAbilityInstance(AbilityInstanceOld instance, AbilitySlot slot);
     void removeAbilityInstance(AbilitySlot slot);
 
     void runAbility(AbilitySlot slot);

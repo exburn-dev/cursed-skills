@@ -2,13 +2,10 @@ package com.jujutsu.ability.active;
 
 import com.jujutsu.entity.BlinkMarkerEntity;
 import com.jujutsu.systems.ability.data.AbilityData;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilityType;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
-import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -22,7 +19,7 @@ public class BlinkAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstance instance) {
+    public void start(PlayerEntity player, AbilityInstanceOld instance) {
         BlinkMarkerEntity entity = new BlinkMarkerEntity(player.getWorld(), player.getUuid());
         entity.setPosition(player.getPos());
 
@@ -33,7 +30,7 @@ public class BlinkAbility extends AbilityType {
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstance instance) {
+    public void tick(PlayerEntity player, AbilityInstanceOld instance) {
         //BlinkAbilityData data = instance.get(BlinkAbilityData.class, () -> (BlinkAbilityData) getInitialData());
         Vec3d pos = player.getEyePos();
         Vec3d vec = player.getRotationVector();
@@ -75,7 +72,7 @@ public class BlinkAbility extends AbilityType {
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstance instance) {
+    public void end(PlayerEntity player, AbilityInstanceOld instance) {
         //BlinkAbilityData data = instance.get(BlinkAbilityData.class, () -> (BlinkAbilityData) getInitialData());
         //player.setPos(data.x, data.y, data.z);
 //
@@ -86,7 +83,7 @@ public class BlinkAbility extends AbilityType {
     }
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+    public boolean isFinished(PlayerEntity player, AbilityInstanceOld instance) {
         return instance.getUseTime() >= 200;
     }
 

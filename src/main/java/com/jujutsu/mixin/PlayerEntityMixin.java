@@ -9,7 +9,7 @@ import com.jujutsu.registry.ModEffects;
 import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
@@ -88,7 +88,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     private void tick(CallbackInfo ci) {
         if(getWorld().isClient()) {
             for(AbilitySlot slot: abilities.runningAbilities()) {
-                AbilityInstance instance = abilities.abilities().get(slot);
+                AbilityInstanceOld instance = abilities.abilities().get(slot);
                 instance.tickClient();
             }
             return;
@@ -226,12 +226,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     }
 
     @Override
-    public AbilityInstance getAbilityInstance(AbilitySlot slot) {
+    public AbilityInstanceOld getAbilityInstance(AbilitySlot slot) {
         return abilities.abilities().get(slot);
     }
 
     @Override
-    public void addAbilityInstance(AbilityInstance instance, AbilitySlot slot) {
+    public void addAbilityInstance(AbilityInstanceOld instance, AbilitySlot slot) {
         abilities.abilities().put(slot, instance);
         instance.initializeSlot(slot);
         instance.addDefaultAttributes((PlayerEntity) (Object) this);
@@ -259,7 +259,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     public void tryCancelAbility(AbilitySlot slot) {
         if(!abilities.abilities().containsKey(slot) || !abilities.runningAbilities().contains(slot)) return;
 
-        AbilityInstance instance = abilities.abilities().get(slot);
+        AbilityInstanceOld instance = abilities.abilities().get(slot);
         if(instance.getType().isCancelable()) {
             instance.cancel();
             jujutsu$syncAbilitiesToClient();
@@ -289,7 +289,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     @Override
     public boolean isRunning(AbilityType type) {
         for(int i = 0; i < abilities.runningAbilities().size(); i++) {
-            AbilityInstance instance = abilities.abilities().get(abilities.runningAbilities().get(i));
+            AbilityInstanceOld instance = abilities.abilities().get(abilities.runningAbilities().get(i));
             if(instance.getType() == type && instance.getStatus().isRunning()) {
                 return true;
             }
@@ -299,7 +299,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
 
     @Override
     public boolean onCooldown(AbilitySlot slot) {
-        AbilityInstance instance = abilities.abilities().get(slot);
+        AbilityInstanceOld instance = abilities.abilities().get(slot);
         return instance.getStatus().onCooldown();
     }
 

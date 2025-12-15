@@ -3,28 +3,17 @@ package com.jujutsu.mixin;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.event.server.AbilityEvents;
 import com.jujutsu.event.server.PlayerBonusEvents;
-import com.jujutsu.network.payload.SyncAbilityAttributesPayload;
+import com.jujutsu.mixinterface.EntityComponentsAccessor;
 import com.jujutsu.registry.ModAttributes;
-import com.jujutsu.registry.ModEffects;
-import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
-import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
-import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
-import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
-import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
-import com.jujutsu.systems.ability.passive.PassiveAbility;
-import com.jujutsu.systems.ability.task.AbilityTask;
-import com.jujutsu.systems.ability.task.TickAbilitiesTask;
 import com.jujutsu.systems.ability.upgrade.UpgradesData;
 import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
 import com.jujutsu.util.CodecUtils;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Dynamic;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -37,11 +26,8 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -54,7 +40,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.*;
 
 @Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin extends LivingEntity implements IAbilitiesHolder, IPlayerJujutsuAbilitiesHolder, AbilityAttributeContainerHolder,
+public abstract class PlayerEntityMixin extends LivingEntity implements AbilityAttributeContainerHolder,
         PlayerDynamicAttributesAccessor {
     @Unique
     private static final TrackedData<Float> DYNAMIC_SPEED_BONUS =
@@ -65,45 +51,17 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
 
 
     @Unique
-    private PlayerJujutsuAbilities abilities = new PlayerJujutsuAbilities(new HashMap<>(), new ArrayList<>(), new ArrayList<>());
-    @Unique
     private AbilityAttributesContainer abilityAttributes = new AbilityAttributesContainer(new HashMap<>());
     @Unique
     private UpgradesData upgradesData = new UpgradesData(Jujutsu.id(""), 0, new HashMap<>());
-    @Unique
-    private List<AbilityTask> abilityTasks = new ArrayList<>();
 
     protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
     }
 
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private void init(World world, BlockPos pos, float yaw, GameProfile gameProfile, CallbackInfo ci) {
-        if(!world.isClient()) {
-            abilityTasks.add(new TickAbilitiesTask());
-        }
-    }
-
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
-        if(getWorld().isClient()) {
-            for(AbilitySlot slot: abilities.runningAbilities()) {
-                AbilityInstanceOld instance = abilities.abilities().get(slot);
-                instance.tickClient();
-            }
-            return;
-        }
 
-        PlayerEntity player = (PlayerEntity) (Object) this;
-
-        for(Iterator<AbilityTask> iterator = abilityTasks.iterator(); iterator.hasNext(); ) {
-            AbilityTask task = iterator.next();
-            ActionResult result = task.execute(player);
-
-            if(result == ActionResult.FAIL || result == ActionResult.SUCCESS) {
-                iterator.remove();
-            }
-        }
     }
 
     @Override
@@ -194,12 +152,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     @Inject(method = "writeCustomDataToNbt", at = @At("HEAD"))
     private void writeNBT(NbtCompound nbt, CallbackInfo ci) {
         NbtCompound main = new NbtCompound();
-        NbtElement serializedAbilities = abilities.serialize(NbtOps.INSTANCE);
         NbtElement serializedAttributes = abilityAttributes.serialize(NbtOps.INSTANCE);
         NbtElement serializedUpgrades = CodecUtils.serialize(UpgradesData.CODEC, NbtOps.INSTANCE, upgradesData,
                 (e) -> Jujutsu.LOGGER.error("Failed to serialize rewards data {}", e));
 
-        main.put("Abilities", serializedAbilities);
         main.put("Attributes", serializedAttributes);
         main.put("Upgrades", serializedUpgrades);
 
@@ -210,116 +166,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     private void readNBT(NbtCompound nbt, CallbackInfo ci) {
         NbtCompound main = nbt.getCompound("Jujutsu");
 
-        NbtCompound abilitiesCompound = main.getCompound("Abilities");
         NbtCompound attributesCompound = main.getCompound("Attributes");
         NbtCompound upgradesCompound = main.getCompound("Upgrades");
 
-        this.abilities = PlayerJujutsuAbilities.deserialize(new Dynamic<>(NbtOps.INSTANCE, abilitiesCompound));
         this.abilityAttributes = AbilityAttributesContainer.deserialize(new Dynamic<>(NbtOps.INSTANCE, attributesCompound));
         this.upgradesData = CodecUtils.deserialize(UpgradesData.CODEC, new Dynamic<>(NbtOps.INSTANCE, upgradesCompound),
                 () -> new UpgradesData(Jujutsu.id(""), 0, new HashMap<>()), (e) -> Jujutsu.LOGGER.error("Failed to deserialize rewards data {}", e));
-    }
-
-    @Override
-    public void addAbilityTask(AbilityTask task) {
-        this.abilityTasks.add(task);
-    }
-
-    @Override
-    public AbilityInstanceOld getAbilityInstance(AbilitySlot slot) {
-        return abilities.abilities().get(slot);
-    }
-
-    @Override
-    public void addAbilityInstance(AbilityInstanceOld instance, AbilitySlot slot) {
-        abilities.abilities().put(slot, instance);
-        instance.initializeSlot(slot);
-        instance.addDefaultAttributes((PlayerEntity) (Object) this);
-        jujutsu$syncAbilitiesToClient();
-    }
-
-    @Override
-    public void removeAbilityInstance(AbilitySlot slot) {
-        abilities.abilities().remove(slot);
-        abilities.runningAbilities().remove(slot);
-    }
-
-    @Override
-    public void runAbility(AbilitySlot slot) {
-        if(!abilities.abilities().containsKey(slot) || abilities.runningAbilities().contains(slot) || this.hasStatusEffect(ModEffects.STUN)) return;
-        PlayerEntity player = (PlayerEntity) (Object) this;
-
-        abilities.runningAbilities().add(slot);
-        getAbilityInstance(slot).start(player);
-
-        jujutsu$syncAbilitiesToClient();
-    }
-
-    @Override
-    public void tryCancelAbility(AbilitySlot slot) {
-        if(!abilities.abilities().containsKey(slot) || !abilities.runningAbilities().contains(slot)) return;
-
-        AbilityInstanceOld instance = abilities.abilities().get(slot);
-        if(instance.getType().isCancelable()) {
-            instance.cancel();
-            jujutsu$syncAbilitiesToClient();
-        }
-    }
-
-    @Override
-    public List<AbilitySlot> getSlots() {
-        return abilities.abilities().keySet().stream().toList();
-    }
-
-    @Override
-    public List<AbilitySlot> getRunningSlots() {
-        return abilities.runningAbilities();
-    }
-
-    @Override
-    public PlayerJujutsuAbilities getAbilities() {
-        return abilities;
-    }
-
-    @Override
-    public void setAbilities(PlayerJujutsuAbilities abilities) {
-        this.abilities = abilities;
-    }
-
-    @Override
-    public boolean isRunning(AbilityType type) {
-        for(int i = 0; i < abilities.runningAbilities().size(); i++) {
-            AbilityInstanceOld instance = abilities.abilities().get(abilities.runningAbilities().get(i));
-            if(instance.getType() == type && instance.getStatus().isRunning()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean onCooldown(AbilitySlot slot) {
-        AbilityInstanceOld instance = abilities.abilities().get(slot);
-        return instance.getStatus().onCooldown();
-    }
-
-    @Override
-    public void addPassiveAbility(PassiveAbility instance) {
-        PlayerEntity player = (PlayerEntity) (Object) this;
-        abilities.passiveAbilities().add(instance);
-        instance.onGained(player);
-    }
-
-    @Override
-    public void removePassiveAbility(PassiveAbility instance) {
-        PlayerEntity player = (PlayerEntity) (Object) this;
-        abilities.passiveAbilities().remove(instance);
-        instance.onRemoved(player);
-    }
-
-    @Override
-    public List<PassiveAbility> getPassiveAbilities() {
-        return abilities.passiveAbilities();
     }
 
     @Override
@@ -330,45 +182,5 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IAbiliti
     @Override
     public AbilityAttributesContainer getAbilityAttributes() {
         return abilityAttributes;
-    }
-
-    @Override
-    public void setUpgradesId(Identifier id) {
-        this.upgradesData = new UpgradesData(id, upgradesData.points(), upgradesData.purchasedUpgrades());
-    }
-
-    @Override
-    public UpgradesData getUpgradesData() {
-        return upgradesData;
-    }
-
-    @Override
-    public Identifier getUpgradesId() {
-        return this.upgradesData.upgradesId();
-    }
-
-    @Override
-    public void setUpgradesData(UpgradesData upgradesData) {
-        this.upgradesData = upgradesData;
-    }
-
-    @Unique
-    private void jujutsu$syncAbilitiesToClient() {
-        PlayerEntity player = (PlayerEntity) (Object) this;
-        if(!player.getWorld().isClient()) {
-            ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncPlayerAbilitiesPayload(new PlayerJujutsuAbilities(
-                    new HashMap<>(abilities.abilities()),
-                    abilities.runningAbilities(),
-                    abilities.passiveAbilities()
-            ), upgradesData));
-        }
-    }
-
-    @Unique
-    private void jujutsu$syncAbilityAttributesToClient() {
-        PlayerEntity player = (PlayerEntity) (Object) this;
-        if(!player.getWorld().isClient()) {
-            ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncAbilityAttributesPayload(abilityAttributes));
-        }
     }
 }

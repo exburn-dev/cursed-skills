@@ -1,6 +1,6 @@
 package com.jujutsu.systems.ability.task;
 
-import com.jujutsu.network.payload.SyncPlayerAbilitiesPayload;
+import com.jujutsu.network.payload.AbilityComponentSyncS2CPayload;
 import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
@@ -55,7 +55,7 @@ public record TickAbilitiesTask() implements AbilityTask {
         IAbilitiesHolder abilitiesHolder = (IAbilitiesHolder) player;
 
         if(!player.getWorld().isClient()) {
-            ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncPlayerAbilitiesPayload(new PlayerJujutsuAbilities(
+            ServerPlayNetworking.send((ServerPlayerEntity) player, new AbilityComponentSyncS2CPayload(new PlayerJujutsuAbilities(
                     new HashMap<>(holder.getAbilities().abilities()),
                     holder.getAbilities().runningAbilities(),
                     holder.getAbilities().passiveAbilities()

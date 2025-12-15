@@ -2,6 +2,7 @@ package com.jujutsu.mixin;
 
 import com.jujutsu.client.hud.BuffDisplayData;
 import com.jujutsu.event.server.PlayerBonusEvents;
+import com.jujutsu.mixinterface.EntityComponentsAccessor;
 import com.jujutsu.network.payload.SyncBuffsForDisplaying;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
@@ -11,6 +12,7 @@ import com.jujutsu.systems.buff.BuffHashMapStorage;
 import com.jujutsu.systems.buff.BuffHolder;
 import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
 import com.jujutsu.systems.buff.type.ConstantBuff;
+import com.jujutsu.systems.entitydata.EntityComponentContainer;
 import com.jujutsu.util.IOldPosHolder;
 import com.mojang.serialization.Dynamic;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -52,7 +54,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements Attackable, BuffHolder, IOldPosHolder {
+public abstract class LivingEntityMixin extends Entity implements EntityComponentsAccessor, Attackable, BuffHolder, IOldPosHolder {
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
     }
@@ -72,6 +74,13 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Bu
     @Unique
     private Vec3d posTracker = Vec3d.ZERO;
 
+    private EntityComponentContainer jujutsu$components = new EntityComponentContainer();
+
+    @Override
+    public EntityComponentContainer jujutsu$getContainer() {
+        return jujutsu$components;
+    }
+
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
         LivingEntity entity = (LivingEntity) (Object) this;
@@ -81,29 +90,8 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Bu
         }
         posTracker = pos;
 
-        List<Identifier> toRemove = new ArrayList<>();
-
-        for(Map.Entry<Identifier, Buff> entry: buffStorage.buffs().entrySet()) {
-            Identifier id = entry.getKey();
-            Buff buff = entry.getValue();
-
-            if(buff.checkConditions(entity)) {
-                toRemove.add(id);
-            }
-        }
-
-        for(int i = 0; i < toRemove.size(); i++) {
-            Identifier id = toRemove.getFirst();
-            removeBuff(id);
-        }
+        jujutsu$components.tick();
     }
-
-//    @Inject(method = "applyMovementInput", at = @At("HEAD"), cancellable = true)
-//    private void applyMovementInput(Vec3d movementInput, float slipperiness, CallbackInfoReturnable<Vec3d> cir) {
-//        if(hasStatusEffect(ModStatusEffects.STUN_EFFECT)) {
-//            cir.setReturnValue(Vec3d.ZERO);
-//        }
-//    }
 
     @ModifyArg(method = "applyMovementInput", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;updateVelocity(FLnet/minecraft/util/math/Vec3d;)V"), index = 1)
     private Vec3d modifyMovementInput(Vec3d par2) {
@@ -139,16 +127,13 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Bu
 
     @Inject(method = "writeCustomDataToNbt", at = @At("HEAD"))
     private void writeNBT(NbtCompound nbt, CallbackInfo ci) {
-        NbtElement serializedBuffs = buffStorage.serialize(NbtOps.INSTANCE);
-
-        nbt.put("JujutsuBuffs", serializedBuffs);
+        NbtCompound componentsNbt = jujutsu$components.writeNbt();
+        nbt.put("Components", componentsNbt);
     }
 
     @Inject(method = "readCustomDataFromNbt", at = @At("HEAD"))
     private void readNBT(NbtCompound nbt, CallbackInfo ci) {
-        NbtCompound nbtCompound = nbt.getCompound("JujutsuBuffs");
-
-        this.buffStorage = BuffHashMapStorage.deserialize(new Dynamic<>(NbtOps.INSTANCE, nbtCompound));
+        jujutsu$components.readNbt(nbt.getCompound("Components"));
     }
 
     @Inject(method = "damage", at = @At("HEAD"), cancellable = true)

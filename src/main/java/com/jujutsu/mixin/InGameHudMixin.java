@@ -1,6 +1,6 @@
 package com.jujutsu.mixin;
 
-import com.jujutsu.client.keybind.AdditionalInputSystem;
+import com.jujutsu.client.keybind.InputRequestSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderTickCounter;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class InGameHudMixin {
     @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
     private void renderCrosshair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        if(!AdditionalInputSystem.isEmpty()) {
+        if(!InputRequestSystem.isEmpty()) {
             ci.cancel();
         }
     }

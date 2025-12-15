@@ -1,7 +1,7 @@
 package com.jujutsu;
 
 import com.jujutsu.client.hud.*;
-import com.jujutsu.client.keybind.AdditionalInputSystem;
+import com.jujutsu.client.keybind.InputRequestSystem;
 import com.jujutsu.client.particle.*;
 import com.jujutsu.entity.model.BlinkMarkerModel;
 import com.jujutsu.entity.model.PhoenixFireballModel;
@@ -34,7 +34,7 @@ public class JujutsuClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntityTypes.PHOENIX_FIREBALL, PhoenixFireballRenderer::new);
 
         ModKeybindings.register();
-        AdditionalInputSystem.register();
+        InputRequestSystem.register();
         ClientEventListeners.register();
         ModNetworkConstants.registerClientReceivers();
 

@@ -2,7 +2,6 @@ package com.jujutsu.systems.ability.core;
 
 import com.jujutsu.network.NbtPacketCodec;
 import com.jujutsu.network.payload.AbilityRuntimeDataSyncS2CPacket;
-import com.jujutsu.network.payload.SyncAbilityAdditionalInputPayload;
 import com.jujutsu.registry.JujutsuRegistries;
 import com.jujutsu.systems.ability.data.InputRequest;
 import com.jujutsu.systems.ability.data.RequestedInputKey;
@@ -157,43 +156,6 @@ public final class AbilityInstanceOld {
             }
             else {
                 holderModifiers.putAll(entry.getValue());
-            }
-        }
-    }
-
-    public void requestInput(PlayerEntity player, RequestedInputKey key, int timeout, boolean showOnScreen, AbilityTask task, @Nullable AbilityTask timeoutTask) {
-        if(!slotInitialized()) return;
-
-        InputRequest request = new InputRequest(key, task, timeoutTask, timeout, showOnScreen);
-        inputRequests.add(request);
-
-        this.status = AbilityStatus.WAITING;
-
-        if(player instanceof ServerPlayerEntity) {
-            syncAdditionalInput(player, false);
-        }
-    }
-
-    private void removeAdditionalInput(InputRequest input) {
-        inputRequests.remove(input);
-
-        if(inputRequests.isEmpty()) {
-            this.status = AbilityStatus.RUNNING;
-        }
-    }
-
-    private void syncAdditionalInput(PlayerEntity player, boolean clear) {
-        ServerPlayNetworking.send((ServerPlayerEntity) player, new SyncAbilityAdditionalInputPayload(inputRequests.stream().map(request -> request.key).toList(), slot, clear));
-    }
-
-    public void checkAdditionalInput(PlayerEntity player, RequestedInputKey key) {
-        if(inputRequests.isEmpty()) return;
-
-        for(InputRequest request : inputRequests) {
-            if(request.key.equals(key)) {
-                request.task.execute(player);
-                removeAdditionalInput(request);
-                return;
             }
         }
     }

@@ -8,9 +8,11 @@ import com.jujutsu.client.hud.CrosshairMarkRenderer;
 import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.toast.AbilitiesAcquiredToast;
 import com.jujutsu.network.payload.*;
+import com.jujutsu.network.payload.input_requests.ClearInputRequestS2CPayload;
+import com.jujutsu.network.payload.input_requests.RequestInputS2CPayload;
+import com.jujutsu.network.payload.input_requests.RequestedInputPressedC2SPayload;
 import com.jujutsu.screen.AbilityUpgradesScreen;
 import com.jujutsu.systems.ability.core.AbilityInstanceOld;
-import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
@@ -34,10 +36,8 @@ import java.util.List;
 
 public class ModNetworkConstants {
     public static final Identifier ABILITY_KEY_PRESSED_ID = Jujutsu.id("ability_key_pressed");
-    public static final Identifier ADDITIONAL_INPUT_PRESSED_ID = Jujutsu.id("additional_input_pressed");
     public static final Identifier ABILITY_UPGRADE_PURCHASED_ID = Jujutsu.id("ability_upgrade_purchased");
 
-    public static final Identifier SYNC_PLAYER_ABILITIES_ID = Jujutsu.id("sync_player_abilities");
     public static final Identifier OPEN_HAND_SETTING_SCREEN_ID = Jujutsu.id("open_hand_setting_screen");
     public static final Identifier ABILITIES_ACQUIRED_ID = Jujutsu.id("abilities_acquired");
     public static final Identifier PLAY_CLIENT_SOUND_ID = Jujutsu.id("play_client_sound");
@@ -46,7 +46,6 @@ public class ModNetworkConstants {
     public static final Identifier SHOW_SCREEN_FLASH_ID = Jujutsu.id("show_screen_flash");
     public static final Identifier SHOW_CROSSHAIR_MARK_ID = Jujutsu.id("show_crosshair_mark");
     public static final Identifier SHOW_SCREEN_COLOR_MODIFIER_ID = Jujutsu.id("show_screen_color_modifier");
-    public static final Identifier SYNC_ABILITY_ADDITIONAL_INPUT_ID = Jujutsu.id("sync_ability_additional_input");
     public static final Identifier SYNC_ABILITY_ATTRIBUTES_ID = Jujutsu.id("sync_ability_attributes");
     public static final Identifier SYNC_ABILITY_UPGRADES_ID = Jujutsu.id("sync_ability_upgrades");
     public static final Identifier SPAWN_PARTICLES_ID = Jujutsu.id("spawn_particles");
@@ -54,10 +53,10 @@ public class ModNetworkConstants {
 
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(AbilityKeyPressedPayload.ID, AbilityKeyPressedPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(AdditionalInputPressedPayload.ID, AdditionalInputPressedPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(RequestedInputPressedC2SPayload.ID, RequestedInputPressedC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(AbilityUpgradePurchasedPayload.ID, AbilityUpgradePurchasedPayload.CODEC);
 
-        PayloadTypeRegistry.playS2C().register(SyncPlayerAbilitiesPayload.ID, SyncPlayerAbilitiesPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(AbilityComponentSyncS2CPayload.ID, AbilityComponentSyncS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenHandSettingScreenPayload.ID, OpenHandSettingScreenPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(AbilitiesAcquiredPayload.ID, AbilitiesAcquiredPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(PlayClientSoundPayload.ID, PlayClientSoundPayload.CODEC);
@@ -66,11 +65,12 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(ShowScreenFlashPayload.ID, ShowScreenFlashPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowCrosshairMarkPayload.ID, ShowCrosshairMarkPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowScreenColorModifierPayload.ID, ShowScreenColorModifierPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(SyncAbilityAdditionalInputPayload.ID, SyncAbilityAdditionalInputPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(RequestInputS2CPayload.ID, RequestInputS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncAbilityAttributesPayload.ID, SyncAbilityAttributesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncAbilityUpgradesPayload.ID, SyncAbilityUpgradesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SpawnParticlesPayload.ID, SpawnParticlesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(AbilityRuntimeDataSyncS2CPacket.ID, AbilityRuntimeDataSyncS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(ClearInputRequestS2CPayload.ID, ClearInputRequestS2CPayload.CODEC);
     }
 
     public static void registerServerReceivers() {
@@ -84,16 +84,7 @@ public class ModNetworkConstants {
             }
         });
 
-        ServerPlayNetworking.registerGlobalReceiver(AdditionalInputPressedPayload.ID, (payload, context) -> {
-            IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
-
-            for(AbilitySlot slot: holder.getRunningSlots()) {
-                AbilityInstanceOld instance = holder.getAbilityInstance(slot);
-                if(instance.getStatus().isWaiting()) {
-                    instance.checkAdditionalInput(context.player(), payload.additionalInput());
-                }
-            }
-        });
+        RequestedInputPressedC2SPayload.registerServerReceiver();
 
         ServerPlayNetworking.registerGlobalReceiver(AbilityUpgradePurchasedPayload.ID, (payload, context) -> {
             IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
@@ -138,12 +129,12 @@ public class ModNetworkConstants {
 
             holder.setUpgradesData(new UpgradesData(data.upgradesId(), data.points() - upgrade.cost(), purchasedUpgrades));
 
-            ServerPlayNetworking.send(context.player(), new SyncPlayerAbilitiesPayload(((IPlayerJujutsuAbilitiesHolder) context.player()).getAbilities(), holder.getUpgradesData()));
+            ServerPlayNetworking.send(context.player(), new AbilityComponentSyncS2CPayload(((IPlayerJujutsuAbilitiesHolder) context.player()).getAbilities(), holder.getUpgradesData()));
         });
     }
 
     public static void registerClientReceivers() {
-        ClientPlayNetworking.registerGlobalReceiver(SyncPlayerAbilitiesPayload.ID, (payload, context) -> {
+        ClientPlayNetworking.registerGlobalReceiver(AbilityComponentSyncS2CPayload.ID, (payload, context) -> {
             IPlayerJujutsuAbilitiesHolder holder = (IPlayerJujutsuAbilitiesHolder) context.player();
             holder.setAbilities(payload.abilities());
 
@@ -197,7 +188,7 @@ public class ModNetworkConstants {
             ColorModifierHudRenderer.addColorModifier(payload.colorModifier());
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(SyncAbilityAdditionalInputPayload.ID, SyncAbilityAdditionalInputPayload::receiveOnClient);
+        RequestInputS2CPayload.registerClientReceiver();
 
         ClientPlayNetworking.registerGlobalReceiver(SyncAbilityAttributesPayload.ID, (payload, context) -> {
             AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) context.player();
@@ -214,5 +205,7 @@ public class ModNetworkConstants {
 
             instance.setRuntimeData(payload.data());
         }));
+
+        ClearInputRequestS2CPayload.registerClientReceiver();
     }
 }

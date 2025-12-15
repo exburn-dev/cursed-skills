@@ -1,7 +1,7 @@
 package com.jujutsu.client.hud;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.client.keybind.AdditionalInputSystem;
+import com.jujutsu.client.keybind.InputRequestSystem;
 import com.jujutsu.systems.ability.data.RequestedInputKey;
 import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
@@ -42,10 +42,9 @@ public class AbilitiesHudRenderer {
     }
 
     private static void renderAdditionalInput(DrawContext context, RenderTickCounter counter) {
-        if(AdditionalInputSystem.getAdditionalInput().isEmpty()) return;
+        if(InputRequestSystem.getAdditionalInput().isEmpty()) return;
 
-        for(AdditionalInputSystem.InputData inputData: AdditionalInputSystem.getAdditionalInput()) {
-            RequestedInputKey input = inputData.input;
+        for(RequestedInputKey input: InputRequestSystem.getAdditionalInput()) {
             if (input.mouseButton() >= 0) {
                 int x = context.getScaledWindowWidth() / 2 - 8;
                 int y = context.getScaledWindowHeight() / 2 - 8;

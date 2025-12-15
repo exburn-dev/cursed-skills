@@ -48,7 +48,7 @@ public class ModKeybindings {
         });
 
         KeyEvents.KEY_PRESSED_EVENT.register((client, key, scanCode) -> {
-            if (client.currentScreen != null || !AdditionalInputSystem.isEmpty()) return ActionResult.PASS;
+            if (client.currentScreen != null || !InputRequestSystem.isEmpty()) return ActionResult.PASS;
 
             for(AbilityKeyBinding binding: abilityBindings) {
                 if(binding.matchesKey(key, scanCode) && (!wasPressed.containsKey(binding) || !wasPressed.get(binding))) {

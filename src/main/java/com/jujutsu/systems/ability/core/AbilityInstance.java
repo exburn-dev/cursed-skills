@@ -50,13 +50,11 @@ public class AbilityInstance implements EntityServerData {
     }
 
     public void endAbility() {
-        if(!(isFinished() || type.isCancelable())) return;
-
         //type.end(player, this);
         status = AbilityStatus.ON_COOLDOWN;
         //cooldownTime = type.getCooldownTime(player, this);
         useTime = 0;
-        //TODO: clear input request
+        clearInputRequest();
     }
 
     public void endCooldown() {
@@ -76,9 +74,6 @@ public class AbilityInstance implements EntityServerData {
         }
         else if(status.isWaiting()) {
             //type.tick(player, this);
-            if(AbilityComponent.get(player).hasInputRequest(slot)) {
-                status = AbilityStatus.RUNNING;
-            }
         }
         else if(status.onCooldown()) {
             cooldown();
@@ -101,6 +96,17 @@ public class AbilityInstance implements EntityServerData {
         status = AbilityStatus.WAITING;
 
         component().addInputRequest(slot, request);
+    }
+
+    public void onRequestedInputPressed() {
+        status = AbilityStatus.RUNNING;
+    }
+
+    public void clearInputRequest() {
+        AbilityComponent component = component();
+        if(component.hasInputRequest(slot)) {
+            component.removeInputRequest(slot);
+        }
     }
 
     private AbilityComponent component() {

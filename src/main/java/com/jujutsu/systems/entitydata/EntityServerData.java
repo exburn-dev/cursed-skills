@@ -7,5 +7,5 @@ public interface EntityServerData {
     void saveToNbt(NbtCompound nbt);
     void readFromNbt(NbtCompound nbt);
 
-    void sendToClient(RegistryByteBuf buf);
+    void sendToClient();
 }

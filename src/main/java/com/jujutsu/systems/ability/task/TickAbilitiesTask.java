@@ -1,19 +1,14 @@
 package com.jujutsu.systems.ability.task;
 
-import com.jujutsu.network.payload.AbilityComponentSyncS2CPayload;
 import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
-import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
-import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public record TickAbilitiesTask() implements AbilityTask {
@@ -48,18 +43,5 @@ public record TickAbilitiesTask() implements AbilityTask {
         }
 
         return ActionResult.PASS;
-    }
-
-    public static void syncAbilitiesToClient(ServerPlayerEntity player) {
-        IPlayerJujutsuAbilitiesHolder holder = (IPlayerJujutsuAbilitiesHolder) player;
-        IAbilitiesHolder abilitiesHolder = (IAbilitiesHolder) player;
-
-        if(!player.getWorld().isClient()) {
-            ServerPlayNetworking.send((ServerPlayerEntity) player, new AbilityComponentSyncS2CPayload(new PlayerJujutsuAbilities(
-                    new HashMap<>(holder.getAbilities().abilities()),
-                    holder.getAbilities().runningAbilities(),
-                    holder.getAbilities().passiveAbilities()
-            ), abilitiesHolder.getUpgradesData()));
-        }
     }
 }

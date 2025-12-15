@@ -1,13 +1,15 @@
 package com.jujutsu.systems.ability.core;
 
+import com.jujutsu.network.payload.AbilityRuntimeDataSyncS2CPayload;
 import com.jujutsu.systems.ability.data.AbilityPropertiesContainer;
 import com.jujutsu.systems.ability.data.AbilityProperty;
 import com.jujutsu.systems.ability.data.InputRequest;
 import com.jujutsu.systems.entitydata.EntityServerData;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public class AbilityInstance implements EntityServerData {
     private final PlayerEntity player;
@@ -144,7 +146,7 @@ public class AbilityInstance implements EntityServerData {
     }
 
     @Override
-    public void sendToClient(RegistryByteBuf buf) {
-        AbilityInstanceData.PACKET_CODEC.encode(buf, writeData());
+    public void sendToClient() {
+        ServerPlayNetworking.send((ServerPlayerEntity) player, new AbilityRuntimeDataSyncS2CPayload(slot, runtimeData.properties()));
     }
 }

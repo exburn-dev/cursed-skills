@@ -1,7 +1,7 @@
 package com.jujutsu.util;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.network.payload.AbilityComponentSyncS2CPayload;
+import com.jujutsu.network.payload.abilities.AbilitiesSyncS2CPayload;
 import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.core.AbilityType;
@@ -136,9 +136,6 @@ public class AbilitiesHolderUtils {
 
         holder.setUpgradesData(new UpgradesData(data.upgradesId(), data.points(), new HashMap<>()));
 
-        ServerPlayNetworking.send(player, new AbilityComponentSyncS2CPayload(
-                ((IPlayerJujutsuAbilitiesHolder) player).getAbilities(),
-                holder.getUpgradesData()
-        ));
+        //TODO: sync upgrades
     }
 }

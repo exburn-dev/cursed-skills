@@ -1,15 +1,13 @@
 package com.jujutsu.systems.ability.core;
 
 import com.jujutsu.network.NbtPacketCodec;
-import com.jujutsu.network.payload.AbilityRuntimeDataSyncS2CPacket;
+import com.jujutsu.network.payload.AbilityRuntimeDataSyncS2CPayload;
 import com.jujutsu.registry.JujutsuRegistries;
 import com.jujutsu.systems.ability.data.InputRequest;
-import com.jujutsu.systems.ability.data.RequestedInputKey;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.data.AbilityProperty;
-import com.jujutsu.systems.ability.task.AbilityTask;
 import com.jujutsu.systems.ability.task.TickAbilitiesTask;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
@@ -19,7 +17,6 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -77,7 +74,7 @@ public final class AbilityInstanceOld {
             sync = false;
         }
         if(syncRuntimeData) {
-            ServerPlayNetworking.send((ServerPlayerEntity) player, new AbilityRuntimeDataSyncS2CPacket.Payload(slot, runtimeData));
+            ServerPlayNetworking.send((ServerPlayerEntity) player, new AbilityRuntimeDataSyncS2CPayload.Payload(slot, runtimeData));
             syncRuntimeData = false;
         }
     }
@@ -235,7 +232,7 @@ public final class AbilityInstanceOld {
             @Override
             public AbilityInstanceOld decode(RegistryByteBuf buf) {
                 AbilityInstanceOld instance = PACKET_CODEC.decode(buf);
-                AbilityRuntimeDataSyncS2CPacket.Payload payload = AbilityRuntimeDataSyncS2CPacket.CODEC.decode(buf);
+                AbilityRuntimeDataSyncS2CPayload.Payload payload = AbilityRuntimeDataSyncS2CPayload.CODEC.decode(buf);
                 instance.setRuntimeData(payload.data());
 
                 return instance;
@@ -244,7 +241,7 @@ public final class AbilityInstanceOld {
             @Override
             public void encode(RegistryByteBuf buf, AbilityInstanceOld instance) {
                 PACKET_CODEC.encode(buf, instance);
-                AbilityRuntimeDataSyncS2CPacket.CODEC.encode(buf, new AbilityRuntimeDataSyncS2CPacket.Payload(instance.slot, instance.runtimeData));
+                AbilityRuntimeDataSyncS2CPayload.CODEC.encode(buf, new AbilityRuntimeDataSyncS2CPayload.Payload(instance.slot, instance.runtimeData));
             }
         };
     }

@@ -1,6 +1,7 @@
 package com.jujutsu.systems.ability.core;
 
 import com.jujutsu.mixinterface.EntityComponentsAccessor;
+import com.jujutsu.network.payload.abilities.AbilitiesSyncS2CPayload;
 import com.jujutsu.network.payload.input_requests.ClearInputRequestS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestInputS2CPayload;
 import com.jujutsu.systems.ability.data.InputRequest;
@@ -130,8 +131,10 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
     }
 
     @Override
-    public void sendToClient(RegistryByteBuf buf) {
-        PACKET_CODEC.encode(buf, abilitiesDataMap());
+    public void sendToClient() {
+        ServerPlayNetworking.send((ServerPlayerEntity) player, new AbilitiesSyncS2CPayload(
+                abilitiesDataMap().values().stream().toList()
+        ));
     }
 
     public static AbilityComponent get(PlayerEntity player) {

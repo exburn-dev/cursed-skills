@@ -1,7 +1,6 @@
 package com.jujutsu.network.payload;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.data.AbilityPropertiesContainer;
 import com.jujutsu.systems.ability.data.AbilityProperty;
@@ -27,7 +26,7 @@ public record AbilityRuntimeDataSyncS2CPayload(AbilitySlot slot, Map<AbilityProp
     public static void registerClientReceiver() {
         ClientPlayNetworking.registerGlobalReceiver(AbilityRuntimeDataSyncS2CPayload.ID, ((payload, context) -> {
             IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
-            AbilityInstanceOld instance = holder.getAbilityInstance(payload.slot());
+            AbilityInstance instance = holder.getAbilityInstance(payload.slot());
 
             instance.setRuntimeData(payload.data());
         }));

@@ -13,6 +13,7 @@ import com.jujutsu.systems.buff.BuffHolder;
 import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
 import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.systems.entitydata.EntityComponentContainer;
+import com.jujutsu.systems.entitydata.EntityComponentRegistry;
 import com.jujutsu.util.IOldPosHolder;
 import com.mojang.serialization.Dynamic;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -75,6 +76,15 @@ public abstract class LivingEntityMixin extends Entity implements EntityComponen
     private Vec3d posTracker = Vec3d.ZERO;
 
     private EntityComponentContainer jujutsu$components = new EntityComponentContainer();
+
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void init(EntityType<?> entityType, World world, CallbackInfo ci) {
+        if(!getWorld().isClient()) {
+            LivingEntity self = (LivingEntity) (Object) this;
+
+            EntityComponentRegistry.attach(self);
+        }
+    }
 
     @Override
     public EntityComponentContainer jujutsu$getContainer() {

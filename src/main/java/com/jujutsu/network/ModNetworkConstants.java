@@ -9,11 +9,11 @@ import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.toast.AbilitiesAcquiredToast;
 import com.jujutsu.network.payload.*;
 import com.jujutsu.network.payload.abilities.AbilitiesSyncS2CPayload;
+import com.jujutsu.network.payload.abilities.RunAbilityC2SPayload;
 import com.jujutsu.network.payload.input_requests.ClearInputRequestS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestInputS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestedInputPressedC2SPayload;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.screen.HandTransformSettingScreen;
 import com.jujutsu.systems.ability.upgrade.*;
 import com.jujutsu.systems.animation.AnimationData;
@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ModNetworkConstants {
-    public static final Identifier ABILITY_KEY_PRESSED_ID = Jujutsu.id("ability_key_pressed");
     public static final Identifier ABILITY_UPGRADE_PURCHASED_ID = Jujutsu.id("ability_upgrade_purchased");
 
     public static final Identifier OPEN_HAND_SETTING_SCREEN_ID = Jujutsu.id("open_hand_setting_screen");
@@ -49,7 +48,7 @@ public class ModNetworkConstants {
     public static final Identifier SPAWN_PARTICLES_ID = Jujutsu.id("spawn_particles");
 
     public static void registerPackets() {
-        PayloadTypeRegistry.playC2S().register(AbilityKeyPressedPayload.ID, AbilityKeyPressedPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(RunAbilityC2SPayload.ID, RunAbilityC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(RequestedInputPressedC2SPayload.ID, RequestedInputPressedC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(AbilityUpgradePurchasedPayload.ID, AbilityUpgradePurchasedPayload.CODEC);
 
@@ -71,15 +70,7 @@ public class ModNetworkConstants {
     }
 
     public static void registerServerReceivers() {
-        ServerPlayNetworking.registerGlobalReceiver(AbilityKeyPressedPayload.ID, (payload, context) -> {
-            IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
-            if(payload.cancel()) {
-                payload.abilitySlot().cancel(holder);
-            }
-            else {
-                payload.abilitySlot().activate(holder);
-            }
-        });
+        RunAbilityC2SPayload.registerServerReceiver();
 
         RequestedInputPressedC2SPayload.registerServerReceiver();
 

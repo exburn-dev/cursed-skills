@@ -19,29 +19,13 @@ import net.minecraft.util.Pair;
 import java.util.Optional;
 
 public abstract class PassiveAbility {
-    //public static final Codec<RegistryEntry<PassiveAbility>> ENTRY_CODEC = JujutsuRegistries.PASSIVE_ABILITY_TYPE.getEntryCodec();
     public static final Codec<PassiveAbility> CODEC = JujutsuRegistries.PASSIVE_ABILITY_TYPE.getCodec()
             .dispatch("type", PassiveAbility::getType, PassiveAbilityType::codec);
     public static final PacketCodec<RegistryByteBuf, PassiveAbility> PACKET_CODEC = new NbtPacketCodec<>(CODEC);
 
+    public PassiveAbility() { }
 
-    public PassiveAbility() {
-    }
-
-    public void tick(PlayerEntity player) {
-//        if(!conditions.isEmpty()) {
-//            boolean conditionsCompleted = true;
-//            for(Condition condition: conditions) {
-//                if (condition.test(player, instance)) continue;
-//
-//                conditionsCompleted = false;
-//                break;
-//            }
-//            if(conditionsCompleted) {
-//                onConditionsCompleted(player, instance);
-//            }
-//        }
-    }
+    public void tick(PlayerEntity player) { }
 
     public abstract void onGained(PlayerEntity player);
     public abstract void onRemoved(PlayerEntity player);

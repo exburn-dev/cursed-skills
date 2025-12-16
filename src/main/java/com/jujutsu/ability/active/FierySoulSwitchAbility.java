@@ -2,7 +2,7 @@ package com.jujutsu.ability.active;
 
 import com.jujutsu.ability.passive.FierySoulPassiveAbility;
 import com.jujutsu.registry.ModAbilities;
-import com.jujutsu.systems.ability.core.AbilityInstanceOld;
+import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
@@ -15,7 +15,7 @@ public class FierySoulSwitchAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstanceOld instance) {
+    public void start(PlayerEntity player, AbilityInstance instance) {
         IAbilitiesHolder holder = (IAbilitiesHolder) player;
 
         for(PassiveAbility passiveAbility: holder.getPassiveAbilities()) {
@@ -28,18 +28,18 @@ public class FierySoulSwitchAbility extends AbilityType {
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstanceOld instance) {
+    public void tick(PlayerEntity player, AbilityInstance instance) {
 
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstanceOld instance) {
+    public void end(PlayerEntity player, AbilityInstance instance) {
 
     }
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstanceOld instance) {
-        return instance.getUseTime() >= 5;
+    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+        return instance.useTime() >= 5;
     }
 
     @Override

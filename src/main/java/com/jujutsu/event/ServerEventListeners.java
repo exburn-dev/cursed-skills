@@ -5,11 +5,13 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.event.server.AbilityEvents;
 import com.jujutsu.event.server.PlayerBonusEvents;
+import com.jujutsu.mixinterface.EntityComponentsAccessor;
 import com.jujutsu.registry.BuffTypes;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
-import com.jujutsu.systems.ability.core.AbilityInstanceOld;
+import com.jujutsu.systems.ability.core.AbilityComponent;
+import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
@@ -20,6 +22,9 @@ import com.jujutsu.systems.buff.*;
 import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
 import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.systems.buff.type.SupersonicBuff;
+import com.jujutsu.systems.entitydata.ComponentKeys;
+import com.jujutsu.systems.entitydata.EntityComponent;
+import com.jujutsu.systems.entitydata.EntityComponentContainer;
 import com.jujutsu.util.AbilitiesHolderUtils;
 import com.jujutsu.util.AttributeUtils;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -39,6 +44,7 @@ import java.util.Optional;
 public class ServerEventListeners {
     public static void register() {
         ServerPlayerEvents.COPY_FROM.register((from, to, alive) -> {
+            //TODO: copy components
             PlayerJujutsuAbilities abilities = ((IPlayerJujutsuAbilitiesHolder) from).getAbilities();
             ((IPlayerJujutsuAbilitiesHolder) to).setAbilities(abilities);
 
@@ -47,16 +53,9 @@ public class ServerEventListeners {
         });
 
         ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
-            if(entity.isPlayer()) {
-                IAbilitiesHolder holder = (IAbilitiesHolder) entity;
-                holder.getPassiveAbilities().forEach(passiveAbility -> passiveAbility.onGained((PlayerEntity) entity));
-                for (AbilitySlot runningSlot : holder.getRunningSlots()) {
-                    AbilityInstanceOld instance = holder.getAbilityInstance(runningSlot);
-
-                    instance.endCooldown();
-                }
-
-                AbilityUpgradesReloadListener.getInstance().syncUpgrades((ServerPlayerEntity) entity);
+            EntityComponentContainer container = ((EntityComponentsAccessor) entity).jujutsu$getContainer();
+            for(EntityComponent component : container.all()) {
+                component.onLoaded();
             }
         });
 

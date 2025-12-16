@@ -3,7 +3,6 @@ package com.jujutsu.screen;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.keybind.AbilityKeyBinding;
 import com.jujutsu.client.keybind.ModKeybindings;
-import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.client.MinecraftClient;
@@ -53,7 +52,7 @@ public class AbilitiesKeybindingsScreen extends Screen {
         int width = 0;
         for(int i = 0; i < ModKeybindings.abilityBindings.size(); i++) {
             AbilityKeyBinding binding = ModKeybindings.abilityBindings.get(i);
-            AbilityInstanceOld instance = holder.getAbilityInstance(binding.getAbilitySlot());
+            AbilityInstance instance = holder.getAbilityInstance(binding.getAbilitySlot());
             if (instance == null) continue;
             width = Math.max(width, textRenderer.getWidth(instance.getType().getName()));
         }
@@ -62,7 +61,7 @@ public class AbilitiesKeybindingsScreen extends Screen {
         int xOffset = 100 / 2 - width / 2;
         for(int i = 0; i < ModKeybindings.abilityBindings.size(); i++) {
             AbilityKeyBinding binding = ModKeybindings.abilityBindings.get(i);
-            AbilityInstanceOld instance = holder.getAbilityInstance(binding.getAbilitySlot());
+            AbilityInstance instance = holder.getAbilityInstance(binding.getAbilitySlot());
             if(instance == null) continue;
 
             buttons.add(new AbilityKeyBindingButton(binding, instance, x + xOffset, y + 10 + (20 + 5) * i, width, 20 , Text.literal("bind")));
@@ -377,9 +376,9 @@ public class AbilitiesKeybindingsScreen extends Screen {
 
     private class AbilityKeyBindingButton extends ClickableWidget {
         private final AbilityKeyBinding binding;
-        private final AbilityInstanceOld instance;
+        private final AbilityInstance instance;
 
-        public AbilityKeyBindingButton(AbilityKeyBinding binding, AbilityInstanceOld instance, int x, int y, int width, int height, Text message) {
+        public AbilityKeyBindingButton(AbilityKeyBinding binding, AbilityInstance instance, int x, int y, int width, int height, Text message) {
             super(x, y, width, height, message);
             this.binding = binding;
             this.instance = instance;

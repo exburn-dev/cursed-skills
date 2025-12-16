@@ -1,8 +1,8 @@
 package com.jujutsu.ability.active;
 
 import com.jujutsu.entity.BlinkMarkerEntity;
+import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.data.AbilityData;
-import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilityType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -19,7 +19,7 @@ public class BlinkAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstanceOld instance) {
+    public void start(PlayerEntity player, AbilityInstance instance) {
         BlinkMarkerEntity entity = new BlinkMarkerEntity(player.getWorld(), player.getUuid());
         entity.setPosition(player.getPos());
 
@@ -30,11 +30,11 @@ public class BlinkAbility extends AbilityType {
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstanceOld instance) {
+    public void tick(PlayerEntity player, AbilityInstance instance) {
         //BlinkAbilityData data = instance.get(BlinkAbilityData.class, () -> (BlinkAbilityData) getInitialData());
         Vec3d pos = player.getEyePos();
         Vec3d vec = player.getRotationVector();
-        Vec3d blinkPos = pos.add(vec.multiply(instance.getUseTime() * 0.5));
+        Vec3d blinkPos = pos.add(vec.multiply(instance.useTime() * 0.5));
 
         BlockPos blinkBlockPos = BlockPos.ofFloored(blinkPos);
         BlockState state = player.getWorld().getBlockState(blinkBlockPos);
@@ -72,7 +72,7 @@ public class BlinkAbility extends AbilityType {
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstanceOld instance) {
+    public void end(PlayerEntity player, AbilityInstance instance) {
         //BlinkAbilityData data = instance.get(BlinkAbilityData.class, () -> (BlinkAbilityData) getInitialData());
         //player.setPos(data.x, data.y, data.z);
 //
@@ -83,8 +83,8 @@ public class BlinkAbility extends AbilityType {
     }
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstanceOld instance) {
-        return instance.getUseTime() >= 200;
+    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+        return instance.useTime() >= 200;
     }
 
     public record BlinkAbilityData(int markerId, double x, double y, double z) implements AbilityData { }

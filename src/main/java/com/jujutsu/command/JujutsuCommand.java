@@ -3,7 +3,6 @@ package com.jujutsu.command;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.command.argument.AbilitySlotArgument;
 import com.jujutsu.registry.JujutsuRegistries;
-import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
@@ -122,7 +121,7 @@ public class JujutsuCommand {
 
         if (holder.getSlots().size() <= 0) return 1;
         for(AbilitySlot slot: holder.getSlots()) {
-            AbilityInstanceOld instance = holder.getAbilityInstance(slot);
+            AbilityInstance instance = holder.getAbilityInstance(slot);
             instance.setCooldownTime(0);
         }
         return 1;
@@ -156,7 +155,7 @@ public class JujutsuCommand {
 
         StringBuilder builder = new StringBuilder();
         for(AbilitySlot slot: holder.getSlots()) {
-            AbilityInstanceOld instance = holder.getAbilityInstance(slot);
+            AbilityInstance instance = holder.getAbilityInstance(slot);
             builder.append(String.format("Instance: {%s} \n", instance.toString()));
         }
         player.sendMessage(Text.literal(builder.toString()), true);

@@ -3,7 +3,7 @@ package com.jujutsu.client.keybind;
 import com.jujutsu.screen.AbilityUpgradesScreen;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.event.client.KeyEvents;
-import com.jujutsu.network.payload.AbilityKeyPressedPayload;
+import com.jujutsu.network.payload.abilities.RunAbilityC2SPayload;
 import com.jujutsu.screen.AbilitiesKeybindingsScreen;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
@@ -53,7 +53,7 @@ public class ModKeybindings {
             for(AbilityKeyBinding binding: abilityBindings) {
                 if(binding.matchesKey(key, scanCode) && (!wasPressed.containsKey(binding) || !wasPressed.get(binding))) {
                     if(client.world != null && client.player != null) {
-                        ClientPlayNetworking.send(new AbilityKeyPressedPayload(binding.getAbilitySlot(), false));
+                        ClientPlayNetworking.send(new RunAbilityC2SPayload(binding.getAbilitySlot(), false));
                         wasPressed.put(binding, true);
                         break;
                     }
@@ -66,7 +66,7 @@ public class ModKeybindings {
         KeyEvents.KEY_RELEASED_EVENT.register((client, key, scanCode) -> {
             for(AbilityKeyBinding binding: abilityBindings) {
                 if(binding.matchesKey(key, scanCode) && client.world != null && client.player != null) {
-                    ClientPlayNetworking.send(new AbilityKeyPressedPayload(binding.getAbilitySlot(), true));
+                    ClientPlayNetworking.send(new RunAbilityC2SPayload(binding.getAbilitySlot(), true));
                     wasPressed.put(binding, false);
                     break;
                 }

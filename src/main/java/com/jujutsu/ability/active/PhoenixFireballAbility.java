@@ -2,7 +2,7 @@ package com.jujutsu.ability.active;
 
 import com.jujutsu.entity.PhoenixFireballEntity;
 import com.jujutsu.registry.ModSounds;
-import com.jujutsu.systems.ability.core.AbilityInstanceOld;
+import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.util.VisualEffectUtils;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,7 +17,7 @@ public class PhoenixFireballAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstanceOld instance) {
+    public void start(PlayerEntity player, AbilityInstance instance) {
         if(player.getWorld().isClient()) return;
 
         PhoenixFireballEntity entity = new PhoenixFireballEntity(player.getWorld(), player.getUuid());
@@ -33,18 +33,18 @@ public class PhoenixFireballAbility extends AbilityType {
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstanceOld instance) {
+    public void tick(PlayerEntity player, AbilityInstance instance) {
 
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstanceOld instance) {
+    public void end(PlayerEntity player, AbilityInstance instance) {
 
     }
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstanceOld instance) {
-        return instance.getUseTime() >= 10;
+    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+        return instance.useTime() >= 10;
     }
 
     @Override

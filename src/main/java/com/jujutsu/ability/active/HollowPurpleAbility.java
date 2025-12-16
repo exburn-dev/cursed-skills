@@ -5,7 +5,7 @@ import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.network.payload.ShowScreenFlashPayload;
 import com.jujutsu.registry.ModAbilityAttributes;
-import com.jujutsu.systems.ability.core.AbilityInstanceOld;
+import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.entity.HollowPurpleEntity;
@@ -40,14 +40,14 @@ public class HollowPurpleAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstanceOld instance) {
+    public void start(PlayerEntity player, AbilityInstance instance) {
         if(player.getWorld().isClient()) return;
         PlayerAnimations.playAnimation((ServerPlayerEntity) player, Jujutsu.id("hollow_purple"), 1000, 50);
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstanceOld instance) {
-        if(instance.getUseTime() == 59 && !player.getWorld().isClient()) {
+    public void tick(PlayerEntity player, AbilityInstance instance) {
+        if(instance.useTime() == 59 && !player.getWorld().isClient()) {
             HollowPurpleEntity entity = new HollowPurpleEntity(player.getWorld(), player.getUuid());
             entity.setYaw(player.getYaw());
             entity.setPitch(player.getPitch());
@@ -58,8 +58,8 @@ public class HollowPurpleAbility extends AbilityType {
 
             player.getWorld().spawnEntity(entity);
         }
-        Vec3d pos = player.getEyePos().add(0, (double) instance.getUseTime() / 120, 0).add(player.getRotationVector().multiply(5));
-        renderChargeBall(player.getWorld(), pos, instance.getUseTime());
+        Vec3d pos = player.getEyePos().add(0, (double) instance.useTime() / 120, 0).add(player.getRotationVector().multiply(5));
+        renderChargeBall(player.getWorld(), pos, instance.useTime());
     }
 
     private void renderChargeBall(World world, Vec3d pos, int chargeTime) {
@@ -83,9 +83,9 @@ public class HollowPurpleAbility extends AbilityType {
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstanceOld instance) {
+    public void end(PlayerEntity player, AbilityInstance instance) {
         Vec3d pos = player.getEyePos().add(0, 0.5, 0).add(player.getRotationVector().multiply(5));
-        if(instance.getStatus().isCancelled()) {
+        if(instance.status().isCancelled()) {
             player.getWorld().playSound(player, pos.x, pos.y, pos.z, SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.MASTER, 1f, 0.5f);
             return;
         }
@@ -98,8 +98,8 @@ public class HollowPurpleAbility extends AbilityType {
     }
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstanceOld instance) {
-        return instance.getUseTime() >= 60;
+    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+        return instance.useTime() >= 60;
     }
 
     @Override
@@ -115,7 +115,7 @@ public class HollowPurpleAbility extends AbilityType {
         return Style.EMPTY.withColor(Formatting.LIGHT_PURPLE);
     }
 
-    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstanceOld instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light) {
+    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstance instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light) {
         matrices.push();
 
         double currentTime = Util.getMeasuringTimeMs() / 1000.0;

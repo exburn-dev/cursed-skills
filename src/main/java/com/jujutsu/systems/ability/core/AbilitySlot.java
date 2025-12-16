@@ -35,18 +35,6 @@ public final class AbilitySlot {
         this.id = id;
     }
 
-    public void activate(IAbilitiesHolder abilitiesHolder) {
-        if(abilitiesHolder.getAbilityInstance(this) != null) {
-            abilitiesHolder.runAbility(this);
-        }
-    }
-
-    public void cancel(IAbilitiesHolder abilitiesHolder) {
-        if(abilitiesHolder.getAbilityInstance(this) != null) {
-            abilitiesHolder.tryCancelAbility(this);
-        }
-    }
-
     public Identifier getId() {
         return id;
     }

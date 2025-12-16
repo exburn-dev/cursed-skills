@@ -1,8 +1,6 @@
 package com.jujutsu.util;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.network.payload.abilities.AbilitiesSyncS2CPayload;
-import com.jujutsu.systems.ability.core.AbilityInstanceOld;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
@@ -10,10 +8,8 @@ import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
-import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.systems.ability.upgrade.*;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -58,19 +54,6 @@ public class AbilitiesHolderUtils {
             }
         }
         return totalValue * totalMultiplier;
-    }
-
-    public static <T extends AbilityType> Optional<AbilityInstanceOld> findAbility(IAbilitiesHolder holder, Class<T> ability) {
-        if(holder.getSlots().isEmpty()) return Optional.empty();
-
-        for(AbilitySlot slot: holder.getSlots()) {
-            AbilityInstanceOld instance = holder.getAbilityInstance(slot);
-
-            if(ability.equals(instance.getType().getClass())) {
-                return Optional.of(instance);
-            }
-        }
-        return Optional.empty();
     }
 
     public static <T extends PassiveAbility> Optional<T> findPassiveAbility(IAbilitiesHolder holder, Class<T> ability) {

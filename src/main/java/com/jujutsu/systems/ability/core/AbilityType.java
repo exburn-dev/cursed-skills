@@ -18,7 +18,6 @@ import java.util.Optional;
 public abstract class AbilityType {
     public static final Codec<AbilityType> CODEC = JujutsuRegistries.ABILITY_TYPE.getCodec();
     public static final Codec<RegistryEntry<AbilityType>> ENTRY_CODEC = JujutsuRegistries.ABILITY_TYPE.getEntryCodec();
-    private static final Codec<AbilityData> DATA_CODEC = Codec.unit(AbilityData.EMPTY);
 
     private final int cooldownTime;
     private final boolean cancelable;
@@ -34,7 +33,7 @@ public abstract class AbilityType {
         this.clientData = clientData;
     }
 
-    public int getCooldownTime(PlayerEntity player, AbilityInstanceOld instance) {
+    public int getCooldownTime(PlayerEntity player, AbilityInstance instance) {
         return this.cooldownTime;
     }
 
@@ -46,10 +45,10 @@ public abstract class AbilityType {
         return this.clientData;
     }
 
-    public abstract void start(PlayerEntity player, AbilityInstanceOld instance);
-    public abstract void tick(PlayerEntity player, AbilityInstanceOld instance);
-    public abstract void end(PlayerEntity player, AbilityInstanceOld instance);
-    public abstract boolean isFinished(PlayerEntity player, AbilityInstanceOld instance);
+    public abstract void start(PlayerEntity player, AbilityInstance instance);
+    public abstract void tick(PlayerEntity player, AbilityInstance instance);
+    public abstract void end(PlayerEntity player, AbilityInstance instance);
+    public abstract boolean isFinished(PlayerEntity player, AbilityInstance instance);
 
     protected double getAbilityAttributeValue(PlayerEntity player, RegistryEntry<AbilityAttribute> attribute) {
         return AbilitiesHolderUtils.getAbilityAttributeValue(player, attribute);
@@ -74,9 +73,5 @@ public abstract class AbilityType {
     public String getTranslationKey() {
         Optional<RegistryKey<AbilityType>> optional = JujutsuRegistries.ABILITY_TYPE.getKey(this);
         return optional.map(abilityTypeRegistryKey -> abilityTypeRegistryKey.getValue().toTranslationKey("ability")).orElse("");
-    }
-
-    public AbilityInstanceOld getDefaultInstance() {
-        return new AbilityInstanceOld(this);
     }
 }

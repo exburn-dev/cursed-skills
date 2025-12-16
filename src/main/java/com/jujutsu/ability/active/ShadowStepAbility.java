@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModSounds;
-import com.jujutsu.systems.ability.core.AbilityInstanceOld;
+import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.buff.Buff;
@@ -30,7 +30,7 @@ public class ShadowStepAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstanceOld instance) {
+    public void start(PlayerEntity player, AbilityInstance instance) {
         if(player.getWorld().isClient()) return;
 
         ConstantBuff damageBuff = new ConstantBuff(EntityAttributes.GENERIC_ATTACK_DAMAGE, -100, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
@@ -52,12 +52,12 @@ public class ShadowStepAbility extends AbilityType {
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstanceOld instance) {
+    public void tick(PlayerEntity player, AbilityInstance instance) {
 
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstanceOld instance) {
+    public void end(PlayerEntity player, AbilityInstance instance) {
         if(player.getWorld().isClient()) return;
 
         player.playSoundToPlayer(ModSounds.SHADOW_STEP_END, SoundCategory.MASTER, 2, 1.1f);
@@ -69,20 +69,20 @@ public class ShadowStepAbility extends AbilityType {
     }
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstanceOld instance) {
-        return instance.getUseTime() >= 30;
+    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+        return instance.useTime() >= 30;
     }
 
-    public static void renderHud(DrawContext context, RenderTickCounter counter, AbilityInstanceOld instance) {
+    public static void renderHud(DrawContext context, RenderTickCounter counter, AbilityInstance instance) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 
         float alpha;
-        if(instance.getUseTime() >= 20) {
-            alpha = MathHelper.clampedLerp(0.25f, 0, (float) (instance.getUseTime() - 20 ) / 20);
+        if(instance.useTime() >= 20) {
+            alpha = MathHelper.clampedLerp(0.25f, 0, (float) (instance.useTime() - 20 ) / 20);
         }
         else {
-            alpha = MathHelper.clampedLerp(0, 0.25f, (float) instance.getUseTime() / 10);
+            alpha = MathHelper.clampedLerp(0, 0.25f, (float) instance.useTime() / 10);
         }
 
         RenderSystem.disableDepthTest();

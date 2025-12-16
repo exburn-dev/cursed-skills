@@ -4,6 +4,7 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.component.TechniqueComponent;
 import com.jujutsu.network.payload.AbilitiesAcquiredPayload;
 import com.jujutsu.registry.ModDataComponents;
+import com.jujutsu.systems.ability.core.AbilityComponent;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
@@ -41,34 +42,37 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
         ItemStack stack = user.getStackInHand(hand);
         if(world.isClient()) return TypedActionResult.pass(stack);
 
+        AbilityComponent abilityComponent = AbilityComponent.get(user);
         TechniqueComponent component = stack.get(ModDataComponents.TECHNIQUE_COMPONENT);
+
         if(component == null) return TypedActionResult.pass(stack);
 
-        IAbilitiesHolder holder = (IAbilitiesHolder) user;
+        abilityComponent.clearInstances();
 
-        AbilitiesHolderUtils.removeAbilities((ServerPlayerEntity) user);
-        holder.setUpgradesId(component.upgradesId());
-
-        List<AbilityUpgradeBranch> branches = AbilityUpgradesReloadListener.getInstance().getBranches(component.upgradesId());
-        UpgradesData data = holder.getUpgradesData();
-        if(branches != null && !branches.isEmpty()) {
-            for (AbilityUpgradeBranch branch : branches) {
-                if (data.purchasedUpgrades().containsKey(branch.id())) {
-                    AbilityUpgrade upgrade = branch.findUpgrade(data.purchasedUpgrades().get(branch.id()));
-
-                    if (upgrade != null) {
-                        upgrade.apply(user);
-                    }
-                }
-            }
+        for(var mapEntry: component.abilities().entrySet()) {
+            abilityComponent.addInstance(mapEntry.getKey(), mapEntry.getValue());
         }
+        //TODO: set upgrades id (godjo, speedster, etc)
+//        holder.setUpgradesId(component.upgradesId());
 
-        for(Map.Entry<AbilitySlot, AbilityType> entry: component.abilities().entrySet()) {
-            holder.addAbilityInstance(entry.getValue().getDefaultInstance(), entry.getKey());
-        }
-        for(PassiveAbility passiveAbility: component.passiveAbilities()) {
-            holder.addPassiveAbility(passiveAbility);
-        }
+//        List<AbilityUpgradeBranch> branches = AbilityUpgradesReloadListener.getInstance().getBranches(component.upgradesId());
+//        UpgradesData data = holder.getUpgradesData();
+//        if(branches != null && !branches.isEmpty()) {
+//            for (AbilityUpgradeBranch branch : branches) {
+//                if (data.purchasedUpgrades().containsKey(branch.id())) {
+//                    AbilityUpgrade upgrade = branch.findUpgrade(data.purchasedUpgrades().get(branch.id()));
+//
+//                    if (upgrade != null) {
+//                        upgrade.apply(user);
+//                    }
+//                }
+//            }
+//        }
+
+//        for(PassiveAbility passiveAbility: component.passiveAbilities()) {
+//            holder.addPassiveAbility(passiveAbility);
+//        }
+        //TODO: add passive abilities
 
         ServerPlayNetworking.send((ServerPlayerEntity) user, new AbilitiesAcquiredPayload(component.abilities().values().stream().toList()));
 

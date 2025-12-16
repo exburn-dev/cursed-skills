@@ -4,6 +4,7 @@ import com.jujutsu.mixinterface.EntityComponentsAccessor;
 import com.jujutsu.network.payload.abilities.AbilitiesSyncS2CPayload;
 import com.jujutsu.network.payload.input_requests.ClearInputRequestS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestInputS2CPayload;
+import com.jujutsu.registry.ModEffects;
 import com.jujutsu.systems.ability.data.InputRequest;
 import com.jujutsu.systems.entitydata.*;
 import com.mojang.serialization.Codec;
@@ -35,6 +36,13 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
     }
 
     @Override
+    public void onLoaded() {
+        for(AbilityInstance instance : abilities.values()) {
+            instance.endCooldown();
+        }
+    }
+
+    @Override
     public void tick() {
         for(AbilityInstance instance : abilities()) {
             instance.tick();
@@ -42,8 +50,32 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
         tickInputRequests();
     }
 
+    public void addInstance(AbilitySlot slot, AbilityType type) {
+        AbilityInstance instance = new AbilityInstance(player, type);
+        abilities.put(slot, instance);
+    }
+
+    public void clearInstances() {
+        for(var mapEntry : abilities.entrySet()) {
+            mapEntry.getValue().endAbility();
+            abilities.remove(mapEntry.getKey());
+            //TODO: cancel upgrades effect
+        }
+    }
+
     public AbilityInstance getInstance(AbilitySlot slot) {
         return abilities.get(slot);
+    }
+
+    public void runAbility(AbilitySlot slot) {
+        if(!canStartAbility(slot)) return;
+        AbilityInstance instance = abilities.get(slot);
+        instance.start();
+        sendToClient();
+    }
+
+    public boolean canStartAbility(AbilitySlot slot) {
+        return abilities.containsKey(slot) && abilities.get(slot).status().isNone() && !player.hasStatusEffect(ModEffects.STUN);
     }
 
     public Collection<AbilityInstance> abilities() {
@@ -123,10 +155,13 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
     public void readFromNbt(NbtCompound nbt) {
         NbtCompound compound = nbt.getCompound("Abilities");
 
-        var dataMap = CODEC.parse(NbtOps.INSTANCE, compound).getOrThrow();
         abilities.clear();
-        for(var mapEntry : dataMap.entrySet()) {
-            abilities.put(mapEntry.getKey(), new AbilityInstance(player, mapEntry.getValue()));
+        var result = CODEC.parse(NbtOps.INSTANCE, compound);
+        if(result.isSuccess()) {
+            var dataMap = result.getOrThrow();
+            for(var mapEntry : dataMap.entrySet()) {
+                abilities.put(mapEntry.getKey(), new AbilityInstance(player, mapEntry.getValue()));
+            }
         }
     }
 

@@ -43,18 +43,24 @@ public class AbilityInstance implements EntityServerData {
         if(!status.isNone()) return;
 
         status = AbilityStatus.RUNNING;
-        //type.start(player, this);
+        type.start(player, this);
     }
 
     public void tick() {
         processStatus();
-        //TODO: sync
     }
 
     public void endAbility() {
-        //type.end(player, this);
+        if(!isFinished() && !type.isCancelable()) {
+            return;
+        }
+        else if(!isFinished() && type.isCancelable()) {
+            status = AbilityStatus.CANCELLED;
+        }
+
+        type.end(player, this);
         status = AbilityStatus.ON_COOLDOWN;
-        //cooldownTime = type.getCooldownTime(player, this);
+        cooldownTime = type.getCooldownTime(player, this);
         useTime = 0;
         clearInputRequest();
     }
@@ -64,18 +70,16 @@ public class AbilityInstance implements EntityServerData {
     }
 
     public boolean isFinished() {
-        //return type.isFinished(player, this);
-        return true;
+        return type.isFinished(player, this);
     }
 
     private void processStatus() {
         if(status.isRunning()) {
-            //TODO: type be able to work w new AbilityInstance
-            //type.tick(player, this);
+            type.tick(player, this);
             useTime++;
         }
         else if(status.isWaiting()) {
-            //type.tick(player, this);
+            type.tick(player, this);
         }
         else if(status.onCooldown()) {
             cooldown();
@@ -117,6 +121,10 @@ public class AbilityInstance implements EntityServerData {
 
     public int useTime() {
         return useTime;
+    }
+
+    public AbilityStatus status() {
+        return status;
     }
 
     public AbilityInstanceData writeData() {

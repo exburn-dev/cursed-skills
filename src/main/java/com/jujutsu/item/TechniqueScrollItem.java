@@ -5,15 +5,9 @@ import com.jujutsu.component.TechniqueComponent;
 import com.jujutsu.network.payload.AbilitiesAcquiredPayload;
 import com.jujutsu.registry.ModDataComponents;
 import com.jujutsu.systems.ability.core.AbilityComponent;
-import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgrade;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
-import com.jujutsu.systems.ability.upgrade.UpgradesData;
-import com.jujutsu.util.AbilitiesHolderUtils;
+import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,7 +24,6 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 
 import java.util.List;
-import java.util.Map;
 
 public class TechniqueScrollItem extends Item implements IBorderTooltipItem, ModelWithIcon{
     public TechniqueScrollItem(Settings settings) {
@@ -42,12 +35,14 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
         ItemStack stack = user.getStackInHand(hand);
         if(world.isClient()) return TypedActionResult.pass(stack);
 
-        AbilityComponent abilityComponent = AbilityComponent.get(user);
         TechniqueComponent component = stack.get(ModDataComponents.TECHNIQUE_COMPONENT);
+        AbilityComponent abilityComponent = AbilityComponent.get(user);
+        PassiveAbilityComponent passiveAbilityComponent = PassiveAbilityComponent.get(user);
 
         if(component == null) return TypedActionResult.pass(stack);
 
         abilityComponent.clearInstances();
+        passiveAbilityComponent.removePassiveAbilities();
 
         for(var mapEntry: component.abilities().entrySet()) {
             abilityComponent.addInstance(mapEntry.getKey(), mapEntry.getValue());
@@ -69,10 +64,9 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
 //            }
 //        }
 
-//        for(PassiveAbility passiveAbility: component.passiveAbilities()) {
-//            holder.addPassiveAbility(passiveAbility);
-//        }
-        //TODO: add passive abilities
+        for(PassiveAbility ability : component.passiveAbilities()) {
+            passiveAbilityComponent.addPassiveAbility(ability);
+        }
 
         ServerPlayNetworking.send((ServerPlayerEntity) user, new AbilitiesAcquiredPayload(component.abilities().values().stream().toList()));
 

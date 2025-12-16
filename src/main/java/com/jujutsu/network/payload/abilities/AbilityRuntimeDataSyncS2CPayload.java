@@ -1,10 +1,10 @@
-package com.jujutsu.network.payload;
+package com.jujutsu.network.payload.abilities;
 
 import com.jujutsu.Jujutsu;
+import com.jujutsu.systems.ability.client.ClientComponentContainer;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.data.AbilityPropertiesContainer;
 import com.jujutsu.systems.ability.data.AbilityProperty;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -25,10 +25,10 @@ public record AbilityRuntimeDataSyncS2CPayload(AbilitySlot slot, Map<AbilityProp
 
     public static void registerClientReceiver() {
         ClientPlayNetworking.registerGlobalReceiver(AbilityRuntimeDataSyncS2CPayload.ID, ((payload, context) -> {
-            IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
-            AbilityInstance instance = holder.getAbilityInstance(payload.slot());
-
-            instance.setRuntimeData(payload.data());
+            ClientComponentContainer.abilityComponent.applyRuntimeData(
+                    payload.slot(),
+                    new AbilityPropertiesContainer(payload.data())
+            );
         }));
     }
 

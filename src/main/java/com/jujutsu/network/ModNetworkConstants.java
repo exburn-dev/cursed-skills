@@ -9,6 +9,7 @@ import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.toast.AbilitiesAcquiredToast;
 import com.jujutsu.network.payload.*;
 import com.jujutsu.network.payload.abilities.AbilitiesSyncS2CPayload;
+import com.jujutsu.network.payload.abilities.AbilityRuntimeDataSyncS2CPayload;
 import com.jujutsu.network.payload.abilities.RunAbilityC2SPayload;
 import com.jujutsu.network.payload.input_requests.ClearInputRequestS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestInputS2CPayload;

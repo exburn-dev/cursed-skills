@@ -1,6 +1,6 @@
 package com.jujutsu.systems.ability.core;
 
-import com.jujutsu.network.payload.AbilityRuntimeDataSyncS2CPayload;
+import com.jujutsu.network.payload.abilities.AbilityRuntimeDataSyncS2CPayload;
 import com.jujutsu.systems.ability.data.AbilityPropertiesContainer;
 import com.jujutsu.systems.ability.data.AbilityProperty;
 import com.jujutsu.systems.ability.data.InputRequest;

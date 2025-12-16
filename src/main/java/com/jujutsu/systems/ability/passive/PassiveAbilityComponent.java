@@ -1,5 +1,7 @@
 package com.jujutsu.systems.ability.passive;
 
+import com.jujutsu.mixinterface.EntityComponentsAccessor;
+import com.jujutsu.systems.entitydata.ComponentKeys;
 import com.jujutsu.systems.entitydata.EntityComponent;
 import com.jujutsu.systems.entitydata.EntityTickingComponent;
 import com.mojang.serialization.Codec;
@@ -21,10 +23,29 @@ public class PassiveAbilityComponent implements EntityComponent, EntityTickingCo
     }
 
     @Override
+    public void onLoaded() {
+        for(PassiveAbility ability : abilities) {
+            ability.onGained(player);
+        }
+    }
+
+    @Override
     public void tick() {
         for(PassiveAbility ability : abilities) {
             ability.tick(player);
         }
+    }
+
+    public void addPassiveAbility(PassiveAbility ability) {
+        abilities.add(ability);
+        ability.onGained(player);
+    }
+
+    public void removePassiveAbilities() {
+        for(PassiveAbility ability : abilities) {
+            ability.onRemoved(player);
+        }
+        abilities.clear();
     }
 
     @Override
@@ -48,6 +69,10 @@ public class PassiveAbilityComponent implements EntityComponent, EntityTickingCo
 
     @Override
     public void sendToClient() { }
+
+    public static PassiveAbilityComponent get(PlayerEntity player) {
+        return ((EntityComponentsAccessor) player).jujutsu$getContainer().get(ComponentKeys.PASSIVE_ABILITIES);
+    }
 
     static {
         CODEC = PassiveAbility.CODEC.listOf();

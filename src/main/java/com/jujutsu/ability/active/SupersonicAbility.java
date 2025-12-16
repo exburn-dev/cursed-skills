@@ -10,7 +10,7 @@ import com.jujutsu.systems.ability.data.BoolAbilityProperty;
 import com.jujutsu.systems.ability.data.DoubleAbilityProperty;
 import com.jujutsu.systems.ability.data.IntAbilityProperty;
 import com.jujutsu.systems.buff.Buff;
-import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
+import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import com.jujutsu.systems.buff.type.SupersonicBuff;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
@@ -37,7 +37,7 @@ public class SupersonicAbility extends AbilityType {
         setData(instance, startDistance, 0, duration, false);
 
         SupersonicBuff buff = new SupersonicBuff(instance.getSlot());
-        Buff.createBuff(player, buff, ImmutableList.of(new TimeCancellingCondition(duration)),
+        Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(duration)),
                 Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("supersonic"));
     }
 

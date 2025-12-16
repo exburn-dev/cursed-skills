@@ -149,31 +149,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements AbilityA
         }
     }
 
-    @Inject(method = "writeCustomDataToNbt", at = @At("HEAD"))
-    private void writeNBT(NbtCompound nbt, CallbackInfo ci) {
-        NbtCompound main = new NbtCompound();
-        NbtElement serializedAttributes = abilityAttributes.serialize(NbtOps.INSTANCE);
-        NbtElement serializedUpgrades = CodecUtils.serialize(UpgradesData.CODEC, NbtOps.INSTANCE, upgradesData,
-                (e) -> Jujutsu.LOGGER.error("Failed to serialize rewards data {}", e));
-
-        main.put("Attributes", serializedAttributes);
-        main.put("Upgrades", serializedUpgrades);
-
-        nbt.put("Jujutsu", main);
-    }
-
-    @Inject(method = "readCustomDataFromNbt", at = @At("HEAD"))
-    private void readNBT(NbtCompound nbt, CallbackInfo ci) {
-        NbtCompound main = nbt.getCompound("Jujutsu");
-
-        NbtCompound attributesCompound = main.getCompound("Attributes");
-        NbtCompound upgradesCompound = main.getCompound("Upgrades");
-
-        this.abilityAttributes = AbilityAttributesContainer.deserialize(new Dynamic<>(NbtOps.INSTANCE, attributesCompound));
-        this.upgradesData = CodecUtils.deserialize(UpgradesData.CODEC, new Dynamic<>(NbtOps.INSTANCE, upgradesCompound),
-                () -> new UpgradesData(Jujutsu.id(""), 0, new HashMap<>()), (e) -> Jujutsu.LOGGER.error("Failed to deserialize rewards data {}", e));
-    }
-
     @Override
     public void setAbilityAttributes(AbilityAttributesContainer container) {
         this.abilityAttributes = container;

@@ -11,7 +11,7 @@ import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.ability.data.IntAbilityProperty;
 import com.jujutsu.systems.animation.PlayerAnimations;
 import com.jujutsu.systems.buff.Buff;
-import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
+import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.util.HandAnimationUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -52,7 +52,7 @@ public class InfinityAbility extends AbilityType {
 
         ConstantBuff buff = new ConstantBuff(ModAttributes.INVINCIBLE,0.5, EntityAttributeModifier.Operation.ADD_VALUE);
 
-        Buff.createBuff(player, buff, ImmutableList.of(new TimeCancellingCondition(duration)),
+        Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(duration)),
                 Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("infinity"));
 
         if(player.getWorld().isClient()) return;

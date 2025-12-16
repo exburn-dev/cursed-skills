@@ -8,7 +8,7 @@ import com.jujutsu.registry.ModEffects;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.buff.Buff;
-import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
+import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.util.ParticleUtils;
 import net.minecraft.entity.LivingEntity;
@@ -38,10 +38,10 @@ public class PhoenixAshAbility extends AbilityType {
         ConstantBuff invincibilityBuff = new ConstantBuff(ModAttributes.INVINCIBLE, 1, EntityAttributeModifier.Operation.ADD_VALUE);
         ConstantBuff speedBuff = new ConstantBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
-        Buff.createBuff(player, invincibilityBuff, ImmutableList.of(new TimeCancellingCondition(60)),
+        Buff.createBuff(player, invincibilityBuff, ImmutableList.of(new TimerBuffPredicate(60)),
                 Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("phoenix_invincible"));
 
-        Buff.createBuff(player, speedBuff, ImmutableList.of(new TimeCancellingCondition(200)),
+        Buff.createBuff(player, speedBuff, ImmutableList.of(new TimerBuffPredicate(200)),
                 Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("phoenix_speed"));
 
         List<LivingEntity> entities = player.getWorld().getEntitiesByClass(LivingEntity.class, Box.of(player.getPos(), 16, 16, 16), entity -> !entity.getUuid().equals(player.getUuid()));
@@ -53,7 +53,7 @@ public class PhoenixAshAbility extends AbilityType {
 
             ConstantBuff slownessBuff = new ConstantBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
-            Buff.createBuff(entity, slownessBuff, ImmutableList.of(new TimeCancellingCondition(200)),
+            Buff.createBuff(entity, slownessBuff, ImmutableList.of(new TimerBuffPredicate(200)),
                     Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("phoenix_slowness"));
         }
     }

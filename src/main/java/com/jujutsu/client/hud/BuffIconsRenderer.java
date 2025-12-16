@@ -1,9 +1,8 @@
 package com.jujutsu.client.hud;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.registry.BuffTypes;
 import com.jujutsu.registry.ModAttributes;
-import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
+import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
@@ -43,7 +42,7 @@ public class BuffIconsRenderer {
         List<BuffDisplayData> toRemove = new ArrayList<>();
 
         for (BuffDisplayData displayData : buffs) {
-            TimeCancellingCondition condition = (TimeCancellingCondition) displayData.condition();
+            TimerBuffPredicate condition = (TimerBuffPredicate) displayData.condition();
 
             Identifier icon = icons.get(displayData.attribute());
 
@@ -69,7 +68,7 @@ public class BuffIconsRenderer {
 
         if(prevDelta > tickDelta) {
             for(BuffDisplayData buff: buffs) {
-                TimeCancellingCondition condition = (TimeCancellingCondition) buff.condition();
+                TimerBuffPredicate condition = (TimerBuffPredicate) buff.condition();
                 boolean ended = condition.test(client.player);
 
                 if (ended) {

@@ -8,14 +8,11 @@ import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
 import com.jujutsu.registry.tag.ModDamageTypeTags;
 import com.jujutsu.systems.buff.Buff;
-import com.jujutsu.systems.buff.BuffHashMapStorage;
-import com.jujutsu.systems.buff.BuffHolder;
 import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
 import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.systems.entitydata.EntityComponentContainer;
 import com.jujutsu.systems.entitydata.EntityComponentRegistry;
 import com.jujutsu.util.IOldPosHolder;
-import com.mojang.serialization.Dynamic;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Attackable;
 import net.minecraft.entity.Entity;
@@ -28,8 +25,6 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -52,10 +47,9 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements EntityComponentsAccessor, Attackable, BuffHolder, IOldPosHolder {
+public abstract class LivingEntityMixin extends Entity implements EntityComponentsAccessor, Attackable, IOldPosHolder {
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
     }
@@ -68,8 +62,6 @@ public abstract class LivingEntityMixin extends Entity implements EntityComponen
 
     @Shadow public abstract boolean damage(DamageSource source, float amount);
 
-    @Unique
-    private BuffHashMapStorage buffStorage = new BuffHashMapStorage(new HashMap<>());
     @Unique
     private Vec3d oldPos = Vec3d.ZERO;
     @Unique
@@ -183,53 +175,6 @@ public abstract class LivingEntityMixin extends Entity implements EntityComponen
                 .add(ModAttributes.INVINCIBLE, 0)
                 .add(ModAttributes.FIRE_RESISTANCE, 0)
                 .add(ModAttributes.BLAST_RESISTANCE, 0));
-    }
-
-    @Override
-    public Buff getBuff(Identifier id) {
-        return buffStorage.buffs().get(id);
-    }
-
-    @Override
-    public void addBuff(Identifier id, Buff buff) {
-        LivingEntity entity = (LivingEntity) (Object) this;
-
-        buff.buff().apply(entity, id);
-        buffStorage.buffs().put(id, buff);
-
-        syncBuffs(entity);
-    }
-
-    @Override
-    public void removeBuff(Identifier id) {
-        if(!buffStorage.buffs().containsKey(id)) return;
-
-        LivingEntity entity = (LivingEntity) (Object) this;
-        Buff buff = buffStorage.buffs().get(id);
-
-        buff.buff().remove(entity, id);
-        buffStorage.buffs().remove(id);
-
-        syncBuffs(entity);
-    }
-
-    @Unique
-    private void syncBuffs(LivingEntity entity) {
-        if(entity.isPlayer() && !entity.getWorld().isClient()) {
-            List<BuffDisplayData> list = new ArrayList<>();
-            for(Buff buff : buffStorage.buffs().values()) {
-                if(buff.cancellingPolicy() != Buff.CancellingPolicy.ONE_OR_MORE
-                        || !(buff.buff() instanceof ConstantBuff constantBuff) ) continue;
-
-                list.add(new BuffDisplayData(constantBuff.attribute(), buff.conditions().getFirst()));
-            }
-
-            ServerPlayNetworking.send((ServerPlayerEntity) entity, new SyncBuffsForDisplaying(list));
-        }
-    }
-
-    public List<Buff> getBuffs() {
-        return buffStorage.buffs().values().stream().toList();
     }
 
     @Override

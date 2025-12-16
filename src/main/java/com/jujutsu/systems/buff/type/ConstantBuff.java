@@ -1,8 +1,5 @@
 package com.jujutsu.systems.buff.type;
 
-import com.jujutsu.registry.BuffTypes;
-import com.jujutsu.systems.buff.BuffType;
-import com.jujutsu.systems.buff.IBuff;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

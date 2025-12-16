@@ -1,12 +1,9 @@
 package com.jujutsu.systems.buff.type;
 
 import com.jujutsu.ability.active.SupersonicAbility;
-import com.jujutsu.registry.BuffTypes;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
-import com.jujutsu.systems.buff.BuffType;
-import com.jujutsu.systems.buff.IDynamicBuff;
 import com.jujutsu.util.AbilitiesHolderUtils;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

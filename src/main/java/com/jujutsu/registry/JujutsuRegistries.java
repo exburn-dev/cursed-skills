@@ -5,8 +5,6 @@ import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.jujutsu.systems.ability.passive.PassiveAbilityType;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradeRewardType;
-import com.jujutsu.systems.buff.BuffCancellingConditionType;
-import com.jujutsu.systems.buff.BuffType;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.minecraft.registry.Registry;

@@ -1,28 +1,29 @@
 package com.jujutsu.systems.buff.conditions;
 
-import com.jujutsu.registry.BuffTypes;
-import com.jujutsu.systems.buff.BuffCancellingCondition;
-import com.jujutsu.systems.buff.BuffCancellingConditionType;
+import com.jujutsu.systems.buff.BuffPredicate;
+import com.jujutsu.systems.buff.BuffPredicateKey;
+import com.jujutsu.systems.buff.BuffPredicates;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.LivingEntity;
 
-public class TimeCancellingCondition implements BuffCancellingCondition {
-    public static final MapCodec<TimeCancellingCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.INT.fieldOf("maxTime").forGetter(TimeCancellingCondition::getMaxTime), Codec.INT.fieldOf("currentTime").forGetter(TimeCancellingCondition::getCurrentTime))
-            .apply(instance, TimeCancellingCondition::new)
+public class TimerBuffPredicate implements BuffPredicate {
+    public static final Codec<TimerBuffPredicate> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("maxTime").forGetter(TimerBuffPredicate::getMaxTime),
+                    Codec.INT.fieldOf("currentTime").forGetter(TimerBuffPredicate::getCurrentTime))
+            .apply(instance, TimerBuffPredicate::new)
     );
 
     private final int maxTime;
     private int currentTime;
 
-    public TimeCancellingCondition(int time) {
+    public TimerBuffPredicate(int time) {
         this.maxTime = time;
         currentTime = 0;
     }
 
-    private TimeCancellingCondition(int maxTime, int currentTime) {
+    private TimerBuffPredicate(int maxTime, int currentTime) {
         this.maxTime = maxTime;
         this.currentTime = currentTime;
     }
@@ -46,7 +47,7 @@ public class TimeCancellingCondition implements BuffCancellingCondition {
     }
 
     @Override
-    public BuffCancellingConditionType<?> getType() {
-        return BuffTypes.TIME_CANCELLING_CONDITION;
+    public BuffPredicateKey<?> getKey() {
+        return BuffPredicates.TIMER;
     }
 }

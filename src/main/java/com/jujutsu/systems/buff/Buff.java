@@ -15,14 +15,12 @@ public class Buff {
     public static final Codec<Buff> CODEC;
     public static final PacketCodec<RegistryByteBuf, Buff> PACKET_CODEC;
 
-    private final List<BuffCancellingCondition> conditions;
+    private final List<BuffPredicate> conditions;
     private final CancellingPolicy cancellingPolicy;
-    private final IBuff buff;
 
-    private Buff(List<BuffCancellingCondition> conditions, CancellingPolicy cancellingPolicy, IBuff buff) {
+    private Buff(List<BuffPredicate> conditions, CancellingPolicy cancellingPolicy) {
         this.conditions = conditions;
         this.cancellingPolicy = cancellingPolicy;
-        this.buff = buff;
     }
 
     public boolean checkConditions(LivingEntity entity) {
@@ -33,7 +31,7 @@ public class Buff {
     }
 
     private boolean checkForOnePositiveCondition(LivingEntity entity) {
-        for(BuffCancellingCondition condition: conditions) {
+        for(BuffPredicate condition: conditions) {
             if(condition.test(entity)) {
                 return true;
             }
@@ -42,7 +40,7 @@ public class Buff {
     }
 
     private boolean checkForAllPositiveConditions(LivingEntity entity) {
-        for(BuffCancellingCondition condition: conditions) {
+        for(BuffPredicate condition: conditions) {
             if(!condition.test(entity)) {
                 return false;
             }
@@ -50,7 +48,7 @@ public class Buff {
         return true;
     }
 
-    public List<BuffCancellingCondition> conditions() {
+    public List<BuffPredicate> conditions() {
         return conditions;
     }
 
@@ -58,23 +56,18 @@ public class Buff {
         return cancellingPolicy;
     }
 
-    public IBuff buff() {
-        return buff;
-    }
-
-    public static void createBuff(LivingEntity entity, IBuff buff, ImmutableList<BuffCancellingCondition> conditions,
-                                  CancellingPolicy cancellingPolicy, Identifier id) {
+    public static void createBuff(LivingEntity entity, ImmutableList<BuffPredicate> conditions, CancellingPolicy cancellingPolicy, Identifier id) {
         if(hasBuff(entity, id)) return;
 
-        Buff buffWrapper = new Buff(conditions, cancellingPolicy, buff);
-        BuffHolder buffHolder = (BuffHolder) entity;
+        BuffComponent component = BuffComponent.get(entity);
+        Buff buff = new Buff(conditions, cancellingPolicy);
 
-        buffHolder.addBuff(id, buffWrapper);
+        component.addBuff(id, buff);
     }
 
     public static boolean hasBuff(LivingEntity entity, Identifier id) {
-        BuffHolder buffHolder = (BuffHolder) entity;
-        return buffHolder.getBuff(id) != null;
+        BuffComponent component = BuffComponent.get(entity);
+        return component.hasBuff(id);
     }
 
     static {

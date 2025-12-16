@@ -1,7 +1,6 @@
 package com.jujutsu.client.hud;
 
 import com.jujutsu.network.NbtPacketCodec;
-import com.jujutsu.systems.buff.BuffCancellingCondition;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.attribute.EntityAttribute;

@@ -11,8 +11,7 @@ import com.jujutsu.systems.ability.data.*;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.buff.Buff;
-import com.jujutsu.systems.buff.IBuff;
-import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
+import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.util.AbilitiesHolderUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -216,7 +215,7 @@ public class SonicRiftAbility extends AbilityType {
 
         if(isDashing) {
             IBuff buff = new ConstantBuff(EntityAttributes.GENERIC_GRAVITY, -0.75, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-            Buff.createBuff(player, buff, ImmutableList.of(new TimeCancellingCondition(40)),
+            Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(40)),
                     Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("sonicrift_gravity"));
         }
     }

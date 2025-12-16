@@ -6,23 +6,17 @@ import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.event.server.AbilityEvents;
 import com.jujutsu.event.server.PlayerBonusEvents;
 import com.jujutsu.mixinterface.EntityComponentsAccessor;
-import com.jujutsu.registry.BuffTypes;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
-import com.jujutsu.systems.ability.core.AbilityComponent;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
 import com.jujutsu.systems.buff.*;
-import com.jujutsu.systems.buff.conditions.TimeCancellingCondition;
+import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.systems.buff.type.SupersonicBuff;
-import com.jujutsu.systems.entitydata.ComponentKeys;
 import com.jujutsu.systems.entitydata.EntityComponent;
 import com.jujutsu.systems.entitydata.EntityComponentContainer;
 import com.jujutsu.util.AbilitiesHolderUtils;
@@ -32,8 +26,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Box;
@@ -113,7 +105,7 @@ public class ServerEventListeners {
 
                 ConstantBuff buff = new ConstantBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
-                Buff.createBuff(entity, buff, ImmutableList.of(new TimeCancellingCondition(20)), Buff.CancellingPolicy.ONE_OR_MORE,
+                Buff.createBuff(entity, buff, ImmutableList.of(new TimerBuffPredicate(20)), Buff.CancellingPolicy.ONE_OR_MORE,
                         Jujutsu.id("wither_momentum"));
             }
 

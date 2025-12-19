@@ -12,7 +12,7 @@ import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
-import com.jujutsu.systems.buff.type.ConstantBuff;
+import com.jujutsu.systems.buff.type.AttributeBuff;
 import com.jujutsu.util.AbilitiesHolderUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -214,7 +214,7 @@ public class SonicRiftAbility extends AbilityType {
         setPlayerUsingRiptide(player, isDashing);
 
         if(isDashing) {
-            IBuff buff = new ConstantBuff(EntityAttributes.GENERIC_GRAVITY, -0.75, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+            IBuff buff = new AttributeBuff(EntityAttributes.GENERIC_GRAVITY, -0.75, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
             Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(40)),
                     Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("sonicrift_gravity"));
         }

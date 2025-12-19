@@ -15,7 +15,7 @@ import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
 import com.jujutsu.systems.buff.*;
 import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
-import com.jujutsu.systems.buff.type.ConstantBuff;
+import com.jujutsu.systems.buff.type.AttributeBuff;
 import com.jujutsu.systems.buff.type.SupersonicBuff;
 import com.jujutsu.systems.entitydata.EntityComponent;
 import com.jujutsu.systems.entitydata.EntityComponentContainer;
@@ -103,7 +103,7 @@ public class ServerEventListeners {
                 double entitySpeed = entity.getAttributes().getValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * 0.1;
                 bonus += (float) entitySpeed;
 
-                ConstantBuff buff = new ConstantBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+                AttributeBuff buff = new AttributeBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
                 Buff.createBuff(entity, buff, ImmutableList.of(new TimerBuffPredicate(20)), Buff.CancellingPolicy.ONE_OR_MORE,
                         Jujutsu.id("wither_momentum"));

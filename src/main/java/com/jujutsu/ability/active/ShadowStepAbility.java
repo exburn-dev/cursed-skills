@@ -9,7 +9,7 @@ import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
-import com.jujutsu.systems.buff.type.ConstantBuff;
+import com.jujutsu.systems.buff.type.AttributeBuff;
 import com.jujutsu.util.VisualEffectUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -33,9 +33,9 @@ public class ShadowStepAbility extends AbilityType {
     public void start(PlayerEntity player, AbilityInstance instance) {
         if(player.getWorld().isClient()) return;
 
-        ConstantBuff damageBuff = new ConstantBuff(EntityAttributes.GENERIC_ATTACK_DAMAGE, -100, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-        ConstantBuff invincibilityBuff = new ConstantBuff(ModAttributes.INVINCIBLE, 1, EntityAttributeModifier.Operation.ADD_VALUE);
-        ConstantBuff speedBuff = new ConstantBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, 2.5, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+        AttributeBuff damageBuff = new AttributeBuff(EntityAttributes.GENERIC_ATTACK_DAMAGE, -100, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+        AttributeBuff invincibilityBuff = new AttributeBuff(ModAttributes.INVINCIBLE, 1, EntityAttributeModifier.Operation.ADD_VALUE);
+        AttributeBuff speedBuff = new AttributeBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, 2.5, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
         Buff.createBuff(player, damageBuff, ImmutableList.of(new TimerBuffPredicate(30)),
                 Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("shadow_step_damage"));

@@ -29,7 +29,6 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
 
     private final Map<AbilitySlot, AbilityInstance> abilities = new HashMap<>();
     private final Map<AbilitySlot, InputRequest> inputRequests = new HashMap<>();
-    //TODO: passive abilities
 
     public AbilityComponent(PlayerEntity player) {
         this.player = player;

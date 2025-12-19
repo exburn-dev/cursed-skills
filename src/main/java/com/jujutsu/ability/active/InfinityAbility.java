@@ -12,7 +12,7 @@ import com.jujutsu.systems.ability.data.IntAbilityProperty;
 import com.jujutsu.systems.animation.PlayerAnimations;
 import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
-import com.jujutsu.systems.buff.type.ConstantBuff;
+import com.jujutsu.systems.buff.type.AttributeBuff;
 import com.jujutsu.util.HandAnimationUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.Block;
@@ -50,7 +50,7 @@ public class InfinityAbility extends AbilityType {
         int duration = (int) Math.floor(getAbilityAttributeValue(player, ModAbilityAttributes.INFINITY_DURATION)) * 20;
         instance.set(DURATION, duration);
 
-        ConstantBuff buff = new ConstantBuff(ModAttributes.INVINCIBLE,0.5, EntityAttributeModifier.Operation.ADD_VALUE);
+        AttributeBuff buff = new AttributeBuff(ModAttributes.INVINCIBLE,0.5, EntityAttributeModifier.Operation.ADD_VALUE);
 
         Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(duration)),
                 Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("infinity"));

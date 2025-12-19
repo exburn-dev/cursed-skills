@@ -2,6 +2,7 @@ package com.jujutsu.systems.buff;
 
 import com.google.common.collect.ImmutableList;
 import com.jujutsu.network.NbtPacketCodec;
+import com.jujutsu.systems.buff.type.AttributeBuff;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.LivingEntity;
@@ -12,55 +13,64 @@ import net.minecraft.util.Identifier;
 import java.util.List;
 
 public class Buff {
-    public static final Codec<Buff> CODEC;
-    public static final PacketCodec<RegistryByteBuf, Buff> PACKET_CODEC;
-
+    private final LivingEntity entity;
     private final List<BuffPredicate> conditions;
-    private final CancellingPolicy cancellingPolicy;
+    private final BuffProvider provider; //TODO: support of different buff providers
+    private final boolean waitAllConditions;
 
-    private Buff(List<BuffPredicate> conditions, CancellingPolicy cancellingPolicy) {
+    private Buff(LivingEntity entity, List<BuffPredicate> conditions, boolean waitAllConditions, BuffProvider provider) {
+        this.entity = entity;
         this.conditions = conditions;
-        this.cancellingPolicy = cancellingPolicy;
+        this.waitAllConditions = waitAllConditions;
+        this.provider = provider;
     }
 
-    public boolean checkConditions(LivingEntity entity) {
-        return switch (cancellingPolicy) {
-            case ALL -> checkForAllPositiveConditions(entity);
-            default -> checkForOnePositiveCondition(entity);
-        };
+    public Buff(LivingEntity entity, BuffData data) {
+        this(entity, data.conditions(), data.waitAllConditions(), data.provider());
     }
 
-    private boolean checkForOnePositiveCondition(LivingEntity entity) {
+    public void tick(Identifier selfId) {
+        if(checkConditions()) {
+            provider.remove(entity, selfId);
+            component().removeBuff(selfId);
+        }
+    }
+
+    public boolean checkConditions() {
         for(BuffPredicate condition: conditions) {
-            if(condition.test(entity)) {
+            boolean conditionResult = condition.test(entity);
+
+            if(!waitAllConditions && conditionResult) {
                 return true;
             }
-        }
-        return false;
-    }
-
-    private boolean checkForAllPositiveConditions(LivingEntity entity) {
-        for(BuffPredicate condition: conditions) {
-            if(!condition.test(entity)) {
-                return false;
+            else if(waitAllConditions && !conditionResult) {
+                return  false;
             }
         }
-        return true;
+        return waitAllConditions;
+    }
+
+    public BuffData getData() {
+        return new BuffData(conditions, waitAllConditions, (AttributeBuff) provider);
+    }
+
+    private BuffComponent component() {
+        return BuffComponent.get(entity);
     }
 
     public List<BuffPredicate> conditions() {
         return conditions;
     }
 
-    public CancellingPolicy cancellingPolicy() {
-        return cancellingPolicy;
+    public BuffProvider provider() {
+        return provider;
     }
 
-    public static void createBuff(LivingEntity entity, ImmutableList<BuffPredicate> conditions, CancellingPolicy cancellingPolicy, Identifier id) {
+    public static void createBuff(LivingEntity entity, AttributeBuff provider, ImmutableList<BuffPredicate> conditions, boolean waitAllConditions, Identifier id) {
         if(hasBuff(entity, id)) return;
 
         BuffComponent component = BuffComponent.get(entity);
-        Buff buff = new Buff(conditions, cancellingPolicy);
+        Buff buff = new Buff(entity, conditions, waitAllConditions, provider);
 
         component.addBuff(id, buff);
     }
@@ -68,32 +78,5 @@ public class Buff {
     public static boolean hasBuff(LivingEntity entity, Identifier id) {
         BuffComponent component = BuffComponent.get(entity);
         return component.hasBuff(id);
-    }
-
-    static {
-        CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                BuffCancellingCondition.CODEC.listOf().fieldOf("conditions").forGetter(Buff::conditions),
-                CancellingPolicy.CODEC.fieldOf("cancellingPolicy").forGetter(Buff::cancellingPolicy),
-                IBuff.CODEC.fieldOf("buff").forGetter(Buff::buff)
-                ).apply(instance, Buff::new)
-        );
-
-        PACKET_CODEC = new NbtPacketCodec<>(CODEC);
-    }
-
-    public enum CancellingPolicy {
-        ALL(0),
-        ONE_OR_MORE(1);
-
-        private final int id;
-
-        CancellingPolicy(int id) {
-            this.id = id;
-        }
-
-        public static final Codec<CancellingPolicy> CODEC = Codec.INT.xmap(
-                integer -> CancellingPolicy.values()[integer],
-                cancellingPolicy -> cancellingPolicy.id
-        );
     }
 }

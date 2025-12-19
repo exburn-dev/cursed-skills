@@ -5,6 +5,7 @@ import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.jujutsu.systems.ability.passive.PassiveAbilityType;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradeRewardType;
+import com.jujutsu.systems.buff.BuffPredicateType;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.minecraft.registry.Registry;
@@ -21,13 +22,8 @@ public class JujutsuRegistries {
             .attribute(RegistryAttribute.SYNCED)
             .buildAndRegister();
 
-    public static final RegistryKey<Registry<BuffType<?>>> BUFF_TYPE_REGISTRY_KEY = RegistryKey.ofRegistry(Jujutsu.id("buff_type"));
-    public static final Registry<BuffType<?>> BUFF_TYPE = FabricRegistryBuilder.createSimple(BUFF_TYPE_REGISTRY_KEY)
-            .attribute(RegistryAttribute.SYNCED)
-            .buildAndRegister();
-
-    public static final RegistryKey<Registry<BuffCancellingConditionType<?>>> BUFF_CANCELLING_CONDITION_KEY = RegistryKey.ofRegistry(Jujutsu.id("buff_cancelling_condition"));
-    public static final Registry<BuffCancellingConditionType<?>> BUFF_CANCELLING_CONDITION_TYPE = FabricRegistryBuilder.createSimple(BUFF_CANCELLING_CONDITION_KEY)
+    public static final RegistryKey<Registry<BuffPredicateType<?>>> BUFF_PREDICATE_TYPE_KEY = RegistryKey.ofRegistry(Jujutsu.id("buff_predicate"));
+    public static final Registry<BuffPredicateType<?>> BUFF_PREDICATE_TYPE = FabricRegistryBuilder.createSimple(BUFF_PREDICATE_TYPE_KEY)
             .attribute(RegistryAttribute.SYNCED)
             .buildAndRegister();
 

@@ -1,19 +1,21 @@
 package com.jujutsu.systems.buff;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.buff.conditions.AttackCancellingCondition;
+import com.jujutsu.registry.JujutsuRegistries;
+import com.jujutsu.systems.buff.conditions.AttackBuffPredicate;
 import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
-import net.minecraft.util.Identifier;
+import com.mojang.serialization.Codec;
+import net.minecraft.registry.Registry;
 
 public class BuffPredicates {
-    public static final BuffPredicateKey<TimerBuffPredicate> TIMER = new BuffPredicateKey<>(Jujutsu.id("timer"), TimerBuffPredicate.CODEC);
-    public static final BuffPredicateKey<AttackCancellingCondition> ATTACK = new BuffPredicateKey<>(Jujutsu.id("attack"), AttackCancellingCondition.CODEC);
+    public static final BuffPredicateType<TimerBuffPredicate> TIMER = register("timer", TimerBuffPredicate.CODEC);
+    public static final BuffPredicateType<AttackBuffPredicate> ATTACK = register("attack", AttackBuffPredicate.CODEC);
 
-    @SuppressWarnings("unchecked")
-    public static  <T extends BuffPredicate> BuffPredicateKey<T> byId(Identifier id) {
-        if(id.equals(TIMER.id())) {
-            return (BuffPredicateKey<T>) TIMER;
-        }
-        return null;
+    private static <T extends BuffPredicate> BuffPredicateType<T> register(String name, Codec<T> codec) {
+        return Registry.register(JujutsuRegistries.BUFF_PREDICATE_TYPE, Jujutsu.id(name), new BuffPredicateType<>(codec));
+    }
+
+    public static void register() {
+        Jujutsu.LOGGER.info("Registering buff predicates for " + Jujutsu.MODID);
     }
 }

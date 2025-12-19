@@ -1,10 +1,9 @@
 package com.jujutsu.systems.buff.conditions;
 
 import com.jujutsu.systems.buff.BuffPredicate;
-import com.jujutsu.systems.buff.BuffPredicateKey;
+import com.jujutsu.systems.buff.BuffPredicateType;
 import com.jujutsu.systems.buff.BuffPredicates;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.LivingEntity;
 
@@ -47,7 +46,7 @@ public class TimerBuffPredicate implements BuffPredicate {
     }
 
     @Override
-    public BuffPredicateKey<?> getKey() {
+    public BuffPredicateType<?> getType() {
         return BuffPredicates.TIMER;
     }
 }

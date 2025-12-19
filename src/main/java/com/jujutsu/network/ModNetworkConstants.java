@@ -11,6 +11,7 @@ import com.jujutsu.network.payload.*;
 import com.jujutsu.network.payload.abilities.AbilitiesSyncS2CPayload;
 import com.jujutsu.network.payload.abilities.AbilityRuntimeDataSyncS2CPayload;
 import com.jujutsu.network.payload.abilities.RunAbilityC2SPayload;
+import com.jujutsu.network.payload.buffs.BuffDataSyncS2CPayload;
 import com.jujutsu.network.payload.input_requests.ClearInputRequestS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestInputS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestedInputPressedC2SPayload;
@@ -40,7 +41,6 @@ public class ModNetworkConstants {
     public static final Identifier ABILITIES_ACQUIRED_ID = Jujutsu.id("abilities_acquired");
     public static final Identifier PLAY_CLIENT_SOUND_ID = Jujutsu.id("play_client_sound");
     public static final Identifier PLAY_ANIMATION_ID = Jujutsu.id("play_animation");
-    public static final Identifier SYNC_BUFFS_FOR_DISPLAYING_ID = Jujutsu.id("sync_buffs");
     public static final Identifier SHOW_SCREEN_FLASH_ID = Jujutsu.id("show_screen_flash");
     public static final Identifier SHOW_CROSSHAIR_MARK_ID = Jujutsu.id("show_crosshair_mark");
     public static final Identifier SHOW_SCREEN_COLOR_MODIFIER_ID = Jujutsu.id("show_screen_color_modifier");
@@ -58,7 +58,7 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(AbilitiesAcquiredPayload.ID, AbilitiesAcquiredPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(PlayClientSoundPayload.ID, PlayClientSoundPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(PlayAnimationPayload.ID, PlayAnimationPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(SyncBuffsForDisplaying.ID, SyncBuffsForDisplaying.CODEC);
+        PayloadTypeRegistry.playS2C().register(BuffDataSyncS2CPayload.ID, BuffDataSyncS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowScreenFlashPayload.ID, ShowScreenFlashPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowCrosshairMarkPayload.ID, ShowCrosshairMarkPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowScreenColorModifierPayload.ID, ShowScreenColorModifierPayload.CODEC);
@@ -152,9 +152,7 @@ public class ModNetworkConstants {
             animatedPlayer.jujutsu_getModAnimation().setAnimation(new KeyframeAnimationPlayer(keyframeAnimation));
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(SyncBuffsForDisplaying.ID, (payload, context) -> {
-            BuffIconsRenderer.setBuffs(payload.buffs());
-        });
+        BuffDataSyncS2CPayload.registerClientReceiver();
 
         ClientPlayNetworking.registerGlobalReceiver(ShowScreenFlashPayload.ID, (payload, context) -> {
             FlashSystemHudRenderer.addFlashData(payload.flashData());

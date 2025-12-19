@@ -1,19 +1,14 @@
 package com.jujutsu.mixin;
 
-import com.jujutsu.client.hud.BuffDisplayData;
 import com.jujutsu.event.server.PlayerBonusEvents;
 import com.jujutsu.mixinterface.EntityComponentsAccessor;
-import com.jujutsu.network.payload.SyncBuffsForDisplaying;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
 import com.jujutsu.registry.tag.ModDamageTypeTags;
-import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
-import com.jujutsu.systems.buff.type.ConstantBuff;
 import com.jujutsu.systems.entitydata.EntityComponentContainer;
 import com.jujutsu.systems.entitydata.EntityComponentRegistry;
 import com.jujutsu.util.IOldPosHolder;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Attackable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -27,9 +22,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -43,10 +36,6 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements EntityComponentsAccessor, Attackable, IOldPosHolder {

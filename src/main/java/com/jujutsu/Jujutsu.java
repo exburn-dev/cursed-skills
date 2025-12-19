@@ -6,6 +6,7 @@ import com.jujutsu.network.ModNetworkConstants;
 import com.jujutsu.registry.*;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
 import com.jujutsu.event.server.DelayedTasks;
+import com.jujutsu.systems.buff.BuffPredicates;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.util.Identifier;
@@ -36,7 +37,7 @@ public class Jujutsu implements ModInitializer {
 		ServerEventListeners.register();
 
 		ModAbilities.register();
-		BuffTypes.registerCancellingCondition();
+		BuffPredicates.register();
 		ModAbilityAttributes.register();
 		AbilityUpgradeRewardTypes.register();
 

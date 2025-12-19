@@ -1,20 +1,21 @@
 package com.jujutsu.systems.buff.conditions;
 
 import com.jujutsu.systems.buff.BuffPredicate;
-import com.jujutsu.systems.buff.BuffPredicateKey;
+import com.jujutsu.systems.buff.BuffPredicateType;
+import com.jujutsu.systems.buff.BuffPredicates;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.LivingEntity;
 
-public class AttackCancellingCondition implements BuffPredicate {
-    public static final Codec<AttackCancellingCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("entityLastAttackTime").forGetter(AttackCancellingCondition::getEntityLastAttackTime))
-            .apply(instance, AttackCancellingCondition::new)
+public class AttackBuffPredicate implements BuffPredicate {
+    public static final Codec<AttackBuffPredicate> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("entityLastAttackTime").forGetter(AttackBuffPredicate::getEntityLastAttackTime))
+            .apply(instance, AttackBuffPredicate::new)
     );
 
     private final int entityLastAttackTime;
 
-    public AttackCancellingCondition(int entityLastAttackTime) {
+    public AttackBuffPredicate(int entityLastAttackTime) {
         this.entityLastAttackTime = entityLastAttackTime;
     }
 
@@ -34,7 +35,7 @@ public class AttackCancellingCondition implements BuffPredicate {
     }
 
     @Override
-    public BuffPredicateKey<?> getKey() {
-        return null;
+    public BuffPredicateType<?> getType() {
+        return BuffPredicates.ATTACK;
     }
 }

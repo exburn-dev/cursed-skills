@@ -5,6 +5,7 @@ import com.jujutsu.network.payload.abilities.AbilitiesSyncS2CPayload;
 import com.jujutsu.network.payload.input_requests.ClearInputRequestS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestInputS2CPayload;
 import com.jujutsu.registry.ModEffects;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeComponent;
 import com.jujutsu.systems.ability.data.InputRequest;
 import com.jujutsu.systems.entitydata.*;
 import com.mojang.serialization.Codec;
@@ -52,6 +53,8 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
     public void addInstance(AbilitySlot slot, AbilityType type) {
         AbilityInstance instance = new AbilityInstance(player, type);
         abilities.put(slot, instance);
+
+        AbilityAttributeComponent.get(player).addAbilityDefaultAttributes(instance.type());
     }
 
     public void clearInstances() {

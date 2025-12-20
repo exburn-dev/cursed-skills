@@ -2,7 +2,7 @@ package com.jujutsu.systems.ability.core;
 
 import com.jujutsu.registry.JujutsuRegistries;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
-import com.jujutsu.systems.ability.data.AbilityData;
+import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.util.AbilitiesHolderUtils;
@@ -54,8 +54,8 @@ public abstract class AbilityType {
         return AbilitiesHolderUtils.getAbilityAttributeValue(player, attribute);
     }
 
-    public AbilityAttributesContainer getDefaultAttributes() {
-        return new AbilityAttributesContainer.Builder().build();
+    public SimpleAbilityAttributeContainer getDefaultAttributes() {
+        return SimpleAbilityAttributeContainer.builder().build();
     }
 
     public Style getStyle() {

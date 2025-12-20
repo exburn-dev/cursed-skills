@@ -1,13 +1,17 @@
 package com.jujutsu.systems.ability.attribute;
 
 import com.jujutsu.mixinterface.EntityComponentsAccessor;
+import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.entitydata.ComponentKeys;
 import com.jujutsu.systems.entitydata.EntityComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class AbilityAttributeComponent implements EntityComponent {
 
@@ -17,6 +21,35 @@ public class AbilityAttributeComponent implements EntityComponent {
     public AbilityAttributeComponent(PlayerEntity player) {
         this.player = player;
         this.container = new AbilityAttributesContainer(new HashMap<>());
+    }
+
+    public AbilityAttributeComponent(PlayerEntity player, AbilityAttributesContainer container) {
+        this.player = player;
+        this.container = container;
+    }
+
+    public Map<Identifier, AbilityAttributeModifier> getModifiers(RegistryEntry<AbilityAttribute> attribute) {
+        return container.getModifiers(attribute);
+    }
+
+    public void addModifier(RegistryEntry<AbilityAttribute> attribute, Identifier id, AbilityAttributeModifier modifier) {
+        container.addModifier(attribute, id, modifier);
+    }
+
+    public void removeModifier(RegistryEntry<AbilityAttribute> attribute, Identifier id) {
+        container.getModifiers(attribute).remove(id);
+    }
+
+    public void addAbilityDefaultAttributes(AbilityType type) {
+        SimpleAbilityAttributeContainer typeAttributes = type.getDefaultAttributes();
+
+        for(var mapEntry : typeAttributes.map().entrySet()) {
+            RegistryEntry<AbilityAttribute> attribute = mapEntry.getKey();
+            Identifier id = mapEntry.getValue().id();
+            AbilityAttributeModifier modifier = new AbilityAttributeModifier(mapEntry.getValue().amount(), mapEntry.getValue().type());
+
+            container.addModifier(attribute, id, modifier);
+        }
     }
 
     @Override

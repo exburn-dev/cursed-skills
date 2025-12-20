@@ -5,6 +5,7 @@ import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.network.payload.ShowScreenFlashPayload;
 import com.jujutsu.registry.ModAbilityAttributes;
+import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
@@ -103,8 +104,8 @@ public class HollowPurpleAbility extends AbilityType {
     }
 
     @Override
-    public AbilityAttributesContainer getDefaultAttributes() {
-        return new AbilityAttributesContainer.Builder()
+    public SimpleAbilityAttributeContainer getDefaultAttributes() {
+        return SimpleAbilityAttributeContainer.builder()
                 .addBaseModifier(ModAbilityAttributes.HOLLOW_PURPLE_RADIUS, 3)
                 .addBaseModifier(ModAbilityAttributes.HOLLOW_PURPLE_SPEED, 0.75)
                 .build();

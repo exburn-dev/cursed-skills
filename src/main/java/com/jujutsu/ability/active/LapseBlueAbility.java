@@ -1,6 +1,7 @@
 package com.jujutsu.ability.active;
 
 import com.jujutsu.registry.ModAbilityAttributes;
+import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
@@ -91,8 +92,8 @@ public class LapseBlueAbility extends AbilityType {
     }
 
     @Override
-    public AbilityAttributesContainer getDefaultAttributes() {
-        return new AbilityAttributesContainer.Builder()
+    public SimpleAbilityAttributeContainer getDefaultAttributes() {
+        return SimpleAbilityAttributeContainer.builder()
                 .addBaseModifier(ModAbilityAttributes.LAPSE_BLUE_DAMAGE_MULTIPLIER, 1)
                 .addBaseModifier(ModAbilityAttributes.LAPSE_BLUE_STUN, 0)
                 .build();

@@ -5,6 +5,8 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.registry.ModEffects;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
+import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.BoolAbilityProperty;
 import com.jujutsu.systems.ability.data.DoubleAbilityProperty;
@@ -75,8 +77,8 @@ public class SupersonicAbility extends AbilityType {
     }
 
     @Override
-    public AbilityAttributesContainer getDefaultAttributes() {
-        return new AbilityAttributesContainer.Builder()
+    public SimpleAbilityAttributeContainer getDefaultAttributes() {
+        return SimpleAbilityAttributeContainer.builder()
                 .addBaseModifier(ModAbilityAttributes.SUPERSONIC_SPEED, 0.0625)
                 .addBaseModifier(ModAbilityAttributes.SUPERSONIC_DURATION, 10)
                 .build();
@@ -84,7 +86,7 @@ public class SupersonicAbility extends AbilityType {
 
     @Override
     public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
-        return instance.getUseTime() >= instance.get(DURATION);
+        return instance.useTime() >= instance.get(DURATION);
     }
 
     private void setData(AbilityInstance instance, double distanceOnStart, double distance, int duration, boolean crashed) {

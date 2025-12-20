@@ -5,6 +5,7 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
@@ -90,8 +91,8 @@ public class InfinityAbility extends AbilityType {
     }
 
     @Override
-    public AbilityAttributesContainer getDefaultAttributes() {
-        return new AbilityAttributesContainer.Builder()
+    public SimpleAbilityAttributeContainer getDefaultAttributes() {
+        return SimpleAbilityAttributeContainer.builder()
                 .addBaseModifier(ModAbilityAttributes.INFINITY_DURATION, 8)
                 .build();
     }

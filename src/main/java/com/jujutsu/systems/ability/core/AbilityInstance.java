@@ -119,6 +119,10 @@ public class AbilityInstance implements EntityServerData {
         return AbilityComponent.get(player);
     }
 
+    public AbilityType type() {
+        return this.type;
+    }
+
     public int useTime() {
         return useTime;
     }

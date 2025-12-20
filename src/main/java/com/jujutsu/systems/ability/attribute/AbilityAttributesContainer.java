@@ -43,31 +43,4 @@ public record AbilityAttributesContainer(Map<RegistryEntry<AbilityAttribute>, Ma
             attributes().put(attribute, map);
         }
     }
-
-    public static class Builder {
-        private final Map<RegistryEntry<AbilityAttribute>, Map<Identifier, AbilityAttributeModifier>> map = new HashMap<>();
-
-        public Builder addModifier(RegistryEntry<AbilityAttribute> attribute, Identifier id, double value, AbilityAttributeModifier.Type type) {
-            Map<Identifier, AbilityAttributeModifier> modifiers = map.get(attribute);
-            AbilityAttributeModifier modifier = new AbilityAttributeModifier(value, type);
-            if(modifiers != null) {
-                modifiers.put(id, modifier);
-                map.put(attribute, modifiers);
-            }
-            else {
-                HashMap<Identifier, AbilityAttributeModifier> newModifiers = new HashMap<>();
-                newModifiers.put(id, modifier);
-                map.put(attribute, newModifiers);
-            }
-            return this;
-        }
-
-        public Builder addBaseModifier(RegistryEntry<AbilityAttribute> attribute, double value) {
-            return addModifier(attribute, Jujutsu.id("base"), value, AbilityAttributeModifier.Type.ADD);
-        }
-
-        public AbilityAttributesContainer build() {
-            return new AbilityAttributesContainer(map);
-        }
-    }
 }

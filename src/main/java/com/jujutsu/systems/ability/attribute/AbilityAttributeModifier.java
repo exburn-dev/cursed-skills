@@ -18,15 +18,6 @@ public record AbilityAttributeModifier(double value, Type type) {
             Type.PACKET_CODEC, AbilityAttributeModifier::type,
             AbilityAttributeModifier::new);
 
-    public double applyToValue(double value) {
-        if(type == Type.MULTIPLY) {
-            return value * this.value();
-        }
-        else {
-            return value + this.value();
-        }
-    }
-
     public enum Type implements StringIdentifiable {
         ADD("add", 0),
         MULTIPLY("multiply", 1);

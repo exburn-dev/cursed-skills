@@ -3,10 +3,10 @@ package com.jujutsu.ability.active;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.entity.ReversalRedEntity;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.InputRequest;
-import com.jujutsu.systems.ability.data.RequestedInputKey;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.ability.data.IntAbilityProperty;
 import com.jujutsu.util.HandAnimationUtils;
@@ -91,8 +91,8 @@ public class ReversalRedAbility extends AbilityType {
     }
 
     @Override
-    public AbilityAttributesContainer getDefaultAttributes() {
-        return new AbilityAttributesContainer.Builder()
+    public SimpleAbilityAttributeContainer getDefaultAttributes() {
+        return SimpleAbilityAttributeContainer.builder()
                 .addBaseModifier(ModAbilityAttributes.REVERSAL_RED_EXPLOSION_POWER, 2)
                 .addBaseModifier(ModAbilityAttributes.REVERSAL_RED_DAMAGE_MULTIPLIER, 1)
                 .addBaseModifier(ModAbilityAttributes.REVERSAL_RED_STUN, 0)

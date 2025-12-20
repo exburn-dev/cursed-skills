@@ -1,19 +1,12 @@
 package com.jujutsu.mixin;
 
-import com.jujutsu.Jujutsu;
 import com.jujutsu.event.server.AbilityEvents;
 import com.jujutsu.event.server.PlayerBonusEvents;
-import com.jujutsu.mixinterface.EntityComponentsAccessor;
 import com.jujutsu.registry.ModAttributes;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
-import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.core.AbilityComponent;
 import com.jujutsu.systems.ability.core.AbilitySlot;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
-import com.jujutsu.systems.ability.upgrade.UpgradesData;
 import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
-import com.jujutsu.util.CodecUtils;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.serialization.Dynamic;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -24,7 +17,6 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.*;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Pair;
@@ -37,8 +29,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.*;
-
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin extends LivingEntity implements AbilityAttributeContainerHolder,
         PlayerDynamicAttributesAccessor {
@@ -49,11 +39,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements AbilityA
     private static final TrackedData<Float> DYNAMIC_JUMP_BONUS =
             DataTracker.registerData(PlayerEntity.class, TrackedDataHandlerRegistry.FLOAT);
 
-
-    @Unique
-    private AbilityAttributesContainer abilityAttributes = new AbilityAttributesContainer(new HashMap<>());
-    @Unique
-    private UpgradesData upgradesData = new UpgradesData(Jujutsu.id(""), 0, new HashMap<>());
 
     protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
@@ -115,19 +100,15 @@ public abstract class PlayerEntityMixin extends LivingEntity implements AbilityA
 
     @Inject(method = "applyDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;modifyAppliedDamage(Lnet/minecraft/entity/damage/DamageSource;F)F", shift = At.Shift.AFTER), cancellable = true)
     private void applyDamage(DamageSource source, float amount, CallbackInfo ci) {
-        LivingEntity entity = (LivingEntity) (Object) this;
-        if(entity.isPlayer()) {
-            IAbilitiesHolder abilitiesHolder = (IAbilitiesHolder) entity;
-            if (abilitiesHolder.getAbilityInstance(AbilitySlot.ABILITY_SLOT_ON_DEATH) != null && !onCooldown(AbilitySlot.ABILITY_SLOT_ON_DEATH)) {
-                if (entity.getHealth() - amount <= 0f) {
-                    Entity attacker = source.getAttacker();
+        PlayerEntity player = (PlayerEntity) (Object) this;
+        AbilityComponent component = AbilityComponent.get(player);
 
-                    AbilitySlot.ABILITY_SLOT_ON_DEATH.activate(abilitiesHolder);
-                    AbilityEvents.ON_PREVENT_DYING.invoker().interact((PlayerEntity) entity, attacker, amount);
+        if(player.getHealth() - amount <= 0f && component.canStartAbility(AbilitySlot.ABILITY_SLOT_ON_DEATH)) {
+            Entity attacker = source.getAttacker();
+            component.runAbility(AbilitySlot.ABILITY_SLOT_ON_DEATH);
+            AbilityEvents.ON_PREVENT_DYING.invoker().interact(player, attacker, amount);
 
-                    ci.cancel();
-                }
-            }
+            ci.cancel();
         }
     }
 
@@ -147,15 +128,5 @@ public abstract class PlayerEntityMixin extends LivingEntity implements AbilityA
             setDynamicSpeed(result.getRight());
             cir.setReturnValue(finalValue);
         }
-    }
-
-    @Override
-    public void setAbilityAttributes(AbilityAttributesContainer container) {
-        this.abilityAttributes = container;
-    }
-
-    @Override
-    public AbilityAttributesContainer getAbilityAttributes() {
-        return abilityAttributes;
     }
 }

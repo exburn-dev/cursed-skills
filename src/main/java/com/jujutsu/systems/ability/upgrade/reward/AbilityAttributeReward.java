@@ -3,10 +3,7 @@ package com.jujutsu.systems.ability.upgrade.reward;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.AbilityUpgradeRewardTypes;
 import com.jujutsu.registry.JujutsuRegistries;
-import com.jujutsu.systems.ability.attribute.AbilityAttribute;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
-import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.attribute.*;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradeReward;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradeRewardType;
 import com.mojang.serialization.Codec;
@@ -24,22 +21,22 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AbilityAttributeReward extends AbilityUpgradeReward {
     public static final MapCodec<AbilityAttributeReward> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.unboundedMap(JujutsuRegistries.ABILITY_ATTRIBUTE.getEntryCodec(), ShortAbilityAttributeModifier.CODEC).xmap(HashMap::new, HashMap::new)
+            Codec.unboundedMap(JujutsuRegistries.ABILITY_ATTRIBUTE.getEntryCodec(), IdentifiedAbilityAttributeModifier.CODEC)
                     .fieldOf("modifiers").forGetter(AbilityAttributeReward::modifiers))
             .apply(instance, AbilityAttributeReward::new));
 
-    private final HashMap<RegistryEntry<AbilityAttribute>, ShortAbilityAttributeModifier> modifiers;
+    private final Map<RegistryEntry<AbilityAttribute>, IdentifiedAbilityAttributeModifier> modifiers;
 
-    public AbilityAttributeReward(HashMap<RegistryEntry<AbilityAttribute>, ShortAbilityAttributeModifier> modifiers) {
+    public AbilityAttributeReward(Map<RegistryEntry<AbilityAttribute>, IdentifiedAbilityAttributeModifier> modifiers) {
         this.modifiers = modifiers;
     }
 
-    public HashMap<RegistryEntry<AbilityAttribute>, ShortAbilityAttributeModifier> modifiers() {
+    public Map<RegistryEntry<AbilityAttribute>, IdentifiedAbilityAttributeModifier> modifiers() {
         return this.modifiers;
     }
 
@@ -48,8 +45,8 @@ public class AbilityAttributeReward extends AbilityUpgradeReward {
         List<MutableText> description = new ArrayList<>();
         for(var attributeEntry: modifiers.entrySet()) {
             RegistryEntry<AbilityAttribute> attribute = attributeEntry.getKey();
-            ShortAbilityAttributeModifier modifier = attributeEntry.getValue();
-            double value = modifier.amount;
+            IdentifiedAbilityAttributeModifier modifier = attributeEntry.getValue();
+            double value = modifier.amount();
             boolean multiplyMode = modifier.type() == AbilityAttributeModifier.Type.MULTIPLY;
             if(multiplyMode) {
                 value = 100 * value;
@@ -71,48 +68,30 @@ public class AbilityAttributeReward extends AbilityUpgradeReward {
 
     @Override
     public void apply(PlayerEntity player) {
-        AbilityAttributeContainerHolder attributeHolder = (AbilityAttributeContainerHolder) player;
+        AbilityAttributeComponent component = AbilityAttributeComponent.get(player);
 
         for(var entry: modifiers.entrySet()) {
-            ShortAbilityAttributeModifier shortModifier = entry.getValue();
-            AbilityAttributeModifier modifier = new AbilityAttributeModifier(shortModifier.amount, shortModifier.type);
+            IdentifiedAbilityAttributeModifier identifiedModifier = entry.getValue();
+            AbilityAttributeModifier modifier = new AbilityAttributeModifier(identifiedModifier.amount(), identifiedModifier.type());
 
-            attributeHolder.getAbilityAttributes().addModifier(entry.getKey(), shortModifier.id, modifier);
+            component.addModifier(entry.getKey(), identifiedModifier.id(), modifier);
         }
     }
 
     @Override
     public void remove(PlayerEntity player) {
-        AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) player;
-        AbilityAttributesContainer playerContainer = holder.getAbilityAttributes();
+        AbilityAttributeComponent component = AbilityAttributeComponent.get(player);
 
         for(var entry: modifiers.entrySet()) {
             RegistryEntry<AbilityAttribute> attribute = entry.getKey();
             Identifier id = entry.getValue().id();
-            Jujutsu.LOGGER.info("Removing {} {} upgrade", attribute, entry.getValue().amount);
 
-            playerContainer.attributes().get(attribute).remove(id);
+            component.removeModifier(attribute, id);
         }
     }
 
     @Override
     public AbilityUpgradeRewardType<?> getType() {
         return AbilityUpgradeRewardTypes.ABILITY_ATTRIBUTE;
-    }
-
-    public record ShortAbilityAttributeModifier(Identifier id, double amount, AbilityAttributeModifier.Type type) {
-        public ShortAbilityAttributeModifier(Identifier id, double amount, AbilityAttributeModifier.Type type) {
-            this.id = id;
-            this.amount = BigDecimal.valueOf(amount)
-                    .setScale(5, RoundingMode.HALF_UP)
-                    .doubleValue();
-            this.type = type;
-        }
-
-        private static final Codec<ShortAbilityAttributeModifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Identifier.CODEC.fieldOf("id").forGetter(ShortAbilityAttributeModifier::id),
-                Codec.DOUBLE.fieldOf("amount").forGetter(ShortAbilityAttributeModifier::amount),
-                AbilityAttributeModifier.Type.CODEC.fieldOf("operation").forGetter(ShortAbilityAttributeModifier::type)
-        ).apply(instance, ShortAbilityAttributeModifier::new));
     }
 }

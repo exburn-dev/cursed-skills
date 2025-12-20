@@ -2,9 +2,7 @@ package com.jujutsu.util;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.systems.ability.core.AbilitySlot;
-import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeModifier;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;

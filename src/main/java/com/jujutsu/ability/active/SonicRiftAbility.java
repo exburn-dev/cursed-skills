@@ -6,6 +6,7 @@ import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.mixin.LivingEntityAccessor;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.data.*;
 import com.jujutsu.systems.ability.core.AbilityType;
@@ -237,8 +238,8 @@ public class SonicRiftAbility extends AbilityType {
     }
 
     @Override
-    public AbilityAttributesContainer getDefaultAttributes() {
-        return new AbilityAttributesContainer.Builder()
+    public SimpleAbilityAttributeContainer getDefaultAttributes() {
+        return SimpleAbilityAttributeContainer.builder()
                 .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_DASH_POWER, 1)
                 .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_START_JUMP_POWER, 1)
                 .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_ADDITIONAL_DASHES, 0)

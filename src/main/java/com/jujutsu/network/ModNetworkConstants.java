@@ -2,7 +2,6 @@ package com.jujutsu.network;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.animation.IAnimatedPlayer;
-import com.jujutsu.client.hud.BuffIconsRenderer;
 import com.jujutsu.client.hud.ColorModifierHudRenderer;
 import com.jujutsu.client.hud.CrosshairMarkRenderer;
 import com.jujutsu.client.hud.FlashSystemHudRenderer;
@@ -15,7 +14,6 @@ import com.jujutsu.network.payload.buffs.BuffDataSyncS2CPayload;
 import com.jujutsu.network.payload.input_requests.ClearInputRequestS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestInputS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestedInputPressedC2SPayload;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeContainerHolder;
 import com.jujutsu.screen.HandTransformSettingScreen;
 import com.jujutsu.systems.ability.upgrade.*;
 import com.jujutsu.systems.animation.AnimationData;
@@ -44,7 +42,6 @@ public class ModNetworkConstants {
     public static final Identifier SHOW_SCREEN_FLASH_ID = Jujutsu.id("show_screen_flash");
     public static final Identifier SHOW_CROSSHAIR_MARK_ID = Jujutsu.id("show_crosshair_mark");
     public static final Identifier SHOW_SCREEN_COLOR_MODIFIER_ID = Jujutsu.id("show_screen_color_modifier");
-    public static final Identifier SYNC_ABILITY_ATTRIBUTES_ID = Jujutsu.id("sync_ability_attributes");
     public static final Identifier SYNC_ABILITY_UPGRADES_ID = Jujutsu.id("sync_ability_upgrades");
     public static final Identifier SPAWN_PARTICLES_ID = Jujutsu.id("spawn_particles");
 
@@ -63,7 +60,6 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(ShowCrosshairMarkPayload.ID, ShowCrosshairMarkPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowScreenColorModifierPayload.ID, ShowScreenColorModifierPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(RequestInputS2CPayload.ID, RequestInputS2CPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(SyncAbilityAttributesPayload.ID, SyncAbilityAttributesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncAbilityUpgradesPayload.ID, SyncAbilityUpgradesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SpawnParticlesPayload.ID, SpawnParticlesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(AbilityRuntimeDataSyncS2CPayload.ID, AbilityRuntimeDataSyncS2CPayload.CODEC);
@@ -167,11 +163,6 @@ public class ModNetworkConstants {
         });
 
         RequestInputS2CPayload.registerClientReceiver();
-
-        ClientPlayNetworking.registerGlobalReceiver(SyncAbilityAttributesPayload.ID, (payload, context) -> {
-            AbilityAttributeContainerHolder holder = (AbilityAttributeContainerHolder) context.player();
-            holder.setAbilityAttributes(payload.container());
-        });
 
         ClientPlayNetworking.registerGlobalReceiver(SpawnParticlesPayload.ID, SpawnParticlesPayload::receiveOnClient);
 

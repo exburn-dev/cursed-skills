@@ -2,6 +2,9 @@ package com.jujutsu;
 
 import com.jujutsu.command.JujutsuCommand;
 import com.jujutsu.event.ServerEventListeners;
+import com.jujutsu.event.resource.TalentBranchesResourceLoader;
+import com.jujutsu.event.resource.TalentResourceLoader;
+import com.jujutsu.event.resource.TalentTreeResourceLoader;
 import com.jujutsu.network.ModNetworkConstants;
 import com.jujutsu.registry.*;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradesReloadListener;
@@ -41,7 +44,11 @@ public class Jujutsu implements ModInitializer {
 		ModAbilityAttributes.register();
 		AbilityUpgradeRewardTypes.register();
 
-		AbilityUpgradesReloadListener.register();
+		//AbilityUpgradesReloadListener.register();
+		TalentResourceLoader.register();
+		TalentBranchesResourceLoader.register();
+		TalentTreeResourceLoader.register();
+
 		DelayedTasks.init();
 	}
 

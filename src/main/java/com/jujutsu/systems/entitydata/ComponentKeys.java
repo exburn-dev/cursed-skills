@@ -2,9 +2,9 @@ package com.jujutsu.systems.entitydata;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeComponent;
-import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.core.AbilityComponent;
 import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
+import com.jujutsu.systems.talent.TalentsComponent;
 import com.jujutsu.systems.buff.BuffComponent;
 
 public class ComponentKeys {
@@ -19,4 +19,8 @@ public class ComponentKeys {
 
     public static final EntityComponentKey<AbilityAttributeComponent> ABILITY_ATTRIBUTES = new EntityComponentKey<>(
             Jujutsu.id("ability_attributes"), AbilityAttributeComponent.class);
+
+    public static final EntityComponentKey<TalentsComponent> TALENTS = new EntityComponentKey<>(
+            Jujutsu.id("talents"), TalentsComponent.class);
+
 }

@@ -17,6 +17,7 @@ import com.jujutsu.network.payload.input_requests.RequestedInputPressedC2SPayloa
 import com.jujutsu.screen.HandTransformSettingScreen;
 import com.jujutsu.systems.ability.upgrade.*;
 import com.jujutsu.systems.animation.AnimationData;
+import com.jujutsu.systems.talent.AbilityTalent;
 import dev.kosmx.playerAnim.api.IPlayable;
 import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
@@ -93,8 +94,8 @@ public class ModNetworkConstants {
             if(branch == null || data.purchasedUpgrades().containsKey(payload.branchId())) return;
             if(lastBranchIndex != -1 && lastBranchIndex + 1 != branchIndex) return;
 
-            AbilityUpgrade upgrade = null;
-            for(AbilityUpgrade upgrade1: branch.upgrades()) {
+            AbilityTalent upgrade = null;
+            for(AbilityTalent upgrade1: branch.upgrades()) {
                 if(upgrade1.id().equals(payload.upgradeId())) {
                     upgrade = upgrade1;
                     break;

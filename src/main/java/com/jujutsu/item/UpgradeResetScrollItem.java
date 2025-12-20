@@ -3,6 +3,7 @@ package com.jujutsu.item;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.upgrade.*;
+import com.jujutsu.systems.talent.AbilityTalent;
 import com.jujutsu.util.AbilitiesHolderUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -52,7 +53,7 @@ public class UpgradeResetScrollItem extends Item implements IBorderTooltipItem, 
             if(!data.purchasedUpgrades().containsKey(branch.id())) continue;
 
             Identifier purchasedUpgrade = data.purchasedUpgrades().get(branch.id());
-            for(AbilityUpgrade upgrade: branch.upgrades()) {
+            for(AbilityTalent upgrade: branch.upgrades()) {
                 if(upgrade.id().equals(purchasedUpgrade)) {
                     points += upgrade.cost();
                     break;

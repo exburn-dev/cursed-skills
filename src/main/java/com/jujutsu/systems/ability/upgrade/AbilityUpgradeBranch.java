@@ -1,5 +1,6 @@
 package com.jujutsu.systems.ability.upgrade;
 
+import com.jujutsu.systems.talent.AbilityTalent;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryByteBuf;
@@ -9,15 +10,15 @@ import net.minecraft.util.Identifier;
 
 import java.util.List;
 
-public record AbilityUpgradeBranch(Identifier id, List<AbilityUpgrade> upgrades) {
+public record AbilityUpgradeBranch(Identifier id, List<AbilityTalent> upgrades) {
     public static final Codec<AbilityUpgradeBranch> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Identifier.CODEC.fieldOf("id").forGetter(AbilityUpgradeBranch::id),
-            AbilityUpgrade.CODEC.listOf().fieldOf("upgrades").forGetter(AbilityUpgradeBranch::upgrades)
+            AbilityTalent.CODEC.listOf().fieldOf("upgrades").forGetter(AbilityUpgradeBranch::upgrades)
     ).apply(instance, AbilityUpgradeBranch::new));
 
     public static final PacketCodec<RegistryByteBuf, AbilityUpgradeBranch> PACKET_CODEC = PacketCodec.tuple(
             Identifier.PACKET_CODEC, AbilityUpgradeBranch::id,
-            AbilityUpgrade.PACKET_CODEC.collect(PacketCodecs.toList()), AbilityUpgradeBranch::upgrades,
+            AbilityTalent.PACKET_CODEC.collect(PacketCodecs.toList()), AbilityUpgradeBranch::upgrades,
             AbilityUpgradeBranch::new);
 
     public static int findPlayerLastPurchasedBranchIndex(List<AbilityUpgradeBranch> branches, UpgradesData playerData) {
@@ -31,9 +32,9 @@ public record AbilityUpgradeBranch(Identifier id, List<AbilityUpgrade> upgrades)
         return branchIndex;
     }
 
-    public AbilityUpgrade findUpgrade(Identifier id) {
-        AbilityUpgrade toReturn = null;
-        for(AbilityUpgrade upgrade: upgrades()) {
+    public AbilityTalent findUpgrade(Identifier id) {
+        AbilityTalent toReturn = null;
+        for(AbilityTalent upgrade: upgrades()) {
             if(upgrade.id().equals(id)) {
                 toReturn = upgrade;
                 break;

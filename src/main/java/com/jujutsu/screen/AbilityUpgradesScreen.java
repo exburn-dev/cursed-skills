@@ -4,7 +4,7 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.client.hud.ShaderUtils;
 import com.jujutsu.network.payload.AbilityUpgradePurchasedPayload;
 import com.jujutsu.registry.ModSounds;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgrade;
+import com.jujutsu.systems.talent.AbilityTalent;
 import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
 import com.jujutsu.systems.ability.upgrade.UpgradesData;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -64,7 +64,7 @@ public class AbilityUpgradesScreen extends Screen {
             int y = startY - widgetHeight * i - verticalGap * i;
 
             for(int j = 0; j < Math.min(branch.upgrades().size(), 2); j++) {
-                AbilityUpgrade upgrade = branch.upgrades().get(j);
+                AbilityTalent upgrade = branch.upgrades().get(j);
                 int x = startX + widgetWidth * j + horizontalGap * j;
                 boolean onlyOneUpgrade = branch.upgrades().size() == 1;
                 x += onlyOneUpgrade ? widgetWidth : 0;
@@ -197,7 +197,7 @@ public class AbilityUpgradesScreen extends Screen {
 
     private class AbilityUpgradeButton extends ClickableWidget {
         private final AbilityUpgradeBranch branch;
-        private final AbilityUpgrade upgrade;
+        private final AbilityTalent upgrade;
         private final List<MutableText> tooltip;
         private final int tooltipWidth;
 
@@ -207,7 +207,7 @@ public class AbilityUpgradesScreen extends Screen {
         private float offsetX = 0;
         private int jiggleTime = 0;
 
-        public AbilityUpgradeButton(AbilityUpgradeBranch branch, AbilityUpgrade upgrade, int x, int y, int width, int height, Text message) {
+        public AbilityUpgradeButton(AbilityUpgradeBranch branch, AbilityTalent upgrade, int x, int y, int width, int height, Text message) {
             super(x, y, width, height, message);
             this.upgrade = upgrade;
             this.branch = branch;

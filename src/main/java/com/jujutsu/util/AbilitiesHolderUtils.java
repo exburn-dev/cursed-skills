@@ -8,6 +8,7 @@ import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.systems.ability.upgrade.*;
+import com.jujutsu.systems.talent.AbilityTalent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -73,7 +74,7 @@ public class AbilitiesHolderUtils {
         if(branches == null || branches.isEmpty()) return;
         for(AbilityUpgradeBranch branch: branches) {
             if (data.purchasedUpgrades().containsKey(branch.id())) {
-                AbilityUpgrade upgrade = branch.findUpgrade(data.purchasedUpgrades().get(branch.id()));
+                AbilityTalent upgrade = branch.findUpgrade(data.purchasedUpgrades().get(branch.id()));
 
                 if(upgrade != null) {
                     upgrade.remove(player);
@@ -90,7 +91,7 @@ public class AbilitiesHolderUtils {
         if(branches == null || branches.isEmpty()) return;
         for(AbilityUpgradeBranch branch: branches) {
             if (data.purchasedUpgrades().containsKey(branch.id())) {
-                AbilityUpgrade upgrade = branch.findUpgrade(data.purchasedUpgrades().get(branch.id()));
+                AbilityTalent upgrade = branch.findUpgrade(data.purchasedUpgrades().get(branch.id()));
 
                 if(upgrade != null) {
                     upgrade.remove(player);

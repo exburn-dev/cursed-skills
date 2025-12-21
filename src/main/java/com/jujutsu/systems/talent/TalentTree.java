@@ -21,6 +21,19 @@ public record TalentTree(Identifier id, List<Identifier> branches) {
             TalentTree::new
     );
 
+    public Identifier getNext(Identifier previous) {
+        Identifier result = branches.getFirst();
+
+        for(int i = 0; i < size(); i++) {
+            Identifier branch = branches.get(i);
+            if(branch.equals(previous) && i < size() - 1) {
+                result = branches.get(i + 1);
+                break;
+            }
+        }
+        return result;
+    }
+
     public int size() {
         return branches.size();
     }

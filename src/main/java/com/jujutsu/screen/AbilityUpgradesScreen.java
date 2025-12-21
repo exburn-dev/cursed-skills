@@ -10,6 +10,7 @@ import com.jujutsu.systems.talent.AbilityTalent;
 import com.jujutsu.systems.ability.upgrade.TalentsData;
 import com.jujutsu.systems.talent.TalentBranch;
 import com.jujutsu.systems.talent.TalentTree;
+import com.jujutsu.systems.talent.TalentTreeValidator;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.font.TextRenderer;
@@ -94,13 +95,13 @@ public class AbilityUpgradesScreen extends Screen {
     }
 
     private void reloadButtonStatus(AbilityUpgradeButton button) {
-        Identifier purchasedUpgrade = talentsData.purchasedUpgrades().get(button.branch.id());
-        if(purchasedUpgrade != null) {
-            button.purchased = purchasedUpgrade.equals(button.upgrade.id());
+        TalentTreeValidator validator = new TalentTreeValidator(tree);
+        if(!validator.branchUpgradesNotPurchased(button.branch.id(), talentsData.purchasedUpgrades())) {
+            button.purchased = talentsData.purchasedUpgrades().contains(button.upgrade.id());
             button.canBePurchased = false;
         }
-        AbilityUpgradeBranch playerCurrentBranch = playerLastPurchasedBranch == -1 ? tree.getFirst() : tree.get(Math.min(playerLastPurchasedBranch + 1, tree.size() - 1));
-        if(!button.branch.id().equals(playerCurrentBranch.id())) {
+        Identifier currentBranch = tree.getNext(talentsData.lastPurchasedBranch());
+        if(!button.branch.id().equals(currentBranch)) {
             button.canBePurchased = false;
         }
     }
@@ -205,7 +206,7 @@ public class AbilityUpgradesScreen extends Screen {
     }
 
     private class AbilityUpgradeButton extends ClickableWidget {
-        private final AbilityUpgradeBranch branch;
+        private final TalentBranch branch;
         private final AbilityTalent upgrade;
         private final List<MutableText> tooltip;
         private final int tooltipWidth;
@@ -216,7 +217,7 @@ public class AbilityUpgradesScreen extends Screen {
         private float offsetX = 0;
         private int jiggleTime = 0;
 
-        public AbilityUpgradeButton(AbilityUpgradeBranch branch, AbilityTalent upgrade, int x, int y, int width, int height, Text message) {
+        public AbilityUpgradeButton(TalentBranch branch, AbilityTalent upgrade, int x, int y, int width, int height, Text message) {
             super(x, y, width, height, message);
             this.upgrade = upgrade;
             this.branch = branch;

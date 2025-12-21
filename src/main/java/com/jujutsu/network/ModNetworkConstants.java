@@ -14,27 +14,23 @@ import com.jujutsu.network.payload.buffs.BuffDataSyncS2CPayload;
 import com.jujutsu.network.payload.input_requests.ClearInputRequestS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestInputS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestedInputPressedC2SPayload;
+import com.jujutsu.network.payload.talents.TalentDataSyncS2CPayload;
+import com.jujutsu.network.payload.talents.TalentPurchasedC2SPayload;
+import com.jujutsu.network.payload.talents.TalentResourcesSyncS2CPayload;
 import com.jujutsu.screen.HandTransformSettingScreen;
-import com.jujutsu.systems.ability.upgrade.*;
 import com.jujutsu.systems.animation.AnimationData;
-import com.jujutsu.systems.talent.AbilityTalent;
 import dev.kosmx.playerAnim.api.IPlayable;
 import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-import java.util.HashMap;
-import java.util.List;
-
 public class ModNetworkConstants {
-    public static final Identifier ABILITY_UPGRADE_PURCHASED_ID = Jujutsu.id("ability_upgrade_purchased");
 
     public static final Identifier OPEN_HAND_SETTING_SCREEN_ID = Jujutsu.id("open_hand_setting_screen");
     public static final Identifier ABILITIES_ACQUIRED_ID = Jujutsu.id("abilities_acquired");
@@ -43,13 +39,12 @@ public class ModNetworkConstants {
     public static final Identifier SHOW_SCREEN_FLASH_ID = Jujutsu.id("show_screen_flash");
     public static final Identifier SHOW_CROSSHAIR_MARK_ID = Jujutsu.id("show_crosshair_mark");
     public static final Identifier SHOW_SCREEN_COLOR_MODIFIER_ID = Jujutsu.id("show_screen_color_modifier");
-    public static final Identifier SYNC_ABILITY_UPGRADES_ID = Jujutsu.id("sync_ability_upgrades");
     public static final Identifier SPAWN_PARTICLES_ID = Jujutsu.id("spawn_particles");
 
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(RunAbilityC2SPayload.ID, RunAbilityC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(RequestedInputPressedC2SPayload.ID, RequestedInputPressedC2SPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(AbilityUpgradePurchasedPayload.ID, AbilityUpgradePurchasedPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(TalentPurchasedC2SPayload.ID, TalentPurchasedC2SPayload.CODEC);
 
         PayloadTypeRegistry.playS2C().register(AbilitiesSyncS2CPayload.ID, AbilitiesSyncS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenHandSettingScreenPayload.ID, OpenHandSettingScreenPayload.CODEC);
@@ -61,10 +56,11 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(ShowCrosshairMarkPayload.ID, ShowCrosshairMarkPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowScreenColorModifierPayload.ID, ShowScreenColorModifierPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(RequestInputS2CPayload.ID, RequestInputS2CPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(SyncAbilityUpgradesPayload.ID, SyncAbilityUpgradesPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(TalentResourcesSyncS2CPayload.ID, TalentResourcesSyncS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SpawnParticlesPayload.ID, SpawnParticlesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(AbilityRuntimeDataSyncS2CPayload.ID, AbilityRuntimeDataSyncS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ClearInputRequestS2CPayload.ID, ClearInputRequestS2CPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(TalentDataSyncS2CPayload.ID, TalentDataSyncS2CPayload.CODEC);
     }
 
     public static void registerServerReceivers() {
@@ -72,52 +68,7 @@ public class ModNetworkConstants {
 
         RequestedInputPressedC2SPayload.registerServerReceiver();
 
-        ServerPlayNetworking.registerGlobalReceiver(AbilityUpgradePurchasedPayload.ID, (payload, context) -> {
-            IAbilitiesHolder holder = (IAbilitiesHolder) context.player();
-            UpgradesData data = holder.getUpgradesData();
-
-            List<AbilityUpgradeBranch> branches = AbilityUpgradesReloadListener.getInstance().getBranches(holder.getUpgradesId());
-            if(branches == null || branches.isEmpty()) return;
-
-            int lastBranchIndex = AbilityUpgradeBranch.findPlayerLastPurchasedBranchIndex(branches, data);
-            AbilityUpgradeBranch branch = null;
-            int branchIndex = 0;
-            for(int i = 0; i < branches.size(); i++) {
-                AbilityUpgradeBranch branch1 = branches.get(i);
-                if(branch1.id().equals(payload.branchId())) {
-                    branch = branch1;
-                    branchIndex = i;
-                    break;
-                }
-            }
-
-            if(branch == null || data.purchasedUpgrades().containsKey(payload.branchId())) return;
-            if(lastBranchIndex != -1 && lastBranchIndex + 1 != branchIndex) return;
-
-            AbilityTalent upgrade = null;
-            for(AbilityTalent upgrade1: branch.upgrades()) {
-                if(upgrade1.id().equals(payload.upgradeId())) {
-                    upgrade = upgrade1;
-                    break;
-                }
-            }
-
-            if(upgrade == null) return;
-
-            if(data.points() < upgrade.cost()) return;
-
-            //branch exists; upgrade exists; has enough points; dont bought another upgrade from branch; branch ordinal is correct - so we can add upgrade
-            
-            upgrade.apply(context.player());
-
-            HashMap<Identifier, Identifier> purchasedUpgrades = data.purchasedUpgrades();
-            purchasedUpgrades.put(branch.id(), upgrade.id());
-
-            holder.setUpgradesData(new UpgradesData(data.upgradesId(), data.points() - upgrade.cost(), purchasedUpgrades));
-
-            //TODO: sync upgrades w client
-            //ServerPlayNetworking.send(context.player(), new AbilitiesSyncS2CPayload(((IPlayerJujutsuAbilitiesHolder) context.player()).getAbilities(), holder.getUpgradesData()));
-        });
+        TalentPurchasedC2SPayload.registerServerReceiver();
     }
 
     public static void registerClientReceivers() {
@@ -167,10 +118,12 @@ public class ModNetworkConstants {
 
         ClientPlayNetworking.registerGlobalReceiver(SpawnParticlesPayload.ID, SpawnParticlesPayload::receiveOnClient);
 
-        AbilityUpgradesReloadListener.registerClientReceiver();
-
         AbilityRuntimeDataSyncS2CPayload.registerClientReceiver();
 
         ClearInputRequestS2CPayload.registerClientReceiver();
+
+        TalentResourcesSyncS2CPayload.registerClientReceiver();
+
+        TalentDataSyncS2CPayload.registerClientReceiver();
     }
 }

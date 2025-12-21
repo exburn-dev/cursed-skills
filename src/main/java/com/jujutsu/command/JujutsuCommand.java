@@ -8,9 +8,8 @@ import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.network.payload.OpenHandSettingScreenPayload;
-import com.jujutsu.systems.ability.upgrade.UpgradesData;
+import com.jujutsu.systems.ability.upgrade.TalentsData;
 import com.jujutsu.systems.animation.PlayerAnimations;
-import com.jujutsu.util.AbilitiesHolderUtils;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -85,9 +84,9 @@ public class JujutsuCommand {
         float points = FloatArgumentType.getFloat(context, "points");
         IAbilitiesHolder holder = (IAbilitiesHolder) context.getSource().getPlayer();
 
-        UpgradesData data = holder.getUpgradesData();
+        TalentsData data = holder.getUpgradesData();
 
-        holder.setUpgradesData(new UpgradesData(data.upgradesId(), points, data.purchasedUpgrades()));
+        holder.setUpgradesData(new TalentsData(data.tree(), points, data.purchasedUpgrades()));
 
         return 1;
     }

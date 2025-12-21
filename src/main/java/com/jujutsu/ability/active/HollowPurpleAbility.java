@@ -10,7 +10,6 @@ import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.entity.HollowPurpleEntity;
-import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.animation.PlayerAnimations;
 import com.jujutsu.util.HandAnimationUtils;
 import com.jujutsu.util.ParticleUtils;
@@ -54,8 +53,8 @@ public class HollowPurpleAbility extends AbilityType {
             entity.setPitch(player.getPitch());
             entity.setPosition(player.getEyePos().add(0, 0.5, 0).add(player.getRotationVector().multiply(5)));
 
-            entity.setBlockBreakRadius((float) getAbilityAttributeValue(player, ModAbilityAttributes.HOLLOW_PURPLE_RADIUS));
-            entity.setSpeed((float) getAbilityAttributeValue(player, ModAbilityAttributes.HOLLOW_PURPLE_SPEED));
+            entity.setBlockBreakRadius((float) getAttributeValue(player, ModAbilityAttributes.HOLLOW_PURPLE_RADIUS));
+            entity.setSpeed((float) getAttributeValue(player, ModAbilityAttributes.HOLLOW_PURPLE_SPEED));
 
             player.getWorld().spawnEntity(entity);
         }

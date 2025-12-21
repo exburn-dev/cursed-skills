@@ -1,40 +1,48 @@
 package com.jujutsu.event.resource;
 
 import com.google.gson.JsonElement;
-import com.jujutsu.systems.talent.TalentsBranch;
+import com.jujutsu.systems.talent.AbilityTalent;
+import com.jujutsu.systems.talent.TalentBranch;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class TalentBranchesResourceLoader extends JujutsuResourceLoader<TalentsBranch> {
+public class TalentBranchesResourceLoader extends JujutsuResourceLoader<TalentBranch> {
     private static TalentBranchesResourceLoader INSTANCE;
 
-    private Map<Identifier, TalentsBranch> map = new HashMap<>();
+    private Map<Identifier, TalentBranch> map = new HashMap<>();
 
     protected TalentBranchesResourceLoader() {
         super("talents_branches", "talent_tree/branches");
     }
 
     @Override
-    protected TalentsBranch read(JsonElement json) {
-        var result = TalentsBranch.CODEC.parse(JsonOps.INSTANCE, json);
+    protected TalentBranch read(JsonElement json) {
+        var result = TalentBranch.CODEC.parse(JsonOps.INSTANCE, json);
 
         return result.getOrThrow();
     }
 
     @Override
-    protected void store(TalentsBranch value) {
+    protected void store(TalentBranch value) {
         map.put(value.id(), value);
     }
 
     @Override
-    public TalentsBranch get(Identifier id) {
+    public TalentBranch get(Identifier id) {
         return map.get(id);
+    }
+
+    public Map<Identifier, TalentBranch> getBranches() {
+        return map;
+    }
+
+    public void setBranches(Map<Identifier, TalentBranch> map) {
+        this.map = map;
     }
 
     public static void register() {

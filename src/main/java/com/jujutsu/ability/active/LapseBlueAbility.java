@@ -6,7 +6,6 @@ import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.entity.LapseBlueEntity;
-import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.data.IntAbilityProperty;
 import com.jujutsu.util.HandAnimationUtils;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -57,8 +56,8 @@ public class LapseBlueAbility extends AbilityType {
         entity.setPitch(player.getPitch());
         entity.setYaw(player.getYaw());
 
-        entity.setDamageMultiplier((float) getAbilityAttributeValue(player, ModAbilityAttributes.LAPSE_BLUE_DAMAGE_MULTIPLIER));
-        entity.setStunSeconds((float) getAbilityAttributeValue(player, ModAbilityAttributes.LAPSE_BLUE_STUN));
+        entity.setDamageMultiplier((float) getAttributeValue(player, ModAbilityAttributes.LAPSE_BLUE_DAMAGE_MULTIPLIER));
+        entity.setStunSeconds((float) getAttributeValue(player, ModAbilityAttributes.LAPSE_BLUE_STUN));
 
         entity.addVelocity(entity.getRotationVector().multiply( 0.4f + (2f - 0.4f) / 100 * entity.getChargeTime() ));
     }

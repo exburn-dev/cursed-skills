@@ -3,6 +3,7 @@ package com.jujutsu.screen;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.keybind.AbilityKeyBinding;
 import com.jujutsu.client.keybind.ModKeybindings;
+import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.client.MinecraftClient;
@@ -340,7 +341,7 @@ public class AbilitiesKeybindingsScreen extends Screen {
         }
 
         private Optional<Text> getDescription() {
-            return activeButton == null ? Optional.empty() : Optional.of(activeButton.instance.getType().getDescription());
+            return activeButton == null ? Optional.empty() : Optional.of(activeButton.instance.type().getDescription());
         }
 
         private int getCollapseButtonX() {
@@ -392,7 +393,7 @@ public class AbilitiesKeybindingsScreen extends Screen {
 
             context.drawGuiTexture(backgroundTexture, getX(), getY(), 0, getWidth(), getHeight());
 
-            context.drawCenteredTextWithShadow(client.textRenderer, instance.getType().getName(), getX() + getWidth() / 2, getY() + getHeight() / 2 - client.textRenderer.fontHeight / 2 + (isSelected ? 2 : 0), 0xFFFFFF);
+            context.drawCenteredTextWithShadow(client.textRenderer, instance.type().getName(), getX() + getWidth() / 2, getY() + getHeight() / 2 - client.textRenderer.fontHeight / 2 + (isSelected ? 2 : 0), 0xFFFFFF);
         }
 
         @Override

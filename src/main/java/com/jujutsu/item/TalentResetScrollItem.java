@@ -1,15 +1,11 @@
 package com.jujutsu.item;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
-import com.jujutsu.systems.ability.upgrade.*;
-import com.jujutsu.systems.talent.AbilityTalent;
-import com.jujutsu.util.AbilitiesHolderUtils;
+import com.jujutsu.systems.talent.TalentComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -19,8 +15,8 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-public class UpgradeResetScrollItem extends Item implements IBorderTooltipItem, ModelWithIcon {
-    public UpgradeResetScrollItem(Settings settings) {
+public class TalentResetScrollItem extends Item implements IBorderTooltipItem, ModelWithIcon {
+    public TalentResetScrollItem(Settings settings) {
         super(settings);
     }
 
@@ -29,13 +25,12 @@ public class UpgradeResetScrollItem extends Item implements IBorderTooltipItem, 
         ItemStack stack = user.getStackInHand(hand);
         if(world.isClient()) return TypedActionResult.pass(stack);
 
-        IAbilitiesHolder holder = (IAbilitiesHolder) user;
-        UpgradesData data = holder.getUpgradesData();
+        TalentComponent component = TalentComponent.get(user);
 
-        int points = (int) Math.floor(countSpentPoints(data) * 0.5);
-        holder.setUpgradesData(new UpgradesData(data.upgradesId(), data.points() + points, data.purchasedUpgrades()));
+        int points = (int) Math.floor(component.countSpentPoints() * 0.5);
 
-        AbilitiesHolderUtils.removeAbilityUpgrades((ServerPlayerEntity) user);
+        component.addPoints(points);
+        component.removePurchasedTalents();
 
         user.getItemCooldownManager().set(this, 20);
         user.sendMessage(Text.literal("Refunded points: " + points));
@@ -43,25 +38,6 @@ public class UpgradeResetScrollItem extends Item implements IBorderTooltipItem, 
         stack.decrement(1);
 
         return TypedActionResult.success(stack);
-    }
-
-    private float countSpentPoints(UpgradesData data) {
-        List<AbilityUpgradeBranch> branches = AbilityUpgradesReloadListener.INSTANCE.getBranches(data.upgradesId());
-        float points = 0;
-
-        for(AbilityUpgradeBranch branch: branches) {
-            if(!data.purchasedUpgrades().containsKey(branch.id())) continue;
-
-            Identifier purchasedUpgrade = data.purchasedUpgrades().get(branch.id());
-            for(AbilityTalent upgrade: branch.upgrades()) {
-                if(upgrade.id().equals(purchasedUpgrade)) {
-                    points += upgrade.cost();
-                    break;
-                }
-            }
-        }
-
-        return points;
     }
 
     @Override

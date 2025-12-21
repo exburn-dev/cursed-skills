@@ -13,18 +13,18 @@ import net.minecraft.util.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 
-public record AbilityTalent(Identifier id, Identifier icon, float cost, List<AbilityUpgradeReward> rewards) {
+public record AbilityTalent(Identifier id, Identifier icon, int cost, List<AbilityUpgradeReward> rewards) {
     public static final Codec<AbilityTalent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Identifier.CODEC.fieldOf("id").forGetter(AbilityTalent::id),
             Identifier.CODEC.fieldOf("icon").forGetter(AbilityTalent::icon),
-            Codec.FLOAT.fieldOf("cost").forGetter(AbilityTalent::cost),
+            Codec.INT.fieldOf("cost").forGetter(AbilityTalent::cost),
             AbilityUpgradeReward.CODEC.listOf().fieldOf("rewards").forGetter(AbilityTalent::rewards)
     ).apply(instance, AbilityTalent::new));
 
     public static final PacketCodec<RegistryByteBuf, AbilityTalent> PACKET_CODEC = PacketCodec.tuple(
             Identifier.PACKET_CODEC, AbilityTalent::id,
             Identifier.PACKET_CODEC, AbilityTalent::icon,
-            PacketCodecs.FLOAT, AbilityTalent::cost,
+            PacketCodecs.INTEGER, AbilityTalent::cost,
             AbilityUpgradeReward.PACKET_CODEC.collect(PacketCodecs.toList()), AbilityTalent::rewards,
             AbilityTalent::new
     );

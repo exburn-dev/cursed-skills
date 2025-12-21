@@ -5,7 +5,6 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.mixin.LivingEntityAccessor;
 import com.jujutsu.registry.ModAbilityAttributes;
-import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.data.*;
@@ -14,7 +13,6 @@ import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import com.jujutsu.systems.buff.type.AttributeBuff;
-import com.jujutsu.util.AbilitiesHolderUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -58,7 +56,7 @@ public class SonicRiftAbility extends AbilityType {
             float strength = getAbilityStrength(speed);
 
             dashes = (int) Math.floor(clampValue(strength, 1, 3));
-            dashes += (int) getAbilityAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_ADDITIONAL_DASHES);
+            dashes += (int) getAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_ADDITIONAL_DASHES);
         }
 
         setData(instance, dashes, speed, false, 0);
@@ -88,13 +86,13 @@ public class SonicRiftAbility extends AbilityType {
 
             if(hasCollision && hitResult.getType() == HitResult.Type.ENTITY) {
                 EntityHitResult ehr = (EntityHitResult) hitResult;
-                double damage = getAbilityAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_DAMAGE);
+                double damage = getAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_DAMAGE);
                 ehr.getEntity().damage(player.getDamageSources().magic(), (float) (damage + instance.get(SPEED_ON_START)));
             }
         }
         else {
             if (instance.useTime() == 0 && instance.get(DASHES_LEFT) > 0) {
-                double startJumpMultiplier = getAbilityAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_START_JUMP_POWER);
+                double startJumpMultiplier = getAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_START_JUMP_POWER);
                 Vec3d vec = new Vec3d(0f, 0.5f + 1.5f * getAbilityStrength(instance.get(SPEED_ON_START)), 0f).multiply(startJumpMultiplier);
                 player.addVelocity(vec);
                 player.velocityModified = true;
@@ -191,7 +189,7 @@ public class SonicRiftAbility extends AbilityType {
 
     private void launch(PlayerEntity player, AbilityInstance instance) {
         if(instance.get(DASHES_LEFT) > 0) {
-            double dashVelocityMultiplier = getAbilityAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_DASH_POWER);
+            double dashVelocityMultiplier = getAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_DASH_POWER);
 
             player.requestTeleport(player.getX(), player.getY() + 1, player.getZ());
             Vec3d vec = player.getRotationVector()

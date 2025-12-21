@@ -25,7 +25,7 @@ public record TechniqueComponent(Map<AbilitySlot, AbilityType> abilities, List<P
             instance.group(Codec.unboundedMap(AbilitySlot.CODEC,
                     JujutsuRegistries.ABILITY_TYPE.getCodec()).fieldOf("abilities").forGetter(TechniqueComponent::abilities),
                     PassiveAbility.CODEC.listOf().fieldOf("passiveAbilities").forGetter(TechniqueComponent::passiveAbilities),
-                    Identifier.CODEC.fieldOf("upgradesId").forGetter(TechniqueComponent::upgradesId))
+                    Identifier.CODEC.fieldOf("tree").forGetter(TechniqueComponent::upgradesId))
                     .apply(instance, TechniqueComponent::new));
 
     public static final PacketCodec<RegistryByteBuf, TechniqueComponent> PACKET_CODEC = PacketCodec.tuple(

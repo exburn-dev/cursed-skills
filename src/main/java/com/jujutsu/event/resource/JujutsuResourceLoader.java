@@ -4,18 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
-import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.JsonOps;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 
 import java.io.InputStreamReader;
-import java.util.List;
 
 public abstract class JujutsuResourceLoader<T> implements SimpleSynchronousResourceReloadListener {
     private final String id;

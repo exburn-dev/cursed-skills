@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.registry.ModEffects;
-import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
 import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
@@ -35,7 +34,7 @@ public class SupersonicAbility extends AbilityType {
     public void start(PlayerEntity player, AbilityInstance instance) {
         double startDistance = player.distanceTraveled;
 
-        int duration = 20 * (int) getAbilityAttributeValue(player, ModAbilityAttributes.SUPERSONIC_DURATION);
+        int duration = 20 * (int) getAttributeValue(player, ModAbilityAttributes.SUPERSONIC_DURATION);
         setData(instance, startDistance, 0, duration, false);
 
         SupersonicBuff buff = new SupersonicBuff(instance.getSlot());

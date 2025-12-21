@@ -2,10 +2,9 @@ package com.jujutsu.systems.ability.core;
 
 import com.jujutsu.registry.JujutsuRegistries;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeComponent;
 import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.data.ClientData;
-import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
-import com.jujutsu.util.AbilitiesHolderUtils;
 import com.mojang.serialization.Codec;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
@@ -50,8 +49,8 @@ public abstract class AbilityType {
     public abstract void end(PlayerEntity player, AbilityInstance instance);
     public abstract boolean isFinished(PlayerEntity player, AbilityInstance instance);
 
-    protected double getAbilityAttributeValue(PlayerEntity player, RegistryEntry<AbilityAttribute> attribute) {
-        return AbilitiesHolderUtils.getAbilityAttributeValue(player, attribute);
+    protected double getAttributeValue(PlayerEntity player, RegistryEntry<AbilityAttribute> attribute) {
+        return AbilityAttributeComponent.get(player).getAttributeValue(attribute);
     }
 
     public SimpleAbilityAttributeContainer getDefaultAttributes() {

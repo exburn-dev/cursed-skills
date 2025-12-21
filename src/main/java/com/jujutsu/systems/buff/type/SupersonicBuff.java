@@ -4,7 +4,6 @@ import com.jujutsu.ability.active.SupersonicAbility;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
-import com.jujutsu.util.AbilitiesHolderUtils;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.LivingEntity;

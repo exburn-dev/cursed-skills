@@ -4,7 +4,7 @@ import com.jujutsu.mixinterface.EntityComponentsAccessor;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeComponent;
 import com.jujutsu.systems.ability.core.AbilityComponent;
 import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
-import com.jujutsu.systems.talent.TalentsComponent;
+import com.jujutsu.systems.talent.TalentComponent;
 import com.jujutsu.systems.buff.BuffComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,7 +24,7 @@ public class EntityComponentRegistry {
         AbilityComponent abilities = new AbilityComponent(player);
         PassiveAbilityComponent passiveAbilities = new PassiveAbilityComponent(player);
         AbilityAttributeComponent attributeComponent = new AbilityAttributeComponent(player);
-        TalentsComponent upgradesComponent = new TalentsComponent(player);
+        TalentComponent upgradesComponent = new TalentComponent(player);
 
         accessor.jujutsu$getContainer().add(ComponentKeys.ABILITIES, abilities);
         accessor.jujutsu$getContainer().add(ComponentKeys.PASSIVE_ABILITIES, passiveAbilities);

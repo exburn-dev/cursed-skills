@@ -8,7 +8,7 @@ import net.minecraft.registry.Registry;
 
 public class ModItems {
     public static final Item TECHNIQUE_SCROLL = registerItem("technique_scroll", new TechniqueScrollItem(new Item.Settings()));
-    public static final Item UPGRADE_RESET_SCROLL = registerItem("upgrade_reset_scroll", new UpgradeResetScrollItem(new Item.Settings()));
+    public static final Item UPGRADE_RESET_SCROLL = registerItem("upgrade_reset_scroll", new TalentResetScrollItem(new Item.Settings()));
     public static final Item REARM = registerItem("rearm", new RearmItem(new Item.Settings().maxCount(1)));
     
     private static Item registerItem(String name, Item item) {

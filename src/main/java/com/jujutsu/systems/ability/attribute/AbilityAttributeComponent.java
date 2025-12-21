@@ -28,6 +28,21 @@ public class AbilityAttributeComponent implements EntityComponent {
         this.container = container;
     }
 
+    public double getAttributeValue(RegistryEntry<AbilityAttribute> attribute) {
+        double value = 0;
+        double multiplier = 1;
+
+        for(AbilityAttributeModifier modifier : container.getModifiers(attribute).values()) {
+            if(modifier.type() == AbilityAttributeModifier.Type.ADD) {
+                value += modifier.value();
+            }
+            else {
+                multiplier += modifier.value();
+            }
+        }
+        return value * multiplier;
+    }
+
     public Map<Identifier, AbilityAttributeModifier> getModifiers(RegistryEntry<AbilityAttribute> attribute) {
         return container.getModifiers(attribute);
     }

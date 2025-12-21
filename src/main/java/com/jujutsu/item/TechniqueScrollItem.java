@@ -48,9 +48,9 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
             abilityComponent.addInstance(mapEntry.getKey(), mapEntry.getValue());
         }
         //TODO: set upgrades id (godjo, speedster, etc)
-//        holder.setUpgradesId(component.upgradesId());
+//        holder.setUpgradesId(component.tree());
 
-//        List<AbilityUpgradeBranch> branches = AbilityUpgradesReloadListener.getInstance().getBranches(component.upgradesId());
+//        List<AbilityUpgradeBranch> branches = AbilityUpgradesReloadListener.getInstance().getBranches(component.tree());
 //        UpgradesData data = holder.getUpgradesData();
 //        if(branches != null && !branches.isEmpty()) {
 //            for (AbilityUpgradeBranch branch : branches) {

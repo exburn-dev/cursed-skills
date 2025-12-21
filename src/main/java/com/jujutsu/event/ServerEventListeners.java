@@ -18,7 +18,6 @@ import com.jujutsu.systems.buff.type.AttributeBuff;
 import com.jujutsu.systems.buff.type.SupersonicBuff;
 import com.jujutsu.systems.entitydata.EntityComponent;
 import com.jujutsu.systems.entitydata.EntityComponentContainer;
-import com.jujutsu.util.AbilitiesHolderUtils;
 import com.jujutsu.util.AttributeUtils;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;

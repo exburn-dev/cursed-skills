@@ -2,11 +2,14 @@ package com.jujutsu.screen;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.hud.ShaderUtils;
-import com.jujutsu.network.payload.AbilityUpgradePurchasedPayload;
+import com.jujutsu.event.resource.TalentBranchesResourceLoader;
+import com.jujutsu.event.resource.TalentResourceLoader;
+import com.jujutsu.network.payload.talents.TalentPurchasedC2SPayload;
 import com.jujutsu.registry.ModSounds;
 import com.jujutsu.systems.talent.AbilityTalent;
-import com.jujutsu.systems.ability.upgrade.AbilityUpgradeBranch;
-import com.jujutsu.systems.ability.upgrade.UpgradesData;
+import com.jujutsu.systems.ability.upgrade.TalentsData;
+import com.jujutsu.systems.talent.TalentBranch;
+import com.jujutsu.systems.talent.TalentTree;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.font.TextRenderer;
@@ -27,10 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AbilityUpgradesScreen extends Screen {
-    private final List<AbilityUpgradeBranch> branches;
-    private int playerLastPurchasedBranch = 0;
+    private final TalentTree tree;
 
-    private UpgradesData upgradesData;
+    private TalentsData talentsData;
 
     private double dragX = 0;
     private double dragY = 0;
@@ -39,12 +41,10 @@ public class AbilityUpgradesScreen extends Screen {
     private final List<AbilityUpgradeButton> buttons = new ArrayList<>();
     private final List<Line> lines = new ArrayList<>();
 
-    public AbilityUpgradesScreen(List<AbilityUpgradeBranch> branches, UpgradesData upgradesData) {
+    public AbilityUpgradesScreen(TalentTree tree, TalentsData talentsData) {
         super(Text.literal(""));
-        this.branches = branches;
-        this.upgradesData = upgradesData;
-        this.playerLastPurchasedBranch = AbilityUpgradeBranch.findPlayerLastPurchasedBranchIndex(branches, upgradesData);
-        Jujutsu.LOGGER.info("Branches: {}\nUpgradesData: {}\nLastPurchasedBranch: {}", branches, upgradesData, playerLastPurchasedBranch);
+        this.tree = tree;
+        this.talentsData = talentsData;
     }
 
     @Override
@@ -59,14 +59,15 @@ public class AbilityUpgradesScreen extends Screen {
         int startX = width / 2 - widgetWidth - horizontalGap / 2;
         int startY = height - 100;
 
-        for(int i = 0; i < branches.size(); i++) {
-            AbilityUpgradeBranch branch = branches.get(i);
+        for(int i = 0; i < tree.size(); i++) {
+            TalentBranch branch = getBranch(tree.branches().get(i));
             int y = startY - widgetHeight * i - verticalGap * i;
 
-            for(int j = 0; j < Math.min(branch.upgrades().size(), 2); j++) {
-                AbilityTalent upgrade = branch.upgrades().get(j);
+            for(int j = 0; j < Math.min(branch.talents().size(), 2); j++) {
+                AbilityTalent upgrade = getTalent(branch.talents().get(j));
+
                 int x = startX + widgetWidth * j + horizontalGap * j;
-                boolean onlyOneUpgrade = branch.upgrades().size() == 1;
+                boolean onlyOneUpgrade = branch.talents().size() == 1;
                 x += onlyOneUpgrade ? widgetWidth : 0;
 
                 AbilityUpgradeButton button = new AbilityUpgradeButton(branch, upgrade, x, y, widgetWidth, widgetHeight, Text.literal(""));
@@ -84,21 +85,21 @@ public class AbilityUpgradesScreen extends Screen {
         }
     }
 
-    public void reload(UpgradesData upgradesData) {
-        this.upgradesData = upgradesData;
-        this.playerLastPurchasedBranch = AbilityUpgradeBranch.findPlayerLastPurchasedBranchIndex(branches, upgradesData);
+    //TODO call reload
+    public void reload(TalentsData talentsData) {
+        this.talentsData = talentsData;
         buttons.clear();
         lines.clear();
         init();
     }
 
     private void reloadButtonStatus(AbilityUpgradeButton button) {
-        Identifier purchasedUpgrade = upgradesData.purchasedUpgrades().get(button.branch.id());
+        Identifier purchasedUpgrade = talentsData.purchasedUpgrades().get(button.branch.id());
         if(purchasedUpgrade != null) {
             button.purchased = purchasedUpgrade.equals(button.upgrade.id());
             button.canBePurchased = false;
         }
-        AbilityUpgradeBranch playerCurrentBranch = playerLastPurchasedBranch == -1 ? branches.getFirst() : branches.get(Math.min(playerLastPurchasedBranch + 1, branches.size() - 1));
+        AbilityUpgradeBranch playerCurrentBranch = playerLastPurchasedBranch == -1 ? tree.getFirst() : tree.get(Math.min(playerLastPurchasedBranch + 1, tree.size() - 1));
         if(!button.branch.id().equals(playerCurrentBranch.id())) {
             button.canBePurchased = false;
         }
@@ -139,7 +140,7 @@ public class AbilityUpgradesScreen extends Screen {
         matrices.push();
         matrices.translate(0, 0, 20);
 
-        MutableText panelText = Text.translatable("screen.jujutsu.abilities_upgrades.points", upgradesData.points());
+        MutableText panelText = Text.translatable("screen.jujutsu.abilities_upgrades.points", talentsData.points());
         int panelWidth = Math.max(48, client.textRenderer.getWidth(panelText)) + 4;
         int panelHeight = 16;
         int x = width / 2 - panelWidth / 2;
@@ -193,6 +194,14 @@ public class AbilityUpgradesScreen extends Screen {
         dragY -= (dy / oldScale - dy / scale);
 
         return true;
+    }
+
+    private TalentBranch getBranch(Identifier branchId) {
+        return TalentBranchesResourceLoader.getInstance().get(branchId);
+    }
+
+    private AbilityTalent getTalent(Identifier talentId) {
+        return TalentResourceLoader.getInstance().get(talentId);
     }
 
     private class AbilityUpgradeButton extends ClickableWidget {
@@ -326,7 +335,7 @@ public class AbilityUpgradesScreen extends Screen {
             if (isMouseOver(adjX, adjY) && button == 0) {
                 if(!purchased && canBePurchased) {
                     client.player.playSoundToPlayer(ModSounds.UI_SUCCESS, SoundCategory.MASTER, 1, 1);
-                    ClientPlayNetworking.send(new AbilityUpgradePurchasedPayload(branch.id(), upgrade.id()));
+                    ClientPlayNetworking.send(new TalentPurchasedC2SPayload(branch.id(), upgrade.id()));
 
                     return true;
                 }

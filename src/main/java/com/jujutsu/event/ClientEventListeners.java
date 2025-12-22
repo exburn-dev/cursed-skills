@@ -11,6 +11,7 @@ import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.item.IBorderTooltipItem;
 import com.jujutsu.screen.HandTransformSettingScreen;
 import com.jujutsu.util.HandAnimationUtils;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Pair;
@@ -99,6 +100,16 @@ public class ClientEventListeners {
             }
 
             return new Pair<>(ActionResult.PASS, new CameraEvents.CameraBonus(cameraRestriction, cameraSpeed));
+        });
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if(client == null || client.player == null) return;
+
+            for(AbilityInstanceData data : ClientComponentContainer.abilityComponent.all()) {
+                if(data.status().onCooldown()) {
+                    data.setCooldownTime(data.cooldownTime() - 1);
+                }
+            }
         });
     }
 }

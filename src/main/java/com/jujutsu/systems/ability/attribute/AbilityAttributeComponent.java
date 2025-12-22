@@ -75,7 +75,10 @@ public class AbilityAttributeComponent implements EntityComponent {
     @Override
     public void saveToNbt(NbtCompound nbt) {
         NbtCompound compound = new NbtCompound();
-        AbilityAttributesContainer.CODEC.encode(container, NbtOps.INSTANCE, compound);
+        var result = AbilityAttributesContainer.CODEC.encode(container, NbtOps.INSTANCE, compound);
+        if(result.isSuccess()) {
+            compound = (NbtCompound) result.getOrThrow();
+        }
 
         nbt.put("AbilityAttributes", compound);
     }

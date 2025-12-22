@@ -73,7 +73,10 @@ public class PassiveAbilityComponent implements EntityComponent, EntityTickingCo
     @Override
     public void saveToNbt(NbtCompound nbt) {
         NbtCompound compound = new NbtCompound();
-        CODEC.encode(abilities, NbtOps.INSTANCE, compound);
+        var result = CODEC.encode(abilities, NbtOps.INSTANCE, compound);
+        if(result.isSuccess()) {
+            compound = (NbtCompound) result.getOrThrow();
+        }
 
         nbt.put("PassiveAbilities", compound);
     }

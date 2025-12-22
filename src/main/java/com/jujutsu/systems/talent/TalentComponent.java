@@ -125,7 +125,10 @@ public class TalentComponent implements EntityComponent {
     @Override
     public void saveToNbt(NbtCompound nbt) {
         NbtCompound compound = new NbtCompound();
-        TalentsData.CODEC.encode(collectData(), NbtOps.INSTANCE, compound);
+        var result = TalentsData.CODEC.encode(collectData(), NbtOps.INSTANCE, compound);
+        if(result.isSuccess()) {
+            compound = (NbtCompound) result.getOrThrow();
+        }
 
         nbt.put("Talents", compound);
     }

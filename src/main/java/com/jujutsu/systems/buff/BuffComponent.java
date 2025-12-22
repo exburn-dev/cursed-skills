@@ -70,7 +70,10 @@ public class BuffComponent implements EntityComponent, EntityTickingComponent {
     @Override
     public void saveToNbt(NbtCompound nbt) {
         NbtCompound compound = new NbtCompound();
-        CODEC.encode(buffDataMap(), NbtOps.INSTANCE, nbt);
+        var result = CODEC.encode(buffDataMap(), NbtOps.INSTANCE, nbt);
+        if(result.isSuccess()) {
+            compound = (NbtCompound) result.getOrThrow();
+        }
 
         nbt.put("Buffs", compound);
     }

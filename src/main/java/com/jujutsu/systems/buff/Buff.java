@@ -1,13 +1,8 @@
 package com.jujutsu.systems.buff;
 
 import com.google.common.collect.ImmutableList;
-import com.jujutsu.network.NbtPacketCodec;
 import com.jujutsu.systems.buff.type.AttributeBuff;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
@@ -32,7 +27,7 @@ public class Buff {
     public void tick(Identifier selfId) {
         if(checkConditions()) {
             provider.remove(entity, selfId);
-            component().removeBuff(selfId);
+            component().markForRemoval(selfId);
         }
     }
 
@@ -72,6 +67,7 @@ public class Buff {
         BuffComponent component = BuffComponent.get(entity);
         Buff buff = new Buff(entity, conditions, waitAllConditions, provider);
 
+        provider.apply(entity, id);
         component.addBuff(id, buff);
     }
 

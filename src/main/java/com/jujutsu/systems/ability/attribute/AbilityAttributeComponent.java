@@ -89,7 +89,7 @@ public class AbilityAttributeComponent implements EntityComponent {
         var result = AbilityAttributesContainer.CODEC.parse(NbtOps.INSTANCE, compound);
 
         if(result.isSuccess()) {
-            container = result.getOrThrow();
+            container = AbilityAttributesContainer.copyFrom(result.getOrThrow());
         }
     }
 

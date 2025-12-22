@@ -111,7 +111,7 @@ public class TalentComponent implements EntityComponent {
     public void readData(TalentsData data) {
         this.tree = data.tree();
         this.points = data.points();
-        this.purchasedTalents = data.purchasedUpgrades();
+        this.purchasedTalents = new HashMap<>(data.purchasedUpgrades());
         this.lastPurchasedBranch = data.lastPurchasedBranch();
     }
 

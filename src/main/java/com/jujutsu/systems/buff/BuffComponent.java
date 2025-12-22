@@ -7,7 +7,6 @@ import com.jujutsu.systems.entitydata.ComponentKeys;
 import com.jujutsu.systems.entitydata.EntityComponent;
 import com.jujutsu.systems.entitydata.EntityTickingComponent;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -15,10 +14,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BuffComponent implements EntityComponent, EntityTickingComponent {
     public static final Codec<Map<Identifier, BuffData>> CODEC;
@@ -26,25 +22,31 @@ public class BuffComponent implements EntityComponent, EntityTickingComponent {
     private final LivingEntity entity;
     private Map<Identifier, Buff> buffs = new HashMap<>();
 
+    private final Set<Identifier> toRemove = new HashSet<>();
+
     public BuffComponent(LivingEntity entity) {
         this.entity = entity;
     }
 
     @Override
     public void tick() {
+        toRemove.clear();
+
         for(Identifier id : buffs.keySet()) {
             Buff buff = buffs.get(id);
 
             buff.tick(id);
         }
+
+        toRemove.forEach(id -> buffs.remove(id));
     }
 
     public void addBuff(Identifier id, Buff buff) {
         buffs.put(id, buff);
     }
 
-    public void removeBuff(Identifier id) {
-        buffs.remove(id);
+    public void markForRemoval(Identifier id) {
+        toRemove.add(id);
     }
 
     public boolean hasBuff(Identifier id) {
@@ -70,7 +72,7 @@ public class BuffComponent implements EntityComponent, EntityTickingComponent {
     @Override
     public void saveToNbt(NbtCompound nbt) {
         NbtCompound compound = new NbtCompound();
-        var result = CODEC.encode(buffDataMap(), NbtOps.INSTANCE, nbt);
+        var result = CODEC.encode(buffDataMap(), NbtOps.INSTANCE, NbtOps.INSTANCE.empty());
         if(result.isSuccess()) {
             compound = (NbtCompound) result.getOrThrow();
         }

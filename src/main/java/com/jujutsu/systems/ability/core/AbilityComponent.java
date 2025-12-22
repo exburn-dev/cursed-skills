@@ -59,12 +59,15 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
     }
 
     public void clearInstances() {
-        for(var mapEntry : abilities.entrySet()) {
-            mapEntry.getValue().endAbility();
-            abilities.remove(mapEntry.getKey());
-
-            TalentComponent.get(player).removePurchasedTalents();
+        for(var it = abilities.values().iterator(); it.hasNext(); ) {
+            AbilityInstance instance = it.next();
+            if(instance.status().isRunning()) {
+                instance.endAbility();
+            }
+            it.remove();
         }
+
+        TalentComponent.get(player).removePurchasedTalents();
     }
 
     public AbilityInstance getInstance(AbilitySlot slot) {

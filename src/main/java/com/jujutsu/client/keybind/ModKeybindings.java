@@ -1,11 +1,14 @@
 package com.jujutsu.client.keybind;
 
+import com.jujutsu.event.resource.TalentTreeResourceLoader;
 import com.jujutsu.screen.AbilityUpgradesScreen;
+import com.jujutsu.systems.ability.client.ClientComponentContainer;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.event.client.KeyEvents;
 import com.jujutsu.network.payload.abilities.RunAbilityC2SPayload;
 import com.jujutsu.screen.AbilitiesKeybindingsScreen;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
+import com.jujutsu.systems.ability.upgrade.TalentsData;
+import com.jujutsu.systems.talent.TalentTree;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -37,11 +40,12 @@ public class ModKeybindings {
                 client.setScreen(new AbilitiesKeybindingsScreen());
             }
             else if(OPEN_ABILITY_UPGRADES_SCREEN.wasPressed()) {
-                IAbilitiesHolder holder = (IAbilitiesHolder) client.player;
-                Identifier upgradesId = holder.getUpgradesId();
+                TalentsData data = ClientComponentContainer.talentComponent.talentsData;
+                Identifier treeId = data.tree();
+                TalentTree tree = TalentTreeResourceLoader.getInstance().get(treeId);
 
-                if(AbilityUpgradesReloadListener.getInstance().getBranchesIds().contains(upgradesId)) {
-                    client.setScreen(new AbilityUpgradesScreen(AbilityUpgradesReloadListener.getInstance().getBranches(upgradesId), holder.getUpgradesData()));
+                if(tree != null) {
+                    client.setScreen(new AbilityUpgradesScreen(tree, data));
                 }
             }
         });

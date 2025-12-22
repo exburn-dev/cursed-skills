@@ -4,6 +4,7 @@ import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.entity.ReversalRedEntity;
 import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.InputRequest;
 import com.jujutsu.systems.ability.data.ClientData;
@@ -99,7 +100,7 @@ public class ReversalRedAbility extends AbilityType {
                 .build();
     }
 
-    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstance instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light) {
+    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstanceData instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light) {
         matrices.push();
 
         HandAnimationUtils.applyDefaultHandTransform(matrices, false);

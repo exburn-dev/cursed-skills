@@ -2,6 +2,7 @@ package com.jujutsu.systems.ability.client;
 
 import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.AbilityPropertiesContainer;
 import com.jujutsu.systems.ability.data.AbilityProperty;
 
@@ -36,5 +37,18 @@ public class AbilityClientComponent {
 
     public AbilityPropertiesContainer getRuntimeData(AbilitySlot slot) {
         return abilitiesData.get(slot);
+    }
+
+    public Collection<AbilitySlot> getSlots() {
+        return abilities.keySet();
+    }
+
+    public boolean isRunning(AbilityType type) {
+        for(AbilityInstanceData instance : all()) {
+            if(instance.type().equals(type) && instance.status().isRunning()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -8,6 +8,7 @@ import com.jujutsu.registry.ModEffects;
 import com.jujutsu.systems.ability.attribute.AbilityAttributeComponent;
 import com.jujutsu.systems.ability.data.InputRequest;
 import com.jujutsu.systems.entitydata.*;
+import com.jujutsu.systems.talent.TalentComponent;
 import com.mojang.serialization.Codec;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
@@ -28,8 +29,8 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
 
     private final PlayerEntity player;
 
-    private final Map<AbilitySlot, AbilityInstance> abilities = new HashMap<>();
-    private final Map<AbilitySlot, InputRequest> inputRequests = new HashMap<>();
+    private Map<AbilitySlot, AbilityInstance> abilities = new HashMap<>();
+    private Map<AbilitySlot, InputRequest> inputRequests = new HashMap<>();
 
     public AbilityComponent(PlayerEntity player) {
         this.player = player;
@@ -51,7 +52,7 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
     }
 
     public void addInstance(AbilitySlot slot, AbilityType type) {
-        AbilityInstance instance = new AbilityInstance(player, type);
+        AbilityInstance instance = new AbilityInstance(player, type, slot);
         abilities.put(slot, instance);
 
         AbilityAttributeComponent.get(player).addAbilityDefaultAttributes(instance.type());
@@ -61,7 +62,8 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
         for(var mapEntry : abilities.entrySet()) {
             mapEntry.getValue().endAbility();
             abilities.remove(mapEntry.getKey());
-            //TODO: cancel upgrades effect
+
+            TalentComponent.get(player).removePurchasedTalents();
         }
     }
 
@@ -78,6 +80,10 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
 
     public boolean canStartAbility(AbilitySlot slot) {
         return abilities.containsKey(slot) && abilities.get(slot).status().isNone() && !player.hasStatusEffect(ModEffects.STUN);
+    }
+
+    public Collection<AbilitySlot> slots() {
+        return abilities.keySet();
     }
 
     public Collection<AbilityInstance> abilities() {
@@ -137,7 +143,7 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
         inputRequests.remove(slot);
     }
 
-    private Map<AbilitySlot, AbilityInstanceData> abilitiesDataMap() {
+    public Map<AbilitySlot, AbilityInstanceData> abilitiesDataMap() {
         Map<AbilitySlot, AbilityInstanceData> map = new HashMap<>();
         for(var mapEntry : abilities.entrySet()) {
             map.put(mapEntry.getKey(), mapEntry.getValue().writeData());
@@ -145,10 +151,24 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
         return map;
     }
 
+    private void readDataMap(Map<AbilitySlot, AbilityInstanceData> dataMap) {
+        for(var mapEntry : dataMap.entrySet()) {
+            abilities.put(mapEntry.getKey(), new AbilityInstance(player, mapEntry.getValue()));
+        }
+    }
+
+    public void copyFrom(AbilityComponent component) {
+        abilities = component.abilities;
+        onLoaded();
+    }
+
     @Override
     public void saveToNbt(NbtCompound nbt) {
         NbtCompound compound = new NbtCompound();
-        CODEC.encode(abilitiesDataMap(), NbtOps.INSTANCE, compound);
+        var result = CODEC.encode(abilitiesDataMap(), NbtOps.INSTANCE, compound);
+        if(result.isSuccess()) {
+            compound = (NbtCompound) result.getOrThrow();
+        }
 
         nbt.put("Abilities", compound);
     }
@@ -160,10 +180,7 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
         abilities.clear();
         var result = CODEC.parse(NbtOps.INSTANCE, compound);
         if(result.isSuccess()) {
-            var dataMap = result.getOrThrow();
-            for(var mapEntry : dataMap.entrySet()) {
-                abilities.put(mapEntry.getKey(), new AbilityInstance(player, mapEntry.getValue()));
-            }
+            readDataMap(result.getOrThrow());
         }
     }
 

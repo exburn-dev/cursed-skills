@@ -26,9 +26,9 @@ public class ModAbilities {
     public static final AbilityType PHOENIX_FIREBALL = registerAbilityType("phoenix_fireball", new PhoenixFireballAbility(300));
     public static final AbilityType FIERY_SOUL_SWITCH = registerAbilityType("fiery_soul_switch", new FierySoulSwitchAbility(20));
 
-    public static final PassiveAbilityType<?> SPEED_PASSIVE_ABILITY = registerPassiveAbilityType("speed", new PassiveAbilityType<>(SpeedPassiveAbility.CODEC));
-    public static final PassiveAbilityType<?> WITHER_MOMENTUM = registerPassiveAbilityType("wither_momentum", new PassiveAbilityType<>(WitherMomentumPassiveAbility.CODEC));
-    public static final PassiveAbilityType<?> FIERY_SOUL = registerPassiveAbilityType("fiery_soul", new PassiveAbilityType<>(FierySoulPassiveAbility.CODEC));
+    public static final PassiveAbilityType<SpeedPassiveAbility> SPEED_PASSIVE_ABILITY = registerPassiveAbilityType("speed", new PassiveAbilityType<>(SpeedPassiveAbility.CODEC));
+    public static final PassiveAbilityType<WitherMomentumPassiveAbility> WITHER_MOMENTUM = registerPassiveAbilityType("wither_momentum", new PassiveAbilityType<>(WitherMomentumPassiveAbility.CODEC));
+    public static final PassiveAbilityType<FierySoulPassiveAbility> FIERY_SOUL = registerPassiveAbilityType("fiery_soul", new PassiveAbilityType<>(FierySoulPassiveAbility.CODEC));
 
     private static AbilityType registerAbilityType(String name, AbilityType abilityType) {
         return Registry.register(JujutsuRegistries.ABILITY_TYPE, Jujutsu.id(name), abilityType);

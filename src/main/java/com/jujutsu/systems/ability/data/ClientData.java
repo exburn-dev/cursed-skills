@@ -1,6 +1,6 @@
 package com.jujutsu.systems.ability.data;
 
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderTickCounter;
@@ -31,11 +31,11 @@ public record ClientData(@Nullable AbilityHandAnimation animation, @Nullable Abi
 
     @FunctionalInterface
     public interface AbilityHandAnimation {
-        boolean render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstance instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light);
+        boolean render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstanceData instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light);
     }
 
     @FunctionalInterface
     public interface AbilityHudOverlay {
-        void render(DrawContext context, RenderTickCounter counter, AbilityInstance instance);
+        void render(DrawContext context, RenderTickCounter counter, AbilityInstanceData instance);
     }
 }

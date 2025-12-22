@@ -4,9 +4,10 @@ import com.jujutsu.event.client.CameraEvents;
 import com.jujutsu.event.client.HandRenderingEvents;
 import com.jujutsu.event.client.TooltipRenderingEvents;
 import com.jujutsu.registry.ModAbilities;
-import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.systems.ability.client.AbilityClientComponent;
+import com.jujutsu.systems.ability.client.ClientComponentContainer;
+import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.data.ClientData;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.item.IBorderTooltipItem;
 import com.jujutsu.screen.HandTransformSettingScreen;
 import com.jujutsu.util.HandAnimationUtils;
@@ -18,13 +19,12 @@ import net.minecraft.util.math.RotationAxis;
 public class ClientEventListeners {
     public static void register() {
         HandRenderingEvents.HAND_RENDER_EVENT.register((matrices, vertexConsumers, player, playerEntityRenderer, equipProgress, swingProgress, light) -> {
-            IAbilitiesHolder holder = (IAbilitiesHolder) player;
+            AbilityClientComponent component = ClientComponentContainer.abilityComponent;
 
-            for(AbilitySlot slot: holder.getRunningSlots()) {
-                AbilityInstance instance = holder.getAbilityInstance(slot);
-                if(!instance.getStatus().isRunning() && !instance.getStatus().isWaiting()) continue;
+            for(AbilityInstanceData instance : component.all()) {
+                if(!instance.status().isRunning() && !instance.status().isWaiting()) continue;
 
-                ClientData clientData = instance.getType().getClientData();
+                ClientData clientData = instance.type().getClientData();
                 if(clientData != null && clientData.animation() != null) {
                     boolean rendered = clientData.animation().render(matrices, vertexConsumers, instance, player, playerEntityRenderer, equipProgress, swingProgress, light);
                     if(rendered) {
@@ -92,8 +92,8 @@ public class ClientEventListeners {
             float cameraRestriction = 0;
             float cameraSpeed = 0;
 
-            IAbilitiesHolder holder = (IAbilitiesHolder) player;
-            if(holder.isRunning(ModAbilities.HOLLOW_PURPLE) || holder.isRunning(ModAbilities.REVERSAL_RED) || holder.isRunning(ModAbilities.LAPSE_BLUE)) {
+            AbilityClientComponent component = ClientComponentContainer.abilityComponent;
+            if(component.isRunning(ModAbilities.HOLLOW_PURPLE) || component.isRunning(ModAbilities.REVERSAL_RED) || component.isRunning(ModAbilities.LAPSE_BLUE)) {
                 cameraRestriction -= 350;
                 cameraSpeed -= 0.75f;
             }

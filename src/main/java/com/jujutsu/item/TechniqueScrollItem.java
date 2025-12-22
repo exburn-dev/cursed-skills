@@ -8,6 +8,7 @@ import com.jujutsu.systems.ability.core.AbilityComponent;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
 import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
+import com.jujutsu.systems.talent.TalentComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
@@ -38,6 +39,7 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
         TechniqueComponent component = stack.get(ModDataComponents.TECHNIQUE_COMPONENT);
         AbilityComponent abilityComponent = AbilityComponent.get(user);
         PassiveAbilityComponent passiveAbilityComponent = PassiveAbilityComponent.get(user);
+        TalentComponent talentComponent = TalentComponent.get(user);
 
         if(component == null) return TypedActionResult.pass(stack);
 
@@ -47,22 +49,10 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
         for(var mapEntry: component.abilities().entrySet()) {
             abilityComponent.addInstance(mapEntry.getKey(), mapEntry.getValue());
         }
-        //TODO: set upgrades id (godjo, speedster, etc)
-//        holder.setUpgradesId(component.tree());
 
-//        List<AbilityUpgradeBranch> branches = AbilityUpgradesReloadListener.getInstance().getBranches(component.tree());
-//        UpgradesData data = holder.getUpgradesData();
-//        if(branches != null && !branches.isEmpty()) {
-//            for (AbilityUpgradeBranch branch : branches) {
-//                if (data.purchasedUpgrades().containsKey(branch.id())) {
-//                    AbilityUpgrade upgrade = branch.findUpgrade(data.purchasedUpgrades().get(branch.id()));
-//
-//                    if (upgrade != null) {
-//                        upgrade.apply(user);
-//                    }
-//                }
-//            }
-//        }
+        talentComponent.setTree(component.upgradesId());
+
+        talentComponent.applyPurchasedTalents();
 
         for(PassiveAbility ability : component.passiveAbilities()) {
             passiveAbilityComponent.addPassiveAbility(ability);

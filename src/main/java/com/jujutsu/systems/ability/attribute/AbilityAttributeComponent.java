@@ -67,6 +67,11 @@ public class AbilityAttributeComponent implements EntityComponent {
         }
     }
 
+    public void copyFrom(AbilityAttributeComponent component) {
+        container = component.container;
+        onLoaded();
+    }
+
     @Override
     public void saveToNbt(NbtCompound nbt) {
         NbtCompound compound = new NbtCompound();

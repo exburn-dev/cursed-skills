@@ -1,7 +1,9 @@
 package com.jujutsu.client.hud;
 
+import com.jujutsu.systems.ability.client.AbilityClientComponent;
+import com.jujutsu.systems.ability.client.ClientComponentContainer;
+import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.core.AbilitySlot;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -26,10 +28,10 @@ public class AbilityCooldownRenderer {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 
-        IAbilitiesHolder holder = (IAbilitiesHolder) client.player;
-        for(AbilitySlot slot: holder.getSlots()) {
-            boolean onCooldown = holder.onCooldown(slot);
-            AbilityInstance instance = holder.getAbilityInstance(slot);
+        AbilityClientComponent component = ClientComponentContainer.abilityComponent;
+        for(AbilitySlot slot: component.getSlots()) {
+            AbilityInstanceData instance = component.get(slot);
+            boolean onCooldown = instance.status().onCooldown();
 
             if(cooldownElements.containsKey(slot) && cooldownElements.get(slot).instance != instance) {
                 cooldownElements.get(slot).setInstance(instance);
@@ -66,9 +68,9 @@ public class AbilityCooldownRenderer {
 
     private static class AbilityCooldownElement extends HudElement {
         private final TextRenderer textRenderer;
-        private AbilityInstance instance;
+        private AbilityInstanceData instance;
 
-        public AbilityCooldownElement(int x, int y, int width, int height, AbilityInstance instance, TextRenderer textRenderer) {
+        public AbilityCooldownElement(int x, int y, int width, int height, AbilityInstanceData instance, TextRenderer textRenderer) {
             super(x, y, width, height);
             this.instance = instance;
             this.textRenderer = textRenderer;
@@ -77,14 +79,14 @@ public class AbilityCooldownRenderer {
         @Override
         public void renderElement(DrawContext context, RenderTickCounter counter, int x, int y) {
             int width = getBiggestWidth() + textRenderer.getWidth(" - 000");
-            int cooldownInSeconds = instance.getCooldownTime() / 20;
+            int cooldownInSeconds = instance.cooldownTime() / 20;
 
             context.fill(x + 20, y, x + width, y + height, 0x485A5AEE);
 
             fillHorizontalGradient(context, x, y, x + 20, y + height, 0x005A5AEE, 0x485A5AEE);
             fillHorizontalGradient(context, x + width, y, x + width + 20, y + height, 0x485A5AEE, 0x005A5AEE);
 
-            context.drawCenteredTextWithShadow(textRenderer, Text.empty().append(instance.getType().getName())
+            context.drawCenteredTextWithShadow(textRenderer, Text.empty().append(instance.type().getName())
                     .append(Text.literal(String.format(" - %s", cooldownInSeconds))), x + 10 + width / 2, y - 2 + height / 2, 0x00FFFFFF);
         }
 
@@ -101,14 +103,14 @@ public class AbilityCooldownRenderer {
             context.getVertexConsumers().draw();
         }
 
-        public void setInstance(AbilityInstance instance) {
+        public void setInstance(AbilityInstanceData instance) {
             this.instance = instance;
         }
 
         private int getBiggestWidth() {
             int width = 10;
             for(int i = 0; i < stack.size(); i++) {
-                int length = textRenderer.getWidth(instance.getType().getName());
+                int length = textRenderer.getWidth(instance.type().getName());
                 if(length > width) {
                     width += length;
                 }

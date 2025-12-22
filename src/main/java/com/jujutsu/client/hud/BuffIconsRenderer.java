@@ -2,6 +2,7 @@ package com.jujutsu.client.hud;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAttributes;
+import com.jujutsu.systems.buff.BuffPredicates;
 import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -46,7 +47,7 @@ public class BuffIconsRenderer {
 
             Identifier icon = icons.get(displayData.attribute());
 
-            if (condition.getType() == BuffTypes.TIME_CANCELLING_CONDITION) {
+            if (condition.getType() == BuffPredicates.TIMER) {
                 float progress = 1 - condition.getProgress(client.player);
 
                 ShaderUtils.renderReloadCircle(

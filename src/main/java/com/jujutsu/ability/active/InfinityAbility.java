@@ -5,7 +5,9 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
+import com.jujutsu.systems.ability.client.ClientComponentContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.ability.data.IntAbilityProperty;
@@ -42,7 +44,7 @@ public class InfinityAbility extends AbilityType {
     private static final IntAbilityProperty DURATION = IntAbilityProperty.of("duration");
 
     public InfinityAbility(int cooldownTime) {
-        super(cooldownTime, false, new ClientData.Builder().addAnimation(InfinityAbility::renderHand).addOverlay(InfinityAbility::renderHud).build());
+        super(cooldownTime, false, new ClientData.Builder().addAnimation(InfinityAbility::renderHand).addOverlay((context, counter, instance) -> renderHud(context, counter, instance)).build());
     }
 
     @Override
@@ -53,10 +55,11 @@ public class InfinityAbility extends AbilityType {
         AttributeBuff buff = new AttributeBuff(ModAttributes.INVINCIBLE,0.5, EntityAttributeModifier.Operation.ADD_VALUE);
 
         Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(duration)),
-                Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("infinity"));
+                false, Jujutsu.id("infinity"));
 
         if(player.getWorld().isClient()) return;
         PlayerAnimations.playAnimation((ServerPlayerEntity) player, Jujutsu.id("infinity"), 1000, 50);
+        instance.sendToClient();
     }
 
     @Override
@@ -110,7 +113,7 @@ public class InfinityAbility extends AbilityType {
         return Style.EMPTY.withColor(Formatting.LIGHT_PURPLE);
     }
 
-    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstance instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light) {
+    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstanceData instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light) {
         if(instance.useTime() > 40) return false;
 
         double currentTime = Util.getMeasuringTimeMs() / 1000.0;
@@ -130,11 +133,11 @@ public class InfinityAbility extends AbilityType {
         return true;
     }
 
-    public static void renderHud(DrawContext context, RenderTickCounter counter, AbilityInstance instance) {
+    public static void renderHud(DrawContext context, RenderTickCounter counter, AbilityInstanceData instance) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 
-        int abilityDuration = instance.get(DURATION);
+        int abilityDuration = ClientComponentContainer.abilityComponent.getRuntimeData(instance.slot()).get(DURATION);
         float alpha;
         if(instance.useTime() >= abilityDuration - 20) {
             alpha = MathHelper.clampedLerp(0.35f, 0, (float) (instance.useTime() - abilityDuration + 20 ) / 20);

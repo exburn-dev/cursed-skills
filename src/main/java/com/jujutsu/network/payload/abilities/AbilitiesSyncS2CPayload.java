@@ -1,11 +1,8 @@
 package com.jujutsu.network.payload.abilities;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.screen.AbilityUpgradesScreen;
 import com.jujutsu.systems.ability.client.ClientComponentContainer;
 import com.jujutsu.systems.ability.core.AbilityInstanceData;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
-import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -26,11 +23,6 @@ public record AbilitiesSyncS2CPayload(List<AbilityInstanceData> instanceDataList
     public static void registerClientReceiver() {
         ClientPlayNetworking.registerGlobalReceiver(AbilitiesSyncS2CPayload.ID, (payload, context) -> {
             ClientComponentContainer.abilityComponent.apply(payload.instanceDataList());
-
-            //TODO: reload upgrades screen
-//            if(context.client().currentScreen != null && context.client().currentScreen instanceof AbilityUpgradesScreen upgradesScreen) {
-//                upgradesScreen.reload(payload.upgradesData());
-//            }
         });
     }
 

@@ -14,8 +14,8 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TalentComponent implements EntityComponent {
 
@@ -25,20 +25,24 @@ public class TalentComponent implements EntityComponent {
     private Identifier tree;
     private Identifier lastPurchasedBranch;
 
-    private Set<Identifier> purchasedTalents = new HashSet<>();
+    private Map<Identifier, Identifier> purchasedTalents = new HashMap<>();
 
     public TalentComponent(PlayerEntity player) {
         this.player = player;
+        this.tree = Identifier.of("", "");
+        this.lastPurchasedBranch = Identifier.of("", "");
     }
 
     public TalentComponent(PlayerEntity player, TalentsData data) {
         this.player = player;
         this.points = data.points();
         this.tree = data.tree();
+        this.lastPurchasedBranch = data.lastPurchasedBranch();
+        this.purchasedTalents = data.purchasedUpgrades();
     }
 
     public void talentPurchased(Identifier branchId, AbilityTalent talent) {
-        purchasedTalents.add(talent.id());
+        purchasedTalents.put(branchId,talent.id());
         lastPurchasedBranch = branchId;
         points -= talent.cost();
     }
@@ -48,12 +52,25 @@ public class TalentComponent implements EntityComponent {
     }
 
     public void removePurchasedTalents() {
-        for(Identifier purchasedTalent : purchasedTalents) {
+        for(Identifier purchasedTalent : purchasedTalents.values()) {
             AbilityTalent talent = TalentResourceLoader.getInstance().get(purchasedTalent);
             talent.remove(player);
         }
-        purchasedTalents.clear();
-        sendToClient();
+    }
+
+    public void applyPurchasedTalents() {
+        TalentTreeValidator validator = new TalentTreeValidator(currentTree());
+
+        for(Identifier branchId : purchasedTalents.keySet()) {
+            if(!validator.containsBranch(branchId)) continue;
+
+            AbilityTalent talent = TalentResourceLoader.getInstance().get(purchasedTalents.get(branchId));
+            talent.apply(player);
+        }
+    }
+
+    public void setTree(Identifier treeId) {
+        this.tree = treeId;
     }
 
     public Identifier currentTreeId() {
@@ -63,7 +80,7 @@ public class TalentComponent implements EntityComponent {
     public int countSpentPoints() {
         int points = 0;
 
-        for(Identifier purchasedTalent : purchasedTalents()) {
+        for(Identifier purchasedTalent : purchasedTalents().values()) {
             AbilityTalent talent = TalentResourceLoader.getInstance().get(purchasedTalent);
             points += talent.cost();
         }
@@ -83,7 +100,7 @@ public class TalentComponent implements EntityComponent {
         return points;
     }
 
-    public Set<Identifier> purchasedTalents() {
+    public Map<Identifier, Identifier> purchasedTalents() {
         return purchasedTalents;
     }
 
@@ -96,6 +113,13 @@ public class TalentComponent implements EntityComponent {
         this.points = data.points();
         this.purchasedTalents = data.purchasedUpgrades();
         this.lastPurchasedBranch = data.lastPurchasedBranch();
+    }
+
+    public void copyFrom(TalentComponent component) {
+        points = component.points;
+        tree = component.tree;
+        lastPurchasedBranch = component.lastPurchasedBranch;
+        purchasedTalents = component.purchasedTalents;
     }
 
     @Override

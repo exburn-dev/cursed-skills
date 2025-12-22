@@ -3,9 +3,10 @@ package com.jujutsu.screen;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.keybind.AbilityKeyBinding;
 import com.jujutsu.client.keybind.ModKeybindings;
-import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.client.AbilityClientComponent;
+import com.jujutsu.systems.ability.client.ClientComponentContainer;
+import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -45,7 +46,7 @@ public class AbilitiesKeybindingsScreen extends Screen {
     protected void init() {
         super.init();
         MinecraftClient client = MinecraftClient.getInstance();
-        IAbilitiesHolder holder = (IAbilitiesHolder) client.player;
+        AbilityClientComponent component = ClientComponentContainer.abilityComponent;
         List<AbilityKeyBindingButton> buttons = new ArrayList<>();
 
         int x = getX() + 4;
@@ -53,16 +54,16 @@ public class AbilitiesKeybindingsScreen extends Screen {
         int width = 0;
         for(int i = 0; i < ModKeybindings.abilityBindings.size(); i++) {
             AbilityKeyBinding binding = ModKeybindings.abilityBindings.get(i);
-            AbilityInstance instance = holder.getAbilityInstance(binding.getAbilitySlot());
+            AbilityInstanceData instance = component.get(binding.getAbilitySlot());
             if (instance == null) continue;
-            width = Math.max(width, textRenderer.getWidth(instance.getType().getName()));
+            width = Math.max(width, textRenderer.getWidth(instance.type().getName()));
         }
         width += 5;
 
         int xOffset = 100 / 2 - width / 2;
         for(int i = 0; i < ModKeybindings.abilityBindings.size(); i++) {
             AbilityKeyBinding binding = ModKeybindings.abilityBindings.get(i);
-            AbilityInstance instance = holder.getAbilityInstance(binding.getAbilitySlot());
+            AbilityInstanceData instance = component.get(binding.getAbilitySlot());
             if(instance == null) continue;
 
             buttons.add(new AbilityKeyBindingButton(binding, instance, x + xOffset, y + 10 + (20 + 5) * i, width, 20 , Text.literal("bind")));
@@ -86,10 +87,10 @@ public class AbilitiesKeybindingsScreen extends Screen {
 
             context.drawCenteredTextWithShadow(textRenderer, Text.translatable("screen.jujutsu.abilities_menu.ability_info"),  centerX, y1, 0xFFFFFF);
             if(activeButton != null) {
-                AbilityType type = activeButton.instance.getType();
+                AbilityType type = activeButton.instance.type();
                 context.drawCenteredTextWithShadow(textRenderer, type.getName().copyContentOnly().setStyle(type.getStyle()), centerX, y1 + 10, 0xFFFFFF);
 
-                TextColor textColor = activeButton.instance.getType().getStyle().getColor();
+                TextColor textColor = activeButton.instance.type().getStyle().getColor();
                 int color = textColor != null ? ColorHelper.Argb.getArgb(255, ColorHelper.Argb.getRed(textColor.getRgb()), ColorHelper.Argb.getGreen(textColor.getRgb()), ColorHelper.Argb.getBlue(textColor.getRgb())) : 0xFFFFFFFF;
                 context.fill(centerX - textRenderer.getWidth(type.getName()) / 2 - 16, y1 + textRenderer.fontHeight + 11, centerX + textRenderer.getWidth(type.getName()) / 2 + 16, y1 + textRenderer.fontHeight + 12, color);
 
@@ -377,9 +378,9 @@ public class AbilitiesKeybindingsScreen extends Screen {
 
     private class AbilityKeyBindingButton extends ClickableWidget {
         private final AbilityKeyBinding binding;
-        private final AbilityInstance instance;
+        private final AbilityInstanceData instance;
 
-        public AbilityKeyBindingButton(AbilityKeyBinding binding, AbilityInstance instance, int x, int y, int width, int height, Text message) {
+        public AbilityKeyBindingButton(AbilityKeyBinding binding, AbilityInstanceData instance, int x, int y, int width, int height, Text message) {
             super(x, y, width, height, message);
             this.binding = binding;
             this.instance = instance;

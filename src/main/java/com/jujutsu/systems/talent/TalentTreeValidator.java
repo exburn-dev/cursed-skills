@@ -4,7 +4,7 @@ import com.jujutsu.event.resource.TalentBranchesResourceLoader;
 import com.jujutsu.event.resource.TalentResourceLoader;
 import net.minecraft.util.Identifier;
 
-import java.util.Set;
+import java.util.Map;
 
 public class TalentTreeValidator {
     private final TalentTree tree;
@@ -60,13 +60,7 @@ public class TalentTreeValidator {
         return userPoints >= talent.cost();
     }
 
-    public boolean branchUpgradesNotPurchased(Identifier branchId, Set<Identifier> userPurchasedTalents) {
-        TalentBranch branch = TalentBranchesResourceLoader.getInstance().get(branchId);
-        for(Identifier talent : branch.talents()) {
-            if(userPurchasedTalents.contains(talent)) {
-                return false;
-            }
-        }
-        return true;
+    public boolean branchUpgradesNotPurchased(Identifier branchId, Map<Identifier, Identifier> userPurchasedTalents) {
+        return userPurchasedTalents.containsKey(branchId);
     }
 }

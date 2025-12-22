@@ -5,6 +5,7 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModSounds;
 import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.systems.buff.Buff;
@@ -38,13 +39,13 @@ public class ShadowStepAbility extends AbilityType {
         AttributeBuff speedBuff = new AttributeBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, 2.5, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
         Buff.createBuff(player, damageBuff, ImmutableList.of(new TimerBuffPredicate(30)),
-                Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("shadow_step_damage"));
+                false, Jujutsu.id("shadow_step_damage"));
 
         Buff.createBuff(player, invincibilityBuff, ImmutableList.of(new TimerBuffPredicate(30)),
-                Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("shadow_step_invincible"));
+                false, Jujutsu.id("shadow_step_invincible"));
 
         Buff.createBuff(player, speedBuff, ImmutableList.of(new TimerBuffPredicate(30)),
-                Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("shadow_step_speed"));
+                false, Jujutsu.id("shadow_step_speed"));
 
         player.playSoundToPlayer(ModSounds.SHADOW_STEP_CAST, SoundCategory.MASTER, 2, 1.1f);
 
@@ -73,7 +74,7 @@ public class ShadowStepAbility extends AbilityType {
         return instance.useTime() >= 30;
     }
 
-    public static void renderHud(DrawContext context, RenderTickCounter counter, AbilityInstance instance) {
+    public static void renderHud(DrawContext context, RenderTickCounter counter, AbilityInstanceData instance) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 

@@ -11,6 +11,7 @@ import net.minecraft.nbt.NbtOps;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PassiveAbilityComponent implements EntityComponent, EntityTickingComponent {
     public static final Codec<List<PassiveAbility>> CODEC;
@@ -46,6 +47,27 @@ public class PassiveAbilityComponent implements EntityComponent, EntityTickingCo
             ability.onRemoved(player);
         }
         abilities.clear();
+    }
+
+    public List<PassiveAbility> all() {
+        return abilities;
+    }
+
+    public boolean hasAbilities() {
+        return !abilities.isEmpty();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends PassiveAbility> Optional<T> find(PassiveAbilityType<T> type) {
+        for(PassiveAbility ability : abilities) {
+            if(ability.getType().equals(type)) return (Optional<T>) Optional.of(ability);
+        }
+        return Optional.empty();
+    }
+
+    public void copyFrom(PassiveAbilityComponent component) {
+        abilities = component.abilities;
+        onLoaded();
     }
 
     @Override

@@ -2,10 +2,11 @@ package com.jujutsu.client.hud;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.keybind.InputRequestSystem;
+import com.jujutsu.systems.ability.client.AbilityClientComponent;
+import com.jujutsu.systems.ability.client.ClientComponentContainer;
+import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.data.RequestedInputKey;
-import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.data.ClientData;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
@@ -17,24 +18,22 @@ public class AbilitiesHudRenderer {
         MinecraftClient client = MinecraftClient.getInstance();
         if(client == null || client.player == null) return;
 
-        IAbilitiesHolder holder = (IAbilitiesHolder) client.player;
+        AbilityClientComponent component = ClientComponentContainer.abilityComponent;
 
         MatrixStack matrices = context.getMatrices();
         matrices.push();
 
-        for(AbilitySlot slot: holder.getRunningSlots()) {
-            AbilityInstance instance = holder.getAbilityInstance(slot);
-
-            renderHud(instance, context, counter);
+        for(AbilityInstanceData instanceData: component.all()) {
+            renderHud(instanceData, context, counter);
         }
         renderAdditionalInput(context, counter);
         matrices.pop();
     }
 
-    private static void renderHud(AbilityInstance instance, DrawContext context, RenderTickCounter counter) {
-        if(!instance.getStatus().isRunning() && !instance.getStatus().isWaiting()) return;
+    private static void renderHud(AbilityInstanceData instance, DrawContext context, RenderTickCounter counter) {
+        if(!instance.status().isRunning() && !instance.status().isWaiting()) return;
 
-        ClientData clientData = instance.getType().getClientData();
+        ClientData clientData = instance.type().getClientData();
         if(clientData != null && clientData.overlay() != null) {
             clientData.overlay().render(context, counter, instance);
         }

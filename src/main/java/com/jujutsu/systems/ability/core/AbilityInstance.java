@@ -26,13 +26,16 @@ public class AbilityInstance implements EntityServerData {
         this.player = player;
     }
 
-    public AbilityInstance(PlayerEntity player, AbilityType type) {
+    public AbilityInstance(PlayerEntity player, AbilityType type, AbilitySlot slot) {
         this.player = player;
-        this.type= type;
+        this.type = type;
+        this.slot = slot;
+        this.status = AbilityStatus.NONE;
     }
 
     public AbilityInstance(PlayerEntity player, AbilityInstanceData data) {
-        this(player, data.type());
+        this.player = player;
+        this.type = data.type();
         this.slot = data.slot();
         this.status = data.status();
         this.useTime = data.useTime();
@@ -63,10 +66,13 @@ public class AbilityInstance implements EntityServerData {
         cooldownTime = type.getCooldownTime(player, this);
         useTime = 0;
         clearInputRequest();
+        component().sendToClient();
     }
 
     public void endCooldown() {
         status = AbilityStatus.NONE;
+        cooldownTime = 0;
+        component().sendToClient();
     }
 
     public boolean isFinished() {
@@ -76,6 +82,9 @@ public class AbilityInstance implements EntityServerData {
     private void processStatus() {
         if(status.isRunning()) {
             type.tick(player, this);
+            if(isFinished()) {
+                endAbility();
+            }
             useTime++;
         }
         else if(status.isWaiting()) {
@@ -83,6 +92,9 @@ public class AbilityInstance implements EntityServerData {
         }
         else if(status.onCooldown()) {
             cooldown();
+            if(cooldownTime <= 0) {
+                endCooldown();
+            }
         }
     }
 

@@ -18,6 +18,7 @@ public record RunAbilityC2SPayload(AbilitySlot slot, boolean cancel) implements 
     public static void registerServerReceiver() {
         ServerPlayNetworking.registerGlobalReceiver(ID, (payload, context) -> {
             AbilityComponent component = AbilityComponent.get(context.player());
+            if(component.getInstance(payload.slot) == null) return;
 
             if(payload.cancel()) {
                 component.getInstance(payload.slot()).endAbility();

@@ -6,18 +6,20 @@ import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.event.server.AbilityEvents;
 import com.jujutsu.event.server.PlayerBonusEvents;
 import com.jujutsu.mixinterface.EntityComponentsAccessor;
+import com.jujutsu.registry.ModAbilities;
 import com.jujutsu.registry.ModAttributes;
+import com.jujutsu.systems.ability.attribute.AbilityAttributeComponent;
 import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
-import com.jujutsu.systems.ability.holder.IPlayerJujutsuAbilitiesHolder;
+import com.jujutsu.systems.ability.core.AbilityComponent;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
-import com.jujutsu.systems.ability.holder.PlayerJujutsuAbilities;
+import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
 import com.jujutsu.systems.buff.*;
 import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import com.jujutsu.systems.buff.type.AttributeBuff;
 import com.jujutsu.systems.buff.type.SupersonicBuff;
 import com.jujutsu.systems.entitydata.EntityComponent;
 import com.jujutsu.systems.entitydata.EntityComponentContainer;
+import com.jujutsu.systems.talent.TalentComponent;
 import com.jujutsu.util.AttributeUtils;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
@@ -34,35 +36,37 @@ import java.util.Optional;
 public class ServerEventListeners {
     public static void register() {
         ServerPlayerEvents.COPY_FROM.register((from, to, alive) -> {
-            //TODO: copy components
-            PlayerJujutsuAbilities abilities = ((IPlayerJujutsuAbilitiesHolder) from).getAbilities();
-            ((IPlayerJujutsuAbilitiesHolder) to).setAbilities(abilities);
+            AbilityComponent abilityComponent = AbilityComponent.get(from);
+            PassiveAbilityComponent passiveAbilityComponent = PassiveAbilityComponent.get(from);
+            AbilityAttributeComponent attributeComponent = AbilityAttributeComponent.get(from);
+            TalentComponent talentComponent = TalentComponent.get(from);
 
-            AbilityAttributesContainer attributes = ((AbilityAttributeContainerHolder) from).getAbilityAttributes();
-            ((AbilityAttributeContainerHolder) to).setAbilityAttributes(attributes);
+            AbilityComponent.get(to).copyFrom(abilityComponent);
+            PassiveAbilityComponent.get(to).copyFrom(passiveAbilityComponent);
+            AbilityAttributeComponent.get(to).copyFrom(attributeComponent);
+            TalentComponent.get(to).copyFrom(talentComponent);
         });
 
         ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
-            EntityComponentContainer container = ((EntityComponentsAccessor) entity).jujutsu$getContainer();
-            for(EntityComponent component : container.all()) {
-                component.onLoaded();
+            if(entity.isLiving()) {
+                EntityComponentContainer container = ((EntityComponentsAccessor) entity).jujutsu$getContainer();
+                for (EntityComponent component : container.all()) {
+                    component.onLoaded();
+                }
             }
         });
 
         PlayerBonusEvents.GET_DAMAGE_BONUS_EVENT.register((player, entity) -> {
-            IAbilitiesHolder holder = (IAbilitiesHolder) player;
             float bonus = 0;
-            if(holder.getPassiveAbilities().isEmpty()) return new Pair<>(ActionResult.PASS, bonus);
+            if(player.getWorld().isClient()) return new Pair<>(ActionResult.PASS, bonus);
 
-            SpeedPassiveAbility speedAbility = null;
-            for(PassiveAbility ability: holder.getPassiveAbilities()) {
-                if(ability instanceof SpeedPassiveAbility speedPassiveAbility) {
-                    speedAbility = speedPassiveAbility;
-                    break;
-                }
-            }
+            PassiveAbilityComponent component = PassiveAbilityComponent.get(player);
+            if(!component.hasAbilities()) return new Pair<>(ActionResult.PASS, bonus);
 
-            if(speedAbility == null) return new Pair<>(ActionResult.PASS, bonus);
+            Optional<SpeedPassiveAbility> optional = component.find(ModAbilities.SPEED_PASSIVE_ABILITY);
+            if(optional.isEmpty()) return new Pair<>(ActionResult.PASS, bonus);
+
+            SpeedPassiveAbility speedAbility = optional.get();
 
             float playerSpeed = (float) AttributeUtils.getActualSpeed(player);
             float entitySpeed =  (float) AttributeUtils.getActualSpeed(entity);
@@ -78,19 +82,16 @@ public class ServerEventListeners {
         });
 
         PlayerBonusEvents.GET_SPEED_BONUS_EVENT.register((player) -> {
-            IAbilitiesHolder holder = (IAbilitiesHolder) player;
             float bonus = 0;
-            if(holder.getPassiveAbilities().isEmpty()) return new Pair<>(ActionResult.PASS, bonus);
+            if(player.getWorld().isClient()) return new Pair<>(ActionResult.PASS, bonus);
 
-            SpeedPassiveAbility speedAbility = null;
-            for(PassiveAbility ability: holder.getPassiveAbilities()) {
-                if(ability instanceof SpeedPassiveAbility speedPassiveAbility) {
-                    speedAbility = speedPassiveAbility;
-                    break;
-                }
-            }
+            PassiveAbilityComponent component = PassiveAbilityComponent.get(player);
+            if(!component.hasAbilities()) return new Pair<>(ActionResult.PASS, bonus);
 
-            if(speedAbility == null) return new Pair<>(ActionResult.PASS, bonus);
+            Optional<SpeedPassiveAbility> optional = component.find(ModAbilities.SPEED_PASSIVE_ABILITY);
+            if(optional.isEmpty()) return new Pair<>(ActionResult.PASS, bonus);
+
+            SpeedPassiveAbility speedAbility = optional.get();
 
             double range = 10;
             List<LivingEntity> entities = player.getWorld().getEntitiesByClass(LivingEntity.class, Box.of(player.getPos(), range, range, range), (entity) -> entity != player);
@@ -103,48 +104,50 @@ public class ServerEventListeners {
 
                 AttributeBuff buff = new AttributeBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
-                Buff.createBuff(entity, buff, ImmutableList.of(new TimerBuffPredicate(20)), Buff.CancellingPolicy.ONE_OR_MORE,
+                Buff.createBuff(entity, buff, ImmutableList.of(new TimerBuffPredicate(20)),false,
                         Jujutsu.id("wither_momentum"));
             }
 
             return new Pair<>(ActionResult.PASS, bonus);
         });
-
-        PlayerBonusEvents.GET_SPEED_BONUS_EVENT.register((player) -> {
-            BuffHolder holder = (BuffHolder) player;
-            float bonus = 0;
-            if(!holder.getBuffs().isEmpty()) {
-                for(Buff buffWrapper: holder.getBuffs()) {
-                    IBuff buff = buffWrapper.buff();
-                    if(buff.getType().equals(BuffTypes.SUPERSONIC_BUFF_TYPE)) {
-                        double value = ((SupersonicBuff) buff).getValue(player);
-                        bonus += (float) value;
-
-                    }
-                }
-            }
-
-            return new Pair<>(ActionResult.PASS, bonus);
-        });
+        //TODO supersonic buff
+//        PlayerBonusEvents.GET_SPEED_BONUS_EVENT.register((player) -> {
+//            BuffHolder holder = (BuffHolder) player;
+//            float bonus = 0;
+//            if(!holder.getBuffs().isEmpty()) {
+//                for(Buff buffWrapper: holder.getBuffs()) {
+//                    IBuff buff = buffWrapper.buff();
+//                    if(buff.getType().equals(BuffTypes.SUPERSONIC_BUFF_TYPE)) {
+//                        double value = ((SupersonicBuff) buff).getValue(player);
+//                        bonus += (float) value;
+//
+//                    }
+//                }
+//            }
+//
+//            return new Pair<>(ActionResult.PASS, bonus);
+//        });
 
         PlayerBonusEvents.GET_JUMP_VELOCITY_BONUS_EVENT.register(player -> {
-            IAbilitiesHolder holder = (IAbilitiesHolder) player;
             float bonus = 1;
+            if(player.getWorld().isClient()) return new Pair<>(ActionResult.PASS, bonus);
+            PassiveAbilityComponent component = PassiveAbilityComponent.get(player);
 
             if(player.getAttributes().hasAttribute(ModAttributes.JUMP_VELOCITY_MULTIPLIER)) {
                 bonus = (float) player.getAttributeValue(ModAttributes.JUMP_VELOCITY_MULTIPLIER);
             }
 
-            if(!holder.getPassiveAbilities().isEmpty()) {
-                Optional<SpeedPassiveAbility> optional = AbilitiesHolderUtils.findPassiveAbility(holder, SpeedPassiveAbility.class);
-                if(optional.isPresent()) {
-                    double dynamicSpeed = ((PlayerDynamicAttributesAccessor) player).getDynamicSpeed();
-                    double x = (player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) + dynamicSpeed) /
-                            player.getAttributeBaseValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) - 1;
+            if(!component.hasAbilities()) return new Pair<>(ActionResult.PASS, bonus);
 
-                    bonus += (float) Math.max(0, x * 0.325);
-                }
-            }
+            Optional<SpeedPassiveAbility> optional = component.find(ModAbilities.SPEED_PASSIVE_ABILITY);
+            if(optional.isEmpty()) return new Pair<>(ActionResult.PASS, bonus);
+
+            double dynamicSpeed = ((PlayerDynamicAttributesAccessor) player).getDynamicSpeed();
+            double x = (player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) + dynamicSpeed) /
+                    player.getAttributeBaseValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) - 1;
+
+            bonus += (float) Math.max(0, x * 0.325);
+
             return new Pair<>(ActionResult.PASS, bonus);
         });
 

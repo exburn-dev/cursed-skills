@@ -4,12 +4,15 @@ import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.mixin.LivingEntityAccessor;
+import com.jujutsu.registry.ModAbilities;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
+import com.jujutsu.systems.ability.client.ClientComponentContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.data.*;
 import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
+import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
 import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import com.jujutsu.systems.buff.type.AttributeBuff;
@@ -46,7 +49,9 @@ public class SonicRiftAbility extends AbilityType {
 
     @Override
     public void start(PlayerEntity player, AbilityInstance instance) {
-        Optional<SpeedPassiveAbility> optional = AbilitiesHolderUtils.findPassiveAbility((IAbilitiesHolder) player, SpeedPassiveAbility.class);
+        PassiveAbilityComponent component = PassiveAbilityComponent.get(player);
+        Optional<SpeedPassiveAbility> optional = component.find(ModAbilities.SPEED_PASSIVE_ABILITY);
+
         double speed = 0;
         int dashes = 0;
 
@@ -213,9 +218,9 @@ public class SonicRiftAbility extends AbilityType {
         setPlayerUsingRiptide(player, isDashing);
 
         if(isDashing) {
-            IBuff buff = new AttributeBuff(EntityAttributes.GENERIC_GRAVITY, -0.75, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+            AttributeBuff buff = new AttributeBuff(EntityAttributes.GENERIC_GRAVITY, -0.75, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
             Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(40)),
-                    Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("sonicrift_gravity"));
+                    false, Jujutsu.id("sonicrift_gravity"));
         }
     }
 
@@ -245,11 +250,12 @@ public class SonicRiftAbility extends AbilityType {
                 .build();
     }
 
-    public static void renderHud(DrawContext context, RenderTickCounter counter, AbilityInstance instance) {
+    public static void renderHud(DrawContext context, RenderTickCounter counter, AbilityInstanceData instance) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 
-        int dashesLeft = instance.get(DASHES_LEFT) == null ? 0 : instance.get(DASHES_LEFT);
+        AbilityPropertiesContainer properties = ClientComponentContainer.abilityComponent.getRuntimeData(instance.slot());
+        int dashesLeft = properties.get(DASHES_LEFT) == null ? 0 : properties.get(DASHES_LEFT);
 
         MatrixStack matrices = context.getMatrices();
         matrices.push();

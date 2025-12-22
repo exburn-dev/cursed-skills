@@ -3,13 +3,15 @@ package com.jujutsu.command;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.command.argument.AbilitySlotArgument;
 import com.jujutsu.registry.JujutsuRegistries;
+import com.jujutsu.systems.ability.core.AbilityComponent;
+import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.attribute.AbilityAttribute;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.network.payload.OpenHandSettingScreenPayload;
 import com.jujutsu.systems.ability.upgrade.TalentsData;
 import com.jujutsu.systems.animation.PlayerAnimations;
+import com.jujutsu.systems.talent.TalentComponent;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -56,7 +58,7 @@ public class JujutsuCommand {
                     )
 
                     .then(CommandManager.literal("points")
-                            .then(CommandManager.literal("set")
+                            .then(CommandManager.literal("add")
                                     .then(CommandManager.argument("points", FloatArgumentType.floatArg()).executes(JujutsuCommand::setPoints)))
                     )
 
@@ -75,18 +77,16 @@ public class JujutsuCommand {
     }
 
     private static int resetAttributesAndUpgrades(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        AbilitiesHolderUtils.removeAbilityUpgrades(context.getSource().getPlayer());
+        TalentComponent.get(context.getSource().getPlayer()).removePurchasedTalents();
 
         return 1;
     }
 
     private static int setPoints(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         float points = FloatArgumentType.getFloat(context, "points");
-        IAbilitiesHolder holder = (IAbilitiesHolder) context.getSource().getPlayer();
+        TalentComponent component = TalentComponent.get(context.getSource().getPlayer());
 
-        TalentsData data = holder.getUpgradesData();
-
-        holder.setUpgradesData(new TalentsData(data.tree(), points, data.purchasedUpgrades()));
+        component.addPoints((int) Math.floor(points));
 
         return 1;
     }
@@ -95,8 +95,6 @@ public class JujutsuCommand {
         AbilityAttribute attribute = RegistryEntryReferenceArgumentType.getRegistryEntry(context, "attribute", JujutsuRegistries.ABILITY_ATTRIBUTE_REGISTRY_KEY).value();
         Identifier id = IdentifierArgumentType.getIdentifier(context, "id");
         double value = DoubleArgumentType.getDouble(context, "value");
-
-
 
         return 1;
     }
@@ -116,21 +114,23 @@ public class JujutsuCommand {
 
     private static int reloadAbilities(CommandContext<ServerCommandSource> context) {
         ServerPlayerEntity player = context.getSource().getPlayer();
-        IAbilitiesHolder holder = (IAbilitiesHolder) player;
+        AbilityComponent component = AbilityComponent.get(player);
 
-        if (holder.getSlots().size() <= 0) return 1;
-        for(AbilitySlot slot: holder.getSlots()) {
-            AbilityInstance instance = holder.getAbilityInstance(slot);
-            instance.setCooldownTime(0);
+        if (component.abilities().isEmpty()) return 1;
+        for(AbilitySlot slot: component.slots()) {
+            AbilityInstance instance = component.getInstance(slot);
+            instance.endCooldown();
         }
+
         return 1;
     }
 
     private static int removeAllAbilities(CommandContext<ServerCommandSource> context) {
         ServerPlayerEntity player = context.getSource().getPlayer();
+        AbilityComponent component = AbilityComponent.get(player);
 
         try {
-            AbilitiesHolderUtils.removeAbilities(player);
+            //TODO
         }
         catch (Exception e) {
             Jujutsu.LOGGER.warn("exception: {}", e);
@@ -141,20 +141,18 @@ public class JujutsuCommand {
     private static int removeAbility(CommandContext<ServerCommandSource> context) {
         AbilitySlot slot = context.getArgument("ability_slot", AbilitySlot.class);
         ServerPlayerEntity player = context.getSource().getPlayer();
-        IAbilitiesHolder holder = (IAbilitiesHolder) player;
-
-        holder.removeAbilityInstance(slot);
+        //TODO
 
         return 1;
     }
 
     private static int getAbilitiesInfo(CommandContext<ServerCommandSource> context) {
         ServerPlayerEntity player = context.getSource().getPlayer();
-        IAbilitiesHolder holder = (IAbilitiesHolder) player;
+        AbilityComponent component = AbilityComponent.get(player);
 
         StringBuilder builder = new StringBuilder();
-        for(AbilitySlot slot: holder.getSlots()) {
-            AbilityInstance instance = holder.getAbilityInstance(slot);
+        for(AbilitySlot slot: component.slots()) {
+            AbilityInstance instance = component.getInstance(slot);
             builder.append(String.format("Instance: {%s} \n", instance.toString()));
         }
         player.sendMessage(Text.literal(builder.toString()), true);
@@ -166,8 +164,9 @@ public class JujutsuCommand {
         RegistryEntry.Reference<AbilityType> ability = RegistryEntryReferenceArgumentType.getRegistryEntry(context, "ability", JujutsuRegistries.ABILITY_TYPE_REGISTRY_KEY);
 
         ServerPlayerEntity player = context.getSource().getPlayer();
-        IAbilitiesHolder holder = (IAbilitiesHolder) player;
+        AbilityComponent component = AbilityComponent.get(player);
 
+        //TODO
 
         return 1;
     }

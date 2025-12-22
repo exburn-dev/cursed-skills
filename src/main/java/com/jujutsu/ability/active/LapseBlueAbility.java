@@ -3,6 +3,7 @@ package com.jujutsu.ability.active;
 import com.jujutsu.registry.ModAbilityAttributes;
 import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
+import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.ClientData;
 import com.jujutsu.entity.LapseBlueEntity;
@@ -72,7 +73,7 @@ public class LapseBlueAbility extends AbilityType {
         return Style.EMPTY.withColor(0x306ed9);
     }
 
-    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstance instance, ClientPlayerEntity player, PlayerEntityRenderer playerRenderer, float equipProgress, float swingProgress, int light) {
+    public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstanceData instance, ClientPlayerEntity player, PlayerEntityRenderer playerRenderer, float equipProgress, float swingProgress, int light) {
         matrices.push();
 
         double currentTime = Util.getMeasuringTimeMs() / 1000.0;

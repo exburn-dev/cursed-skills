@@ -30,8 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin extends LivingEntity implements AbilityAttributeContainerHolder,
-        PlayerDynamicAttributesAccessor {
+public abstract class PlayerEntityMixin extends LivingEntity implements PlayerDynamicAttributesAccessor {
     @Unique
     private static final TrackedData<Float> DYNAMIC_SPEED_BONUS =
             DataTracker.registerData(PlayerEntity.class, TrackedDataHandlerRegistry.FLOAT);

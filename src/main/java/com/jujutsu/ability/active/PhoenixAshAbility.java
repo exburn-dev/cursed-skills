@@ -39,10 +39,10 @@ public class PhoenixAshAbility extends AbilityType {
         AttributeBuff speedBuff = new AttributeBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
         Buff.createBuff(player, invincibilityBuff, ImmutableList.of(new TimerBuffPredicate(60)),
-                Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("phoenix_invincible"));
+                false, Jujutsu.id("phoenix_invincible"));
 
         Buff.createBuff(player, speedBuff, ImmutableList.of(new TimerBuffPredicate(200)),
-                Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("phoenix_speed"));
+                false, Jujutsu.id("phoenix_speed"));
 
         List<LivingEntity> entities = player.getWorld().getEntitiesByClass(LivingEntity.class, Box.of(player.getPos(), 16, 16, 16), entity -> !entity.getUuid().equals(player.getUuid()));
         for(LivingEntity entity: entities) {
@@ -54,7 +54,7 @@ public class PhoenixAshAbility extends AbilityType {
             AttributeBuff slownessBuff = new AttributeBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
             Buff.createBuff(entity, slownessBuff, ImmutableList.of(new TimerBuffPredicate(200)),
-                    Buff.CancellingPolicy.ONE_OR_MORE, Jujutsu.id("phoenix_slowness"));
+                    false, Jujutsu.id("phoenix_slowness"));
         }
     }
 

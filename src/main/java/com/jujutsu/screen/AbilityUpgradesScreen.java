@@ -97,7 +97,7 @@ public class AbilityUpgradesScreen extends Screen {
     private void reloadButtonStatus(AbilityUpgradeButton button) {
         TalentTreeValidator validator = new TalentTreeValidator(tree);
         if(!validator.branchUpgradesNotPurchased(button.branch.id(), talentsData.purchasedUpgrades())) {
-            button.purchased = talentsData.purchasedUpgrades().contains(button.upgrade.id());
+            button.purchased = talentsData.purchasedUpgrades().get(button.branch.id()).equals(button.upgrade.id());
             button.canBePurchased = false;
         }
         Identifier currentBranch = tree.getNext(talentsData.lastPurchasedBranch());

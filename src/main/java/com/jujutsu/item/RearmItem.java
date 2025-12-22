@@ -1,7 +1,8 @@
 package com.jujutsu.item;
 
+import com.jujutsu.systems.ability.core.AbilityComponent;
+import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilitySlot;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -19,12 +20,12 @@ public class RearmItem extends Item {
         ItemStack stack = user.getStackInHand(hand);
         if(world.isClient()) return TypedActionResult.pass(stack);
 
-        IAbilitiesHolder holder = (IAbilitiesHolder) user;
+        AbilityComponent component = AbilityComponent.get(user);
 
-        if (holder.getSlots().isEmpty()) return TypedActionResult.pass(stack);
-        for(AbilitySlot slot: holder.getSlots()) {
-            AbilityInstance instance = holder.getAbilityInstance(slot);
-            instance.setCooldownTime(0);
+        if (component.slots().isEmpty()) return TypedActionResult.pass(stack);
+        for(AbilitySlot slot: component.slots()) {
+            AbilityInstance instance = component.getInstance(slot);
+            instance.endCooldown();
         }
 
         user.getItemCooldownManager().set(this, 10);

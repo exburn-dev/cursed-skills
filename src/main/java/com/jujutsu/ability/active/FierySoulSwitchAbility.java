@@ -4,8 +4,8 @@ import com.jujutsu.ability.passive.FierySoulPassiveAbility;
 import com.jujutsu.registry.ModAbilities;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.holder.IAbilitiesHolder;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
+import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Style;
 
@@ -16,9 +16,9 @@ public class FierySoulSwitchAbility extends AbilityType {
 
     @Override
     public void start(PlayerEntity player, AbilityInstance instance) {
-        IAbilitiesHolder holder = (IAbilitiesHolder) player;
+        PassiveAbilityComponent component = PassiveAbilityComponent.get(player);
 
-        for(PassiveAbility passiveAbility: holder.getPassiveAbilities()) {
+        for(PassiveAbility passiveAbility: component.all()) {
             if(passiveAbility.getType() == ModAbilities.FIERY_SOUL) {
                 FierySoulPassiveAbility fierySoul = (FierySoulPassiveAbility) passiveAbility;
 

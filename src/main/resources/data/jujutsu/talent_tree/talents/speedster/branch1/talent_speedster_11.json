@@ -1,0 +1,27 @@
+{
+  "id": "jujutsu:talent_speedster_11",
+  "icon": "minecraft:textures/item/wind_charge",
+  "cost": 5,
+  "rewards": [
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:sonic_rift_dash_power": {
+          "id": "jujutsu:speedster_111",
+          "amount": 0.25,
+          "operation": "multiply"
+        }
+      }
+    },
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:sonic_rift_additional_dashes": {
+          "id": "jujutsu:speedster_112",
+          "amount": 1,
+          "operation": "add"
+        }
+      }
+    }
+  ]
+}

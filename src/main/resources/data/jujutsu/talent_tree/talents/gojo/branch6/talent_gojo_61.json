@@ -1,0 +1,17 @@
+{
+  "id": "jujutsu:talent_gojo_61",
+  "icon": "minecraft:textures/mob_effect/health_boost",
+  "cost": 10,
+  "rewards": [
+    {
+      "type": "jujutsu:entity_attribute",
+      "modifiers": {
+        "minecraft:generic.max_health": {
+          "id": "jujutsu:gojo_611",
+          "amount": 5,
+          "operation": "add_value"
+        }
+      }
+    }
+  ]
+}

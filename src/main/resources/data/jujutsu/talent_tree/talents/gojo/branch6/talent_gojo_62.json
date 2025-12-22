@@ -1,0 +1,17 @@
+{
+  "id": "jujutsu:talent_gojo_62",
+  "icon": "minecraft:textures/mob_effect/speed",
+  "cost": 10,
+  "rewards": [
+    {
+      "type": "jujutsu:entity_attribute",
+      "modifiers": {
+        "minecraft:generic.movement_speed": {
+          "id": "jujutsu:gojo_621",
+          "amount": 0.1,
+          "operation": "add_multiplied_total"
+        }
+      }
+    }
+  ]
+}

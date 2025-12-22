@@ -1,0 +1,17 @@
+{
+  "id": "jujutsu:talent_gojo_51",
+  "icon": "minecraft:textures/item/red_dye",
+  "cost": 10,
+  "rewards": [
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:reversal_red_stun": {
+          "id": "jujutsu:gojo_511",
+          "amount": 2,
+          "operation": "add"
+        }
+      }
+    }
+  ]
+}

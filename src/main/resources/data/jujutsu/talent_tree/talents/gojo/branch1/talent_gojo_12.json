@@ -1,0 +1,27 @@
+{
+  "id": "jujutsu:talent_gojo_12",
+  "icon": "minecraft:textures/item/firework_rocket",
+  "cost": 10,
+  "rewards": [
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:hollow_purple_radius": {
+          "id": "jujutsu:gojo_121",
+          "amount": -0.5,
+          "operation": "add"
+        }
+      }
+    },
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:hollow_purple_speed": {
+          "id": "jujutsu:gojo_122",
+          "amount": 0.15,
+          "operation": "multiply"
+        }
+      }
+    }
+  ]
+}

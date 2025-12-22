@@ -1,0 +1,27 @@
+{
+  "id": "jujutsu:talent_speedster_12",
+  "icon": "minecraft:textures/mob_effect/speed",
+  "cost": 5,
+  "rewards": [
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:supersonic_speed": {
+          "id": "jujutsu:speedster_121",
+          "amount": 0.25,
+          "operation": "multiply"
+        }
+      }
+    },
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:supersonic_duration": {
+          "id": "jujutsu:speedster_122",
+          "amount": 2,
+          "operation": "add"
+        }
+      }
+    }
+  ]
+}

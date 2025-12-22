@@ -1,0 +1,11 @@
+{
+  "id": "jujutsu:gojo",
+  "branches": [
+    "jujutsu:branch_gojo_1",
+    "jujutsu:branch_gojo_2",
+    "jujutsu:branch_gojo_3",
+    "jujutsu:branch_gojo_4",
+    "jujutsu:branch_gojo_5",
+    "jujutsu:branch_gojo_6"
+  ]
+}

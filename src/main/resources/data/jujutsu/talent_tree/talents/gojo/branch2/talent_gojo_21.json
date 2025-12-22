@@ -1,0 +1,17 @@
+{
+  "id": "jujutsu:talent_gojo_21",
+  "icon": "minecraft:textures/item/fire_charge",
+  "cost": 8,
+  "rewards": [
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:infinity_duration": {
+          "id": "jujutsu:gojo_211",
+          "amount": 2,
+          "operation": "add"
+        }
+      }
+    }
+  ]
+}

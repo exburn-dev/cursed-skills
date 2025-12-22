@@ -1,0 +1,17 @@
+{
+  "id": "jujutsu:talent_gojo_52",
+  "icon": "minecraft:textures/item/blue_dye",
+  "cost": 10,
+  "rewards": [
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:lapse_blue_stun": {
+          "id": "jujutsu:gojo_521",
+          "amount": 2,
+          "operation": "add"
+        }
+      }
+    }
+  ]
+}

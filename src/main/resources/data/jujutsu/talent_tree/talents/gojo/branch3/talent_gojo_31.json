@@ -1,0 +1,27 @@
+{
+  "id": "jujutsu:talent_gojo_31",
+  "icon": "minecraft:textures/item/bell",
+  "cost": 10,
+  "rewards": [
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:reversal_red_explosion_power": {
+          "id": "jujutsu:gojo_311",
+          "amount": 1,
+          "operation": "multiply"
+        }
+      }
+    },
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:reversal_red_damage_multiplier": {
+          "id": "jujutsu:gojo_312",
+          "amount": 0.5,
+          "operation": "multiply"
+        }
+      }
+    }
+  ]
+}

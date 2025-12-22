@@ -1,0 +1,17 @@
+{
+  "id": "jujutsu:talent_gojo_32",
+  "icon": "minecraft:textures/item/cookie",
+  "cost": 10,
+  "rewards": [
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:lapse_blue_damage_multiplier": {
+          "id": "jujutsu:gojo_321",
+          "amount": 0.75,
+          "operation": "multiply"
+        }
+      }
+    }
+  ]
+}

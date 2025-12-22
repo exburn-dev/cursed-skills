@@ -1,0 +1,27 @@
+{
+  "id": "jujutsu:talent_gojo_42",
+  "icon": "minecraft:textures/mob_effect/health_boost",
+  "cost": 10,
+  "rewards": [
+    {
+      "type": "jujutsu:entity_attribute",
+      "modifiers": {
+        "minecraft:generic.movement_speed": {
+          "id": "jujutsu:gojo_421",
+          "amount": 0.15,
+          "operation": "add_multiplied_total"
+        }
+      }
+    },
+    {
+      "type": "jujutsu:entity_attribute",
+      "modifiers": {
+        "minecraft:generic.max_health": {
+          "id": "jujutsu:gojo_422",
+          "amount": 5,
+          "operation": "add_value"
+        }
+      }
+    }
+  ]
+}

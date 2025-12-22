@@ -1,0 +1,17 @@
+{
+  "id": "jujutsu:talent_gojo_22",
+  "icon": "minecraft:textures/item/nether_star",
+  "cost": 8,
+  "rewards": [
+    {
+      "type": "jujutsu:ability_attribute",
+      "modifiers": {
+        "jujutsu:hollow_purple_radius": {
+          "id": "jujutsu:gojo_221",
+          "amount": 0.5,
+          "operation": "add"
+        }
+      }
+    }
+  ]
+}

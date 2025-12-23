@@ -9,10 +9,10 @@ import com.jujutsu.systems.ability.attribute.AbilityAttributeComponent;
 import com.jujutsu.systems.ability.data.InputRequest;
 import com.jujutsu.systems.entitydata.*;
 import com.jujutsu.systems.talent.TalentComponent;
-import com.mojang.serialization.Codec;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AbilityComponent implements EntityComponent, EntityTickingComponent {
-    public static final Codec<Map<AbilitySlot, AbilityInstanceData>> CODEC;
     public static final PacketCodec<RegistryByteBuf, Map<AbilitySlot, AbilityInstanceData>> PACKET_CODEC;
 
     private final PlayerEntity player;
@@ -167,21 +166,21 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
 
     @Override
     public void saveToNbt(NbtCompound nbt) {
-        NbtCompound compound = new NbtCompound();
-        var result = CODEC.encode(abilitiesDataMap(), NbtOps.INSTANCE, compound);
+        NbtList list = new NbtList();
+        var result = AbilityInstanceData.MAP_CODEC.encode(abilitiesDataMap(), NbtOps.INSTANCE, list);
         if(result.isSuccess()) {
-            compound = (NbtCompound) result.getOrThrow();
+            list = (NbtList) result.getOrThrow();
         }
 
-        nbt.put("Abilities", compound);
+        nbt.put("Abilities", list);
     }
 
     @Override
     public void readFromNbt(NbtCompound nbt) {
-        NbtCompound compound = nbt.getCompound("Abilities");
+        NbtList compound = nbt.getList("Abilities", 10);
 
         abilities.clear();
-        var result = CODEC.parse(NbtOps.INSTANCE, compound);
+        var result = AbilityInstanceData.MAP_CODEC.parse(NbtOps.INSTANCE, compound);
         if(result.isSuccess()) {
             readDataMap(result.getOrThrow());
         }
@@ -199,7 +198,6 @@ public class AbilityComponent implements EntityComponent, EntityTickingComponent
     }
 
     static {
-        CODEC = Codec.unboundedMap(AbilitySlot.CODEC, AbilityInstanceData.CODEC);
         PACKET_CODEC = PacketCodecs.map(HashMap::new,
                 AbilitySlot.PACKET_CODEC, AbilityInstanceData.PACKET_CODEC);
     }

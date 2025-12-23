@@ -7,6 +7,7 @@ import com.jujutsu.systems.entitydata.EntityTickingComponent;
 import com.mojang.serialization.Codec;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 
 import java.util.ArrayList;
@@ -72,23 +73,23 @@ public class PassiveAbilityComponent implements EntityComponent, EntityTickingCo
 
     @Override
     public void saveToNbt(NbtCompound nbt) {
-        NbtCompound compound = new NbtCompound();
-        var result = CODEC.encode(abilities, NbtOps.INSTANCE, compound);
+        NbtList list = new NbtList();
+        var result = CODEC.encode(abilities, NbtOps.INSTANCE, list);
         if(result.isSuccess()) {
-            compound = (NbtCompound) result.getOrThrow();
+            list = (NbtList) result.getOrThrow();
         }
 
-        nbt.put("PassiveAbilities", compound);
+        nbt.put("PassiveAbilities", list);
     }
 
     @Override
     public void readFromNbt(NbtCompound nbt) {
-        NbtCompound compound = nbt.getCompound("PassiveAbilities");
-        var result = CODEC.parse(NbtOps.INSTANCE, compound);
+        NbtList list = nbt.getList("PassiveAbilities", 10);
+        var result = CODEC.parse(NbtOps.INSTANCE, list);
 
         abilities.clear();
         if(result.isSuccess()) {
-            abilities = result.getOrThrow();
+            abilities = new ArrayList<>(result.getOrThrow());
         }
     }
 

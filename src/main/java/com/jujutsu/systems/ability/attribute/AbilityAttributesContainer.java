@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public record AbilityAttributesContainer(Map<RegistryEntry<AbilityAttribute>, Map<Identifier, AbilityAttributeModifier>> attributes) {
-    public static final Codec<AbilityAttributesContainer> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.unboundedMap(JujutsuRegistries.ABILITY_ATTRIBUTE.getEntryCodec(), Codec.unboundedMap(Identifier.CODEC, AbilityAttributeModifier.CODEC))
-                    .fieldOf("attributes").forGetter(AbilityAttributesContainer::attributes)
-    ).apply(instance, AbilityAttributesContainer::new));
+    public static final Codec<AbilityAttributesContainer> CODEC = Codec.unboundedMap(
+            JujutsuRegistries.ABILITY_ATTRIBUTE.getEntryCodec(),
+            Codec.unboundedMap(Identifier.CODEC, AbilityAttributeModifier.CODEC))
+            .xmap(AbilityAttributesContainer::new, AbilityAttributesContainer::attributes);
 
     public static final PacketCodec<RegistryByteBuf, AbilityAttributesContainer> PACKET_CODEC = PacketCodec.tuple(
             PacketCodecs.map(HashMap::new, PacketCodecs.registryEntry(JujutsuRegistries.ABILITY_ATTRIBUTE_REGISTRY_KEY),

@@ -72,6 +72,7 @@ public class AbilityInstance implements EntityServerData {
     public void endCooldown() {
         status = AbilityStatus.NONE;
         cooldownTime = 0;
+        useTime = 0;
         component().sendToClient();
     }
 
@@ -124,6 +125,10 @@ public class AbilityInstance implements EntityServerData {
         AbilityComponent component = component();
         if(component.hasInputRequest(slot)) {
             component.removeInputRequest(slot);
+
+            if(status().isWaiting()) {
+                status = AbilityStatus.RUNNING;
+            }
         }
     }
 
@@ -161,12 +166,6 @@ public class AbilityInstance implements EntityServerData {
         this.status = data.status();
         this.useTime = data.useTime();
         this.cooldownTime = data.cooldownTime();
-    }
-
-    public static AbilityInstance fromNbt(PlayerEntity player, NbtCompound nbt) {
-        AbilityInstance instance = new AbilityInstance(player);
-        instance.readFromNbt(nbt);
-        return instance;
     }
 
     @Override

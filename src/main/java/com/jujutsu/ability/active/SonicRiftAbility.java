@@ -14,6 +14,7 @@ import com.jujutsu.systems.ability.data.*;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
 import com.jujutsu.systems.buff.Buff;
+import com.jujutsu.systems.buff.conditions.AbilityPropertyBuffPredicate;
 import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import com.jujutsu.systems.buff.type.AttributeBuff;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -80,7 +81,7 @@ public class SonicRiftAbility extends AbilityType {
             if(((!hasDelay && player.isOnGround()) || hasCollision)) {
                 setData(instance, instance.get(DASHES_LEFT), instance.get(SPEED_ON_START), false, 0);
 
-                setDashingProperties(player, false);
+                setDashingProperties(instance, player, false);
                 if(instance.get(DASHES_LEFT) > 0) {
                     addLaunchInput(player, instance);
                 }
@@ -111,7 +112,8 @@ public class SonicRiftAbility extends AbilityType {
 
     @Override
     public void end(PlayerEntity player, AbilityInstance instance) {
-        setDashingProperties(player, false);
+        setDashingProperties(instance, player, false);
+        setData(instance, 0, 0, false, 0);
     }
 
     @Override
@@ -197,7 +199,7 @@ public class SonicRiftAbility extends AbilityType {
             double dashVelocityMultiplier = getAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_DASH_POWER);
 
             player.requestTeleport(player.getX(), player.getY() + 1, player.getZ());
-            Vec3d vec = player.getRotationVector()
+            Vec3d vec = player.getRotationVector().normalize()
                     .multiply(0.75 + 0.75 * getAbilityStrength(instance.get(SPEED_ON_START)))
                     .multiply(dashVelocityMultiplier);
             player.addVelocity(vec);
@@ -210,16 +212,16 @@ public class SonicRiftAbility extends AbilityType {
             instance.sendToClient();
         }
         if(!player.getWorld().isClient()) {
-            setDashingProperties(player, true);
+            setDashingProperties(instance, player, true);
         }
     }
 
-    private void setDashingProperties(PlayerEntity player, boolean isDashing) {
+    private void setDashingProperties(AbilityInstance instance, PlayerEntity player, boolean isDashing) {
         setPlayerUsingRiptide(player, isDashing);
 
         if(isDashing) {
             AttributeBuff buff = new AttributeBuff(EntityAttributes.GENERIC_GRAVITY, -0.75, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-            Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(40)),
+            Buff.createBuff(player, buff, ImmutableList.of(new AbilityPropertyBuffPredicate(instance.slot(), DASHING, true)),
                     false, Jujutsu.id("sonicrift_gravity"));
         }
     }

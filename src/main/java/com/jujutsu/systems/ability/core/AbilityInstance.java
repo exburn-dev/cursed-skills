@@ -140,6 +140,10 @@ public class AbilityInstance implements EntityServerData {
         return this.type;
     }
 
+    public AbilitySlot slot() {
+        return slot;
+    }
+
     public int useTime() {
         return useTime;
     }

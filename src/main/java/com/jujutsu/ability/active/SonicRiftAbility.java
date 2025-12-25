@@ -132,8 +132,6 @@ public class SonicRiftAbility extends AbilityType {
         instance.set(DASHING, false);
         instance.set(DASH_DELAY, 0);
 
-        BuffComponent.get(player).markForRemoval(Jujutsu.id("sonicrift_gravity"));
-
         setDashingProperties(instance, player, false);
         if(instance.get(DASHES_LEFT) > 0) {
             addLaunchInput(player, instance);
@@ -155,7 +153,7 @@ public class SonicRiftAbility extends AbilityType {
     private HitResult getPlayerCollision(PlayerEntity player) {
         Vec3d velocity = player.getVelocity();
         Vec3d start = player.getPos();
-        Vec3d motion = velocity.length() < 1 ? player.getVelocity().normalize().multiply(2) : velocity.multiply(1);
+        Vec3d motion = velocity.length() < 1 ? player.getVelocity().normalize().multiply(2) : velocity.multiply(3);
         Vec3d end = start.add(motion);
 
         HitResult blockHit = player.getWorld().raycast(new RaycastContext(
@@ -250,6 +248,9 @@ public class SonicRiftAbility extends AbilityType {
             AttributeBuff buff = new AttributeBuff(EntityAttributes.GENERIC_GRAVITY, -0.85, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
             Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(25)),
                     false, Jujutsu.id("sonicrift_gravity"));
+        }
+        else {
+            BuffComponent.get(player).markForRemoval(Jujutsu.id("sonicrift_gravity"));
         }
     }
 

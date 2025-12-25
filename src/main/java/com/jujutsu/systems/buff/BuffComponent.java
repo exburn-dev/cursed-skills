@@ -30,15 +30,14 @@ public class BuffComponent implements EntityComponent, EntityTickingComponent {
 
     @Override
     public void tick() {
-        toRemove.clear();
-
         for(Identifier id : buffs.keySet()) {
             Buff buff = buffs.get(id);
 
             buff.tick(id);
         }
 
-        toRemove.forEach(id -> buffs.remove(id));
+        toRemove.forEach(this::removeBuff);
+        toRemove.clear();
     }
 
     public void addBuff(Identifier id, Buff buff) {
@@ -51,6 +50,12 @@ public class BuffComponent implements EntityComponent, EntityTickingComponent {
 
     public boolean hasBuff(Identifier id) {
         return buffs.containsKey(id);
+    }
+
+    private void removeBuff(Identifier id) {
+        if(!buffs.containsKey(id)) return;
+        buffs.get(id).provider().remove(entity, id);
+        buffs.remove(id);
     }
 
     private Map<Identifier, BuffData> buffDataMap() {

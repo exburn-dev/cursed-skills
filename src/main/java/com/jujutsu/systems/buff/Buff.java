@@ -26,7 +26,6 @@ public class Buff {
 
     public void tick(Identifier selfId) {
         if(checkConditions()) {
-            provider.remove(entity, selfId);
             component().markForRemoval(selfId);
         }
     }

@@ -111,6 +111,10 @@ public class AbilityInstance implements EntityServerData {
         runtimeData.set(property, value);
     }
 
+    public void addPropertyValue(AbilityProperty<Integer> property, int toAdd) {
+        set(property, get(property) + toAdd);
+    }
+
     public void requestInput(InputRequest request) {
         status = AbilityStatus.WAITING;
 

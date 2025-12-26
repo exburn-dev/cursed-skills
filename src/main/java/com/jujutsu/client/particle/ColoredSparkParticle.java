@@ -1,5 +1,6 @@
 package com.jujutsu.client.particle;
 
+import com.jujutsu.Jujutsu;
 import com.jujutsu.client.hud.ShaderUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.particle.v1.FabricSpriteProvider;
@@ -14,27 +15,6 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 public class ColoredSparkParticle extends SpriteBillboardParticle {
-    public static final ParticleTextureSheet GLOW_PARTICLE_SHEET = new ParticleTextureSheet() {
-
-        @Override
-        public BufferBuilder begin(Tessellator tessellator, TextureManager textureManager) {
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-
-            RenderSystem.setShader(() -> ShaderUtils.coloredSparkShader);
-
-            RenderSystem.setShaderTexture(
-                    0,
-                    SpriteAtlasTexture.PARTICLE_ATLAS_TEXTURE
-            );
-
-            return tessellator.begin(
-                    VertexFormat.DrawMode.QUADS,
-                    VertexFormats.POSITION_TEXTURE_COLOR_LIGHT
-            );
-        }
-    };
-
     private final SpriteProvider spriteProvider;
     private final ColoredSparkParticleEffect parameters;
 
@@ -60,6 +40,7 @@ public class ColoredSparkParticle extends SpriteBillboardParticle {
         angle = parameters.getRoll().startRoll();
         oldScale = scale;
         currentScale = scale;
+        Jujutsu.LOGGER.info("Type: {}", getType().hashCode());
     }
 
     @Override
@@ -99,8 +80,9 @@ public class ColoredSparkParticle extends SpriteBillboardParticle {
 
     @Override
     public void buildGeometry(VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
-        this.scale = MathHelper.lerp(tickDelta, oldScale, currentScale);
+        //this.scale = MathHelper.lerp(tickDelta, oldScale, currentScale);
 
+        //RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_SRC_COLOR); -- not bad
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
         //12311
 
@@ -109,7 +91,7 @@ public class ColoredSparkParticle extends SpriteBillboardParticle {
 
     @Override
     public ParticleTextureSheet getType() {
-        return GLOW_PARTICLE_SHEET;
+        return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     public static class Factory implements ParticleFactory<ColoredSparkParticleEffect> {

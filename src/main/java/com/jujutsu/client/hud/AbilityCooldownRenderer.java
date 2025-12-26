@@ -81,10 +81,13 @@ public class AbilityCooldownRenderer {
             int width = getBiggestWidth() + textRenderer.getWidth(" - 000");
             int cooldownInSeconds = instance.cooldownTime() / 20;
 
-            context.fill(x + 20, y, x + width, y + height, 0x485A5AEE);
+            int baseColor = 0x484a385c;
+            int transparentColor = 0x004a385c;
 
-            fillHorizontalGradient(context, x, y, x + 20, y + height, 0x005A5AEE, 0x485A5AEE);
-            fillHorizontalGradient(context, x + width, y, x + width + 20, y + height, 0x485A5AEE, 0x005A5AEE);
+            context.fill(x + 20, y, x + width, y + height, baseColor);
+
+            fillHorizontalGradient(context, x, y, x + 20, y + height, transparentColor, baseColor);
+            fillHorizontalGradient(context, x + width, y, x + width + 20, y + height, baseColor, transparentColor);
 
             context.drawCenteredTextWithShadow(textRenderer, Text.empty().append(instance.type().getName())
                     .append(Text.literal(String.format(" - %s", cooldownInSeconds))), x + 10 + width / 2, y - 2 + height / 2, 0x00FFFFFF);

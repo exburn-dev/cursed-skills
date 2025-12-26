@@ -29,6 +29,7 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Style;
@@ -36,13 +37,17 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class SonicRiftAbility extends AbilityType {
     private static final IntAbilityProperty DASHES_LEFT = IntAbilityProperty.of("dashesLeft");
+    private static final IntAbilityProperty DASHES_ON_START = IntAbilityProperty.of("dashesOnStart");
+    private static final IntAbilityProperty ENTITY_HITS = IntAbilityProperty.of("entityHits");
     private static final DoubleAbilityProperty SPEED_ON_START = DoubleAbilityProperty.of("speedOnStart");
     private static final BoolAbilityProperty DASHING = BoolAbilityProperty.of("dashing");
     private static final IntAbilityProperty DASH_DELAY = IntAbilityProperty.of("dashDelay");
@@ -68,6 +73,8 @@ public class SonicRiftAbility extends AbilityType {
             dashes += (int) getAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_ADDITIONAL_DASHES);
         }
 
+        instance.set(DASHES_ON_START, dashes);
+        instance.set(ENTITY_HITS, 0);
         setData(instance, dashes, speed, false, 0);
         instance.sendToClient();
     }
@@ -80,6 +87,10 @@ public class SonicRiftAbility extends AbilityType {
         }
 
         if(!instance.get(DASHING)) return;
+
+        if(player.getVelocity().length() <= 1.0) {
+            setDashingProperties(instance, player, false);
+        }
 
         HitResult hitResult = getPlayerCollision(player);
         boolean hasCollision = hitResult != null;
@@ -139,8 +150,10 @@ public class SonicRiftAbility extends AbilityType {
     }
 
     private void onEntityHit(Entity entity, PlayerEntity player, AbilityInstance instance) {
+        instance.addPropertyValue(ENTITY_HITS, 1);
+
         double damage = getAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_DAMAGE);
-        entity.damage(player.getDamageSources().magic(), (float) (damage + instance.get(SPEED_ON_START)));
+        entity.damage(player.getDamageSources().magic(), (float) (damage * getAbilityStrength(instance.get(SPEED_ON_START))));
 
         Vec3d playerVelocity = player.getVelocity();
 
@@ -148,6 +161,17 @@ public class SonicRiftAbility extends AbilityType {
 
         player.setVelocity(playerVelocity.x + vec.x, vec.y, playerVelocity.z + vec.z);
         player.velocityModified = true;
+
+        entity.addVelocity(vec.negate().withAxis(Direction.Axis.Y, 0.25).multiply(0.75));
+        entity.velocityModified = true;
+
+        if(instance.get(DASHES_LEFT) <= 0 && Objects.equals(instance.get(ENTITY_HITS), instance.get(DASHES_ON_START))) {
+            instance.addPropertyValue(DASHES_LEFT, 1);
+            player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1, 1);
+
+            addLaunchInput(player, instance);
+            instance.sendToClient();
+        }
     }
 
     private HitResult getPlayerCollision(PlayerEntity player) {
@@ -169,7 +193,7 @@ public class SonicRiftAbility extends AbilityType {
 
         Vec3d searchEnd = hitBlock ? blockPos : end;
 
-        Box searchBox = player.getBoundingBox().stretch(motion).expand(5.0D);
+        Box searchBox = player.getBoundingBox().stretch(motion).expand(7.0D);
         EntityHitResult entityHit = ProjectileUtil.getEntityCollision(
                 player.getWorld(),
                 player,
@@ -276,7 +300,7 @@ public class SonicRiftAbility extends AbilityType {
                 .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_DASH_POWER, 1)
                 .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_START_JUMP_POWER, 1)
                 .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_ADDITIONAL_DASHES, 0)
-                .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_DAMAGE, 0)
+                .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_DAMAGE, 50)
                 .build();
     }
 

@@ -24,7 +24,7 @@ public class ModAbilityAttributes {
     public static final RegistryEntry<AbilityAttribute> SONIC_RIFT_DASH_POWER = registerAttribute("sonic_rift_dash_power", MeasureUnit.NUMBER);
     public static final RegistryEntry<AbilityAttribute> SONIC_RIFT_START_JUMP_POWER = registerAttribute("sonic_rift_start_jump_power", MeasureUnit.NUMBER);
     public static final RegistryEntry<AbilityAttribute> SONIC_RIFT_ADDITIONAL_DASHES = registerAttribute("sonic_rift_additional_dashes", MeasureUnit.NUMBER);
-    public static final RegistryEntry<AbilityAttribute> SONIC_RIFT_DAMAGE = registerAttribute("sonic_rift_additional_dashes", MeasureUnit.NUMBER);
+    public static final RegistryEntry<AbilityAttribute> SONIC_RIFT_DAMAGE = registerAttribute("sonic_rift_damage", MeasureUnit.NUMBER);
 
     public static final RegistryEntry<AbilityAttribute> SUPERSONIC_SPEED = registerAttribute("supersonic_speed", MeasureUnit.NUMBER);
     public static final RegistryEntry<AbilityAttribute> SUPERSONIC_DURATION = registerAttribute("supersonic_duration", MeasureUnit.SECONDS);

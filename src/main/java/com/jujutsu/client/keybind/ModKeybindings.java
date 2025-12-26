@@ -41,6 +41,8 @@ public class ModKeybindings {
             }
             else if(OPEN_ABILITY_UPGRADES_SCREEN.wasPressed()) {
                 TalentsData data = ClientComponentContainer.talentComponent.talentsData;
+                if(data == null) return;
+
                 Identifier treeId = data.tree();
                 TalentTree tree = TalentTreeResourceLoader.getInstance().get(treeId);
 

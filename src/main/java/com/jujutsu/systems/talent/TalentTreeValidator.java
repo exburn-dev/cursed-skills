@@ -61,6 +61,6 @@ public class TalentTreeValidator {
     }
 
     public boolean branchUpgradesNotPurchased(Identifier branchId, Map<Identifier, Identifier> userPurchasedTalents) {
-        return userPurchasedTalents.containsKey(branchId);
+        return !userPurchasedTalents.containsKey(branchId);
     }
 }

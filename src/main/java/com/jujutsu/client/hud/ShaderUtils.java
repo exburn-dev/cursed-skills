@@ -28,6 +28,8 @@ public class ShaderUtils {
     public static ShaderProgram hexMaskShader;
     public static ShaderProgram litMaskShader;
 
+    public static ShaderProgram coloredSparkShader;
+
     private static Framebuffer effectFramebuffer;
 
     public static void init(ResourceFactory factory) throws IOException {
@@ -39,6 +41,7 @@ public class ShaderUtils {
         colorModifierShader = new ShaderProgram(factory, "color_modifier", VertexFormats.POSITION_TEXTURE);
         hexMaskShader = new ShaderProgram(factory, "hex_mask", VertexFormats.POSITION_TEXTURE);
         litMaskShader = new ShaderProgram(factory, "lit_mask", VertexFormats.POSITION_TEXTURE);
+        coloredSparkShader = new ShaderProgram(factory, "colored_spark", VertexFormats.POSITION_TEXTURE);
 
         effectFramebuffer = new SimpleFramebuffer(client.getFramebuffer().textureWidth, client.getFramebuffer().textureHeight, true, MinecraftClient.IS_SYSTEM_MAC);
     }
@@ -306,6 +309,10 @@ public class ShaderUtils {
         if (litMaskShader != null) {
             litMaskShader.close();
             litMaskShader = null;
+        }
+        if (coloredSparkShader != null) {
+            coloredSparkShader.close();
+            coloredSparkShader = null;
         }
         init(manager);
     }

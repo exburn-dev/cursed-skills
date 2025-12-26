@@ -45,6 +45,7 @@ public class TalentComponent implements EntityComponent {
         purchasedTalents.put(branchId,talent.id());
         lastPurchasedBranch = branchId;
         points -= talent.cost();
+        sendToClient();
     }
 
     public void addPoints(int value) {
@@ -71,6 +72,7 @@ public class TalentComponent implements EntityComponent {
 
     public void setTree(Identifier treeId) {
         this.tree = treeId;
+        sendToClient();
     }
 
     public Identifier currentTreeId() {

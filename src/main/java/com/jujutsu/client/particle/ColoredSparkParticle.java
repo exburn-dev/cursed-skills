@@ -1,9 +1,12 @@
 package com.jujutsu.client.particle;
 
+import com.jujutsu.client.hud.ShaderUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.particle.v1.FabricSpriteProvider;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.render.*;
+import net.minecraft.client.texture.SpriteAtlasTexture;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
@@ -11,6 +14,27 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 public class ColoredSparkParticle extends SpriteBillboardParticle {
+    public static final ParticleTextureSheet GLOW_PARTICLE_SHEET = new ParticleTextureSheet() {
+
+        @Override
+        public BufferBuilder begin(Tessellator tessellator, TextureManager textureManager) {
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+
+            RenderSystem.setShader(() -> ShaderUtils.coloredSparkShader);
+
+            RenderSystem.setShaderTexture(
+                    0,
+                    SpriteAtlasTexture.PARTICLE_ATLAS_TEXTURE
+            );
+
+            return tessellator.begin(
+                    VertexFormat.DrawMode.QUADS,
+                    VertexFormats.POSITION_TEXTURE_COLOR_LIGHT
+            );
+        }
+    };
+
     private final SpriteProvider spriteProvider;
     private final ColoredSparkParticleEffect parameters;
 
@@ -78,18 +102,14 @@ public class ColoredSparkParticle extends SpriteBillboardParticle {
         this.scale = MathHelper.lerp(tickDelta, oldScale, currentScale);
 
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+        //12311
 
         super.buildGeometry(vertexConsumer, camera, tickDelta);
     }
 
     @Override
     public ParticleTextureSheet getType() {
-        return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
-    }
-
-    @Override
-    protected int getBrightness(float tint) {
-        return 255;
+        return GLOW_PARTICLE_SHEET;
     }
 
     public static class Factory implements ParticleFactory<ColoredSparkParticleEffect> {

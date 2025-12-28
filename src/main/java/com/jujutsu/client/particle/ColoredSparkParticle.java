@@ -80,11 +80,9 @@ public class ColoredSparkParticle extends SpriteBillboardParticle {
 
     @Override
     public void buildGeometry(VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
-        //this.scale = MathHelper.lerp(tickDelta, oldScale, currentScale);
+        this.scale = MathHelper.lerp(tickDelta, oldScale, currentScale);
 
-        //RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_SRC_COLOR); -- not bad
-        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-        //12311
+        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_SRC_COLOR);
 
         super.buildGeometry(vertexConsumer, camera, tickDelta);
     }

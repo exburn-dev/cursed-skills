@@ -61,7 +61,7 @@ public class ShadowStepAbility extends AbilityType {
     public void end(PlayerEntity player, AbilityInstance instance) {
         if(player.getWorld().isClient()) return;
 
-        player.playSoundToPlayer(ModSounds.SHADOW_STEP_END, SoundCategory.MASTER, 2, 1.1f);
+        //player.playSoundToPlayer(ModSounds.SHADOW_STEP_END, SoundCategory.MASTER, 2, 1.1f);
     }
 
     @Override

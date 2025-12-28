@@ -2,6 +2,7 @@ package com.jujutsu.item;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.systems.talent.TalentComponent;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -42,6 +43,13 @@ public class TalentResetScrollItem extends Item implements IBorderTooltipItem, M
 
     @Override
     public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
+        if(!Screen.hasShiftDown()) {
+            tooltip.add(
+                    Text.translatable("item.jujutsu.technique_scroll.press_for_info", Text.literal("<SHIFT>").formatted(Formatting.YELLOW))
+                            .formatted(Formatting.GRAY));
+            return;
+        }
+
         tooltip.add(Text.translatable("item.jujutsu.upgrade_reset_scroll.resets_upgrades").formatted(Formatting.YELLOW));
         tooltip.add(Text.translatable("item.jujutsu.upgrade_reset_scroll.returns_points", "50%").formatted(Formatting.YELLOW));
 

@@ -69,7 +69,9 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
         TechniqueComponent component = stack.get(ModDataComponents.TECHNIQUE_COMPONENT);
         if(component != null) {
             if(!Screen.hasShiftDown()) {
-                tooltip.add(Text.translatable("item.jujutsu.technique_scroll.press_shift").formatted(Formatting.YELLOW));
+                tooltip.add(
+                        Text.translatable("item.jujutsu.technique_scroll.press_for_info", Text.literal("<SHIFT>").formatted(Formatting.YELLOW))
+                        .formatted(Formatting.GRAY));
                 return;
             }
             tooltip.add(Text.translatable("item.jujutsu.technique_scroll.stored_abilities").setStyle(Style.EMPTY.withColor(0xfcaf68).withUnderline(true)));

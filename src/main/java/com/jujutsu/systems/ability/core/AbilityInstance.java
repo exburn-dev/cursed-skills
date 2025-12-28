@@ -54,10 +54,13 @@ public class AbilityInstance implements EntityServerData {
     }
 
     public void endAbility() {
-        if(!isFinished() && !type.isCancelable()) {
+        if(status.onCooldown()) return;
+
+        boolean isFinished = isFinished();
+        if(!isFinished && !type.isCancelable()) {
             return;
         }
-        else if(!isFinished() && type.isCancelable()) {
+        else if(!isFinished && type.isCancelable()) {
             status = AbilityStatus.CANCELLED;
         }
 

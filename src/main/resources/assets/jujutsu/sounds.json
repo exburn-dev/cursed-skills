@@ -17,6 +17,19 @@
       "jujutsu:shadow_step_end"
     ]
   },
+  "abilities.sonic_rift.start": {
+    "subtitle": "sounds.jujutsu.sonic_rift.start",
+    "sounds": [
+      "jujutsu:sonic_rift/start"
+    ]
+  },
+  "abilities.sonic_rift.dash": {
+    "subtitle": "sounds.jujutsu.sonic_rift.dash",
+    "sounds": [
+      "jujutsu:sonic_rift/dash_01",
+      "jujutsu:sonic_rift/dash_02"
+    ]
+  },
   "hit_impact": {
     "subtitle": "sounds.jujutsu.hit_impact",
     "sounds": [

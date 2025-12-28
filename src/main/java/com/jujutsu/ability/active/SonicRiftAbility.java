@@ -6,6 +6,7 @@ import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.mixin.LivingEntityAccessor;
 import com.jujutsu.registry.ModAbilities;
 import com.jujutsu.registry.ModAbilityAttributes;
+import com.jujutsu.registry.ModSounds;
 import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.client.ClientComponentContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
@@ -131,7 +132,7 @@ public class SonicRiftAbility extends AbilityType {
         player.addVelocity(vec);
         player.velocityModified = true;
 
-        player.playSoundToPlayer(SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.MASTER, 1, 1);
+        player.playSoundToPlayer(ModSounds.SONIC_RIFT_START, SoundCategory.MASTER, 1, 1);
 
         addLaunchInput(player, instance);
     }
@@ -164,7 +165,7 @@ public class SonicRiftAbility extends AbilityType {
 
         if(instance.get(DASHES_LEFT) <= 0 && Objects.equals(instance.get(ENTITY_HITS), instance.get(DASHES_ON_START))) {
             instance.addPropertyValue(DASHES_LEFT, 1);
-            player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1, 1);
+            player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1, player.getWorld().getRandom().nextFloat() * 0.2F + 0.9F);
 
             addLaunchInput(player, instance);
             instance.sendToClient();
@@ -251,8 +252,6 @@ public class SonicRiftAbility extends AbilityType {
             player.addVelocity(vec);
             player.velocityModified = true;
 
-            player.playSoundToPlayer(SoundEvents.ENTITY_BREEZE_WIND_BURST.value(), SoundCategory.MASTER, 1, 1.25f);
-
             setData(instance, instance.get(DASHES_LEFT) - 1, instance.get(SPEED_ON_START), true, 20);
             //instance.sync();
             instance.sendToClient();
@@ -260,6 +259,8 @@ public class SonicRiftAbility extends AbilityType {
         if(!player.getWorld().isClient()) {
             setDashingProperties(instance, player, true);
         }
+
+        playDashSound(player);
     }
 
     private void setDashingProperties(AbilityInstance instance, PlayerEntity player, boolean isDashing) {
@@ -277,6 +278,10 @@ public class SonicRiftAbility extends AbilityType {
 
     private void setPlayerUsingRiptide(PlayerEntity player, boolean value) {
         ((LivingEntityAccessor) player).invokeSetLivingFlag(4, value);
+    }
+
+    private void playDashSound(PlayerEntity player) {
+        player.playSoundToPlayer(ModSounds.SONIC_RIFT_DASH, SoundCategory.MASTER, 1, player.getWorld().getRandom().nextFloat() * 0.4F + 0.8F);
     }
 
     private void setData(AbilityInstance instance, int dashesLeft, double speedOnStart, boolean dashing, int dashDelay) {

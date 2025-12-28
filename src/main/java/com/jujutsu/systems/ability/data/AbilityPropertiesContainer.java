@@ -7,9 +7,7 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class AbilityPropertiesContainer {
     public static final Codec<AbilityPropertiesContainer> CODEC;
@@ -33,6 +31,11 @@ public class AbilityPropertiesContainer {
     @SuppressWarnings("unchecked")
     public <T extends Comparable<T>> T get(AbilityProperty<T> property) {
         return (T) properties.get(property);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Comparable<T>> T getOrDefault(AbilityProperty<T> property, T fallback) {
+        return (T) properties.getOrDefault(property, fallback);
     }
 
     public Map<AbilityProperty<?>, Comparable<?>> properties() {

@@ -17,6 +17,11 @@ public class BoolAbilityProperty extends AbilityProperty<Boolean> {
         return Codec.BOOL;
     }
 
+    @Override
+    public Boolean defaultValue() {
+        return false;
+    }
+
     public static BoolAbilityProperty of(String name) {
         return new BoolAbilityProperty(name);
     }

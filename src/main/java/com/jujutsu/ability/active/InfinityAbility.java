@@ -137,7 +137,7 @@ public class InfinityAbility extends AbilityType {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 
-        int abilityDuration = ClientComponentContainer.abilityComponent.getRuntimeData(instance.slot()).get(DURATION);
+        int abilityDuration = ClientComponentContainer.abilityComponent.getRuntimeData(instance.slot()).getOrDefault(DURATION, 0);
         float alpha;
         if(instance.useTime() >= abilityDuration - 20) {
             alpha = MathHelper.clampedLerp(0.35f, 0, (float) (instance.useTime() - abilityDuration + 20 ) / 20);

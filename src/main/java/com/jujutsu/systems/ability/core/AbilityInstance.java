@@ -103,8 +103,12 @@ public class AbilityInstance implements EntityServerData {
         if(cooldownTime > 0) cooldownTime--;
     }
 
+    public <T extends Comparable<T>> T get(AbilityProperty<T> property, T fallback) {
+        return runtimeData.getOrDefault(property, fallback);
+    }
+
     public <T extends Comparable<T>> T get(AbilityProperty<T> property) {
-        return runtimeData.get(property);
+        return get(property, property.defaultValue());
     }
 
     public <T extends Comparable<T>> void set(AbilityProperty<T> property, T value) {
@@ -112,7 +116,7 @@ public class AbilityInstance implements EntityServerData {
     }
 
     public void addPropertyValue(AbilityProperty<Integer> property, int toAdd) {
-        set(property, get(property) + toAdd);
+        set(property, get(property, 0) + toAdd);
     }
 
     public void requestInput(InputRequest request) {

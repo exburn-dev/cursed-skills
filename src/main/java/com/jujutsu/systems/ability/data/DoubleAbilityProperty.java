@@ -17,6 +17,11 @@ public class DoubleAbilityProperty extends AbilityProperty<Double> {
         return Codec.DOUBLE;
     }
 
+    @Override
+    public Double defaultValue() {
+        return 0.0;
+    }
+
     public static DoubleAbilityProperty of(String name) {
         return new DoubleAbilityProperty(name);
     }

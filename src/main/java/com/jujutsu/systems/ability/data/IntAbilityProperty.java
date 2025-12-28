@@ -17,6 +17,11 @@ public class IntAbilityProperty extends AbilityProperty<Integer> {
     }
 
     @Override
+    public Integer defaultValue() {
+        return 0;
+    }
+
+    @Override
     public Codec<Integer> getCodec() {
         return Codec.INT;
     }

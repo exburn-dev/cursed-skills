@@ -16,6 +16,8 @@ public abstract class AbilityProperty<T extends Comparable<T>> implements String
 
     public abstract Codec<T> getCodec();
 
+    public abstract T defaultValue();
+
     public String name() {
         return this.name;
     }

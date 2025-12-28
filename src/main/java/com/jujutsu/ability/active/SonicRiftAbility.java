@@ -15,11 +15,9 @@ import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
 import com.jujutsu.systems.buff.Buff;
 import com.jujutsu.systems.buff.BuffComponent;
-import com.jujutsu.systems.buff.conditions.AbilityPropertyBuffPredicate;
 import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
 import com.jujutsu.systems.buff.type.AttributeBuff;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
@@ -29,7 +27,6 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Style;
@@ -309,7 +306,7 @@ public class SonicRiftAbility extends AbilityType {
         if (client == null || client.player == null) return;
 
         AbilityPropertiesContainer properties = ClientComponentContainer.abilityComponent.getRuntimeData(instance.slot());
-        int dashesLeft = properties.get(DASHES_LEFT) == null ? 0 : properties.get(DASHES_LEFT);
+        int dashesLeft = properties.getOrDefault(DASHES_LEFT, 0);
 
         MatrixStack matrices = context.getMatrices();
         matrices.push();

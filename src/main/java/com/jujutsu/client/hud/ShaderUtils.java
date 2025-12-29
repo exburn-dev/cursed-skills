@@ -27,6 +27,7 @@ public class ShaderUtils {
     public static ShaderProgram colorModifierShader;
     public static ShaderProgram hexMaskShader;
     public static ShaderProgram litMaskShader;
+    public static ShaderProgram abilityCooldownShader;
 
     private static Framebuffer effectFramebuffer;
 
@@ -39,6 +40,7 @@ public class ShaderUtils {
         colorModifierShader = new ShaderProgram(factory, "color_modifier", VertexFormats.POSITION_TEXTURE);
         hexMaskShader = new ShaderProgram(factory, "hex_mask", VertexFormats.POSITION_TEXTURE);
         litMaskShader = new ShaderProgram(factory, "lit_mask", VertexFormats.POSITION_TEXTURE);
+        abilityCooldownShader = new ShaderProgram(factory, "ability_cooldown", VertexFormats.POSITION_TEXTURE);
 
         effectFramebuffer = new SimpleFramebuffer(client.getFramebuffer().textureWidth, client.getFramebuffer().textureHeight, true, MinecraftClient.IS_SYSTEM_MAC);
     }
@@ -306,6 +308,10 @@ public class ShaderUtils {
         if (litMaskShader != null) {
             litMaskShader.close();
             litMaskShader = null;
+        }
+        if (abilityCooldownShader != null) {
+            abilityCooldownShader.close();
+            abilityCooldownShader = null;
         }
 
         init(manager);

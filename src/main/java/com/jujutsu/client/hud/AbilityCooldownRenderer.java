@@ -4,66 +4,99 @@ import com.jujutsu.systems.ability.client.AbilityClientComponent;
 import com.jujutsu.systems.ability.client.ClientComponentContainer;
 import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class AbilityCooldownRenderer {
-    private static final HashMap<AbilitySlot, AbilityCooldownElement> cooldownElements = new HashMap<>();
-    private static final List<AbilityCooldownElement> stack = new ArrayList<>();
+    private static final List<AbilitySlot> stack = new ArrayList<>();
 
     public static void render(DrawContext context, RenderTickCounter counter) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 
         AbilityClientComponent component = ClientComponentContainer.abilityComponent;
-        for(AbilitySlot slot: component.getSlots()) {
-            AbilityInstanceData instance = component.get(slot);
-            boolean onCooldown = instance.status().onCooldown();
-
-            if(cooldownElements.containsKey(slot) && cooldownElements.get(slot).instance != instance) {
-                cooldownElements.get(slot).setInstance(instance);
-            }
-
-            if(onCooldown && !cooldownElements.containsKey(slot)) {
-                var element = new AbilityCooldownElement(20, 300, 30, 20, instance, client.textRenderer);
-
-                cooldownElements.put(slot, element);
-                stack.add(element);
-            }
-            else if(!onCooldown && cooldownElements.containsKey(slot)) {
-                stack.remove(cooldownElements.get(slot));
-                cooldownElements.remove(slot);
-            }
-        }
-
         MatrixStack matrices = context.getMatrices();
 
         matrices.push();
         matrices.scale(0.75f, 0.75f, 1f);
+
+        int maxPanelWidth = 160;
+        int maxPanelHeight = 24;
+        int panelWidth = Math.min(maxPanelWidth, stack.size() * 20);
+        int panelHeight = maxPanelHeight;
+
+        int panelX = 40;
+        int panelY = context.getScaledWindowHeight() - panelHeight - 40;
+
+        int iconWidth = 16;
+        int iconHeight = 16;
+
+        Identifier texture = Identifier.of("jujutsu", "textures/gui/square.png");
         for(int i = 0; i < stack.size(); i++) {
-            matrices.push();
+            AbilityInstanceData instance = component.get(stack.get(i));
+            int x = panelX + i * iconWidth;
+            int y = panelY;
 
-            AbilityCooldownElement element = stack.get(i);
-            long time = Util.getMeasuringTimeMs() - element.startTime;
-            matrices.translate(0, MathHelper.clampedLerp(-50 - (stack.size() - 1) * 30 , 120 - i * 20, time / 500f), 0);
-            element.render(context, counter, 0, -5 * i);
+            float progress = Math.min(((float) instance.cooldownTime()) / instance.maxCooldownTime(), 1f);
 
-            matrices.pop();
+            RenderSystem.setShaderTexture(0, texture);
+
+            ShaderUtils.abilityCooldownShader.getUniform("Progress").set(progress);
+            ShaderUtils.abilityCooldownShader.addSampler("Sampler0", texture);
+
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.disableDepthTest();
+
+            Tessellator tess = Tessellator.getInstance();
+            BufferBuilder buf = tess.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_TEXTURE);
+
+            Matrix4f mat = matrices.peek().getPositionMatrix();
+
+            buf.vertex(mat, x, y, 0).texture(0, 0);
+            buf.vertex(mat, x, y + iconHeight, 0).texture(0, 1);
+            buf.vertex(mat, x + iconWidth, y, 0).texture(1, 0);
+            buf.vertex(mat, x + iconWidth, y + iconHeight, 0).texture(1, 1);
+
+            RenderSystem.setShader(() -> ShaderUtils.abilityCooldownShader);
+
+            BufferRenderer.drawWithGlobalProgram(buf.end());
+
+            RenderSystem.enableDepthTest();
+            RenderSystem.disableBlend();
+
+            //context.fill(x, y, x + iconWidth, y + iconHeight, 0xFFFFFFFF);
+            context.drawCenteredTextWithShadow(client.textRenderer, Text.literal("abl"), x, y, 0xFFFFFF);
         }
+
         matrices.pop();
+    }
+
+    public static void onAbilitiesUpdated() {
+        AbilityClientComponent component = ClientComponentContainer.abilityComponent;
+
+        stack.removeIf(slot -> !component.get(slot).status().onCooldown());
+
+        for(AbilitySlot slot: component.getSlots()) {
+            AbilityInstanceData instance = component.get(slot);
+            boolean onCooldown = instance.status().onCooldown();
+
+            if(onCooldown && !stack.contains(slot)) {
+                stack.add(slot);
+            }
+        }
     }
 
     private static class AbilityCooldownElement extends HudElement {

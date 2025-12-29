@@ -233,7 +233,7 @@ public class SonicRiftAbility extends AbilityType {
     }
 
     private void addLaunchInput(PlayerEntity player, AbilityInstance instance) {
-        instance.requestInput(InputRequest.mouseRequest(0,
+        instance.requestInput(InputRequest.mouseRequest(1,
                 (player1) -> {
                     launch(player1, instance);
                     return ActionResult.SUCCESS;

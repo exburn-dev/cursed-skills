@@ -19,6 +19,7 @@ public class AbilityInstance implements EntityServerData {
     private AbilityStatus status;
     private int useTime;
     private int cooldownTime;
+    private int maxCooldownTime;
 
     private AbilityPropertiesContainer runtimeData = new AbilityPropertiesContainer();
 
@@ -66,7 +67,7 @@ public class AbilityInstance implements EntityServerData {
 
         type.end(player, this);
         status = AbilityStatus.ON_COOLDOWN;
-        cooldownTime = type.getCooldownTime(player, this);
+        maxCooldownTime = type.getCooldownTime(player, this);
         useTime = 0;
         clearInputRequest();
         component().sendToClient();
@@ -75,6 +76,7 @@ public class AbilityInstance implements EntityServerData {
     public void endCooldown() {
         status = AbilityStatus.NONE;
         cooldownTime = 0;
+        maxCooldownTime = 0;
         useTime = 0;
         component().sendToClient();
     }
@@ -96,14 +98,14 @@ public class AbilityInstance implements EntityServerData {
         }
         else if(status.onCooldown()) {
             cooldown();
-            if(cooldownTime <= 0) {
+            if(cooldownTime >= maxCooldownTime) {
                 endCooldown();
             }
         }
     }
 
     private void cooldown() {
-        if(cooldownTime > 0) cooldownTime--;
+        if(cooldownTime < maxCooldownTime) cooldownTime++;
     }
 
     public <T extends Comparable<T>> T get(AbilityProperty<T> property, T fallback) {
@@ -164,7 +166,7 @@ public class AbilityInstance implements EntityServerData {
     }
 
     public AbilityInstanceData writeData() {
-        return new AbilityInstanceData(type, slot, status, useTime, cooldownTime);
+        return new AbilityInstanceData(type, slot, status, useTime, cooldownTime, maxCooldownTime);
     }
 
     @Override

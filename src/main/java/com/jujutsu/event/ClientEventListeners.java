@@ -107,7 +107,7 @@ public class ClientEventListeners {
 
             for(AbilityInstanceData data : ClientComponentContainer.abilityComponent.all()) {
                 if(data.status().onCooldown()) {
-                    data.setCooldownTime(data.cooldownTime() - 1);
+                    data.setCooldownTime(data.cooldownTime() + 1);
                 }
             }
         });

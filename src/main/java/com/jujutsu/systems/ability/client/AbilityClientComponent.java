@@ -1,11 +1,11 @@
 package com.jujutsu.systems.ability.client;
 
+import com.jujutsu.client.hud.AbilityCooldownRenderer;
 import com.jujutsu.registry.ModAbilities;
 import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.data.AbilityPropertiesContainer;
-import com.jujutsu.systems.ability.data.AbilityProperty;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,6 +28,8 @@ public class AbilityClientComponent {
                 isTranslucent = instanceData.status().isRunning();
             }
         }
+
+        AbilityCooldownRenderer.onAbilitiesUpdated();
     }
 
     public void applyRuntimeData(AbilitySlot slot, AbilityPropertiesContainer container) {

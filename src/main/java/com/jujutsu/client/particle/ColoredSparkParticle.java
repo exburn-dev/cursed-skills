@@ -79,6 +79,11 @@ public class ColoredSparkParticle extends SpriteBillboardParticle {
     }
 
     @Override
+    protected int getBrightness(float tint) {
+        return 255;
+    }
+
+    @Override
     public void buildGeometry(VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
         this.scale = MathHelper.lerp(tickDelta, oldScale, currentScale);
 

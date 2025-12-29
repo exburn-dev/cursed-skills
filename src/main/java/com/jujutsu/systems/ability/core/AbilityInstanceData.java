@@ -20,13 +20,15 @@ public class AbilityInstanceData {
     private AbilityStatus status;
     private int useTime;
     private int cooldownTime;
+    private int maxCooldownTime;
 
-    public AbilityInstanceData(AbilityType type, AbilitySlot slot, AbilityStatus status, int useTime, int cooldownTime) {
+    public AbilityInstanceData(AbilityType type, AbilitySlot slot, AbilityStatus status, int useTime, int cooldownTime, int maxCooldownTime) {
         this.type = type;
         this.slot = slot;
         this.status = status;
         this.useTime = useTime;
         this.cooldownTime = cooldownTime;
+        this.maxCooldownTime = maxCooldownTime;
     }
 
     public AbilityType type() {
@@ -44,6 +46,9 @@ public class AbilityInstanceData {
     public int cooldownTime() {
         return cooldownTime;
     }
+    public int maxCooldownTime() {
+        return maxCooldownTime;
+    }
 
     public void setCooldownTime(int value) {
         cooldownTime = value;
@@ -55,7 +60,8 @@ public class AbilityInstanceData {
                 AbilitySlot.CODEC.fieldOf("slot").forGetter(AbilityInstanceData::slot),
                 AbilityStatus.CODEC.fieldOf("status").forGetter(AbilityInstanceData::status),
                 Codec.INT.fieldOf("useTime").forGetter(AbilityInstanceData::useTime),
-                Codec.INT.fieldOf("cooldownTime").forGetter(AbilityInstanceData::cooldownTime)
+                Codec.INT.fieldOf("cooldownTime").forGetter(AbilityInstanceData::cooldownTime),
+                Codec.INT.fieldOf("maxCooldownTime").forGetter(AbilityInstanceData::maxCooldownTime)
         ).apply(instance, AbilityInstanceData::new));
 
         PACKET_CODEC = PacketCodec.tuple(
@@ -64,6 +70,7 @@ public class AbilityInstanceData {
                 AbilityStatus.PACKET_CODEC, AbilityInstanceData::status,
                 PacketCodecs.INTEGER, AbilityInstanceData::useTime,
                 PacketCodecs.INTEGER, AbilityInstanceData::cooldownTime,
+                PacketCodecs.INTEGER, AbilityInstanceData::maxCooldownTime,
                 AbilityInstanceData::new
         );
 

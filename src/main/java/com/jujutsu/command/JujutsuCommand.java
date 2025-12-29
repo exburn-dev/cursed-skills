@@ -156,6 +156,9 @@ public class JujutsuCommand {
             builder.append(String.format("Instance: {%s} \n", instance.toString()));
         }
         player.sendMessage(Text.literal(builder.toString()), true);
+
+        component.runAbility(AbilitySlot.ABILITY_SLOT_1);
+
         return 1;
     }
 

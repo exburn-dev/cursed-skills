@@ -1,5 +1,6 @@
 package com.jujutsu.systems.ability.client;
 
+import com.jujutsu.registry.ModAbilities;
 import com.jujutsu.systems.ability.core.AbilityInstanceData;
 import com.jujutsu.systems.ability.core.AbilitySlot;
 import com.jujutsu.systems.ability.core.AbilityType;
@@ -16,10 +17,16 @@ public class AbilityClientComponent {
     private Map<AbilitySlot, AbilityInstanceData> abilities = new HashMap<>();
     private Map<AbilitySlot, AbilityPropertiesContainer> abilitiesData = new HashMap<>();
 
+    private boolean isTranslucent;
+
     public void apply(List<AbilityInstanceData> data) {
         abilities.clear();
         for(AbilityInstanceData instanceData : data) {
             abilities.put(instanceData.slot(), instanceData);
+
+            if(instanceData.type().equals(ModAbilities.SHADOW_STEP)) {
+                isTranslucent = instanceData.status().isRunning();
+            }
         }
     }
 
@@ -50,5 +57,9 @@ public class AbilityClientComponent {
             }
         }
         return false;
+    }
+
+    public boolean isTranslucent() {
+        return isTranslucent;
     }
 }

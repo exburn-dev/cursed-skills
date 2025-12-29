@@ -69,6 +69,8 @@ public class ModKeybindings {
         });
 
         KeyEvents.KEY_RELEASED_EVENT.register((client, key, scanCode) -> {
+            if (client.currentScreen != null) return ActionResult.PASS;
+
             for(AbilityKeyBinding binding: abilityBindings) {
                 if(binding.matchesKey(key, scanCode) && client.world != null && client.player != null) {
                     ClientPlayNetworking.send(new RunAbilityC2SPayload(binding.getAbilitySlot(), true));

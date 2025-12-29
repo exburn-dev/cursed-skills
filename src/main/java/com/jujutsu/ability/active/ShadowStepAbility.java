@@ -50,6 +50,8 @@ public class ShadowStepAbility extends AbilityType {
         player.playSoundToPlayer(ModSounds.SHADOW_STEP_CAST, SoundCategory.MASTER, 2, 1.1f);
 
         VisualEffectUtils.sendColorModifier((ServerPlayerEntity) player, 5, 15, 10, 0.5f, 0.25f,0x320032);
+
+        player.setInvisible(true);
     }
 
     @Override
@@ -59,8 +61,7 @@ public class ShadowStepAbility extends AbilityType {
 
     @Override
     public void end(PlayerEntity player, AbilityInstance instance) {
-        if(player.getWorld().isClient()) return;
-
+        player.setInvisible(false);
         //player.playSoundToPlayer(ModSounds.SHADOW_STEP_END, SoundCategory.MASTER, 2, 1.1f);
     }
 

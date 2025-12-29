@@ -28,6 +28,8 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Style;
@@ -49,6 +51,7 @@ public class SonicRiftAbility extends AbilityType {
     private static final DoubleAbilityProperty SPEED_ON_START = DoubleAbilityProperty.of("speedOnStart");
     private static final BoolAbilityProperty DASHING = BoolAbilityProperty.of("dashing");
     private static final IntAbilityProperty DASH_DELAY = IntAbilityProperty.of("dashDelay");
+    private static final IntAbilityProperty PARTICLE_TRAIL = IntAbilityProperty.of("particleTrail");
 
     public SonicRiftAbility(int cooldownTime) {
         super(cooldownTime, false, new ClientData(null, SonicRiftAbility::renderHud));
@@ -73,6 +76,7 @@ public class SonicRiftAbility extends AbilityType {
 
         instance.set(DASHES_ON_START, dashes);
         instance.set(ENTITY_HITS, 0);
+        instance.set(PARTICLE_TRAIL, 16);
         setData(instance, dashes, speed, false, 0);
         instance.sendToClient();
     }
@@ -82,6 +86,13 @@ public class SonicRiftAbility extends AbilityType {
         if(instance.useTime() == 0 && instance.get(DASHES_LEFT) > 0) {
             initialJump(player, instance);
             return;
+        }
+
+        int trailTicks = instance.get(PARTICLE_TRAIL);
+        if(trailTicks > 0) {
+            spawnParticleTrail(player, trailTicks);
+
+            instance.addPropertyValue(PARTICLE_TRAIL, -1);
         }
 
         if(!instance.get(DASHING)) return;
@@ -253,6 +264,7 @@ public class SonicRiftAbility extends AbilityType {
             player.velocityModified = true;
 
             setData(instance, instance.get(DASHES_LEFT) - 1, instance.get(SPEED_ON_START), true, 20);
+            instance.set(PARTICLE_TRAIL, 8);
             //instance.sync();
             instance.sendToClient();
         }
@@ -282,6 +294,12 @@ public class SonicRiftAbility extends AbilityType {
 
     private void playDashSound(PlayerEntity player) {
         player.playSoundToPlayer(ModSounds.SONIC_RIFT_DASH, SoundCategory.MASTER, 1, player.getWorld().getRandom().nextFloat() * 0.4F + 0.8F);
+    }
+
+    private void spawnParticleTrail(PlayerEntity player, int trailTicks) {
+        if(trailTicks % 2 != 0) return;
+        ((ServerWorld) player.getWorld()).spawnParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(), player.getZ(),
+                2, 0.1, 0.1, 0.1, 0);
     }
 
     private void setData(AbilityInstance instance, int dashesLeft, double speedOnStart, boolean dashing, int dashDelay) {

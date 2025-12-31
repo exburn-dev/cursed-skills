@@ -30,6 +30,18 @@
       "jujutsu:sonic_rift/dash_02"
     ]
   },
+  "abilities.hollow_purple.charging": {
+    "subtitle": "sounds.jujutsu.hollow_purple.charging",
+    "sounds": [
+      "jujutsu:hollow_purple/charging"
+    ]
+  },
+  "abilities.hollow_purple.charging_end": {
+    "subtitle": "sounds.jujutsu.hollow_purple.charging_end",
+    "sounds": [
+      "jujutsu:hollow_purple/charging_end"
+    ]
+  },
   "item.technique_scroll.used": {
     "subtitle": "sounds.jujutsu.item.technique_scroll.used",
     "sounds": [

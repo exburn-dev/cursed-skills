@@ -14,6 +14,7 @@ import com.jujutsu.network.payload.buffs.BuffDataSyncS2CPayload;
 import com.jujutsu.network.payload.input_requests.ClearInputRequestS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestInputS2CPayload;
 import com.jujutsu.network.payload.input_requests.RequestedInputPressedC2SPayload;
+import com.jujutsu.network.payload.sounds.PlayAbilityChargingSoundS2CPayload;
 import com.jujutsu.network.payload.talents.TalentDataSyncS2CPayload;
 import com.jujutsu.network.payload.talents.TalentPurchasedC2SPayload;
 import com.jujutsu.network.payload.talents.TalentResourcesSyncS2CPayload;
@@ -61,6 +62,7 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(AbilityRuntimeDataSyncS2CPayload.ID, AbilityRuntimeDataSyncS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ClearInputRequestS2CPayload.ID, ClearInputRequestS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(TalentDataSyncS2CPayload.ID, TalentDataSyncS2CPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(PlayAbilityChargingSoundS2CPayload.ID, PlayAbilityChargingSoundS2CPayload.CODEC);
     }
 
     public static void registerServerReceivers() {
@@ -125,5 +127,7 @@ public class ModNetworkConstants {
         TalentResourcesSyncS2CPayload.registerClientReceiver();
 
         TalentDataSyncS2CPayload.registerClientReceiver();
+
+        PlayAbilityChargingSoundS2CPayload.registerClientReceiver();
     }
 }

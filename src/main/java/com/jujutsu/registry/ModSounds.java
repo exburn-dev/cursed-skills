@@ -6,6 +6,11 @@ import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 
 public class ModSounds {
+    public static final SoundEvent HOLLOW_PURPLE_CHARGING = registerSound("abilities.hollow_purple.charging",
+            SoundEvent.of(Jujutsu.id("abilities.hollow_purple.charging")));
+    public static final SoundEvent HOLLOW_PURPLE_CHARGING_END = registerSound("abilities.hollow_purple.charging_end",
+            SoundEvent.of(Jujutsu.id("abilities.hollow_purple.charging_end")));
+
     public static final SoundEvent SHADOW_STEP_CAST = registerSound("abilities.shadow_step_cast",
             SoundEvent.of(Jujutsu.id("abilities.shadow_step_cast")));
     public static final SoundEvent SHADOW_STEP_END = registerSound("abilities.shadow_step_end",

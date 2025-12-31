@@ -30,6 +30,12 @@
       "jujutsu:sonic_rift/dash_02"
     ]
   },
+  "item.technique_scroll.used": {
+    "subtitle": "sounds.jujutsu.item.technique_scroll.used",
+    "sounds": [
+      "jujutsu:item/technique_scroll_used"
+    ]
+  },
   "hit_impact": {
     "subtitle": "sounds.jujutsu.hit_impact",
     "sounds": [

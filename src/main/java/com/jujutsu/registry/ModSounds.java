@@ -19,6 +19,9 @@ public class ModSounds {
     public static final SoundEvent SONIC_RIFT_DASH = registerSound("abilities.sonic_rift.dash",
             SoundEvent.of(Jujutsu.id("abilities.sonic_rift.dash")));
 
+    public static final SoundEvent TECHNIQUE_SCROLL_USED = registerSound("item.technique_scroll.used",
+            SoundEvent.of(Jujutsu.id("item.technique_scroll.used")));
+
     public static final SoundEvent STUN_APPLIED = registerSound("effects.stun_applied", SoundEvent.of(Jujutsu.id("effects.stun_applied")));
     public static final SoundEvent HIT_IMPACT = registerSound("hit_impact", SoundEvent.of(Jujutsu.id("hit_impact")));
     public static final SoundEvent UI_HOVER = registerSound("ui_hover", SoundEvent.of(Jujutsu.id("ui_hover")));

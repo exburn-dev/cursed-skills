@@ -4,7 +4,9 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.network.payload.ShowScreenFlashPayload;
+import com.jujutsu.network.payload.sounds.PlayAbilityChargingSoundS2CPayload;
 import com.jujutsu.registry.ModAbilityAttributes;
+import com.jujutsu.registry.ModSounds;
 import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
 import com.jujutsu.systems.ability.core.AbilityInstance;
 import com.jujutsu.systems.ability.core.AbilityInstanceData;
@@ -42,8 +44,9 @@ public class HollowPurpleAbility extends AbilityType {
 
     @Override
     public void start(PlayerEntity player, AbilityInstance instance) {
-        if(player.getWorld().isClient()) return;
         PlayerAnimations.playAnimation((ServerPlayerEntity) player, Jujutsu.id("hollow_purple"), 1000, 50);
+
+        ServerPlayNetworking.send((ServerPlayerEntity) player, new PlayAbilityChargingSoundS2CPayload(ModSounds.HOLLOW_PURPLE_CHARGING, instance.slot()));
     }
 
     @Override

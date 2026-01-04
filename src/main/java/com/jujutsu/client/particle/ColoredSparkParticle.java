@@ -40,7 +40,6 @@ public class ColoredSparkParticle extends SpriteBillboardParticle {
         angle = parameters.getRoll().startRoll();
         oldScale = scale;
         currentScale = scale;
-        Jujutsu.LOGGER.info("Type: {}", getType().hashCode());
     }
 
     @Override

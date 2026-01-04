@@ -4,6 +4,7 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.component.TechniqueComponent;
 import com.jujutsu.network.payload.AbilitiesAcquiredPayload;
 import com.jujutsu.registry.ModDataComponents;
+import com.jujutsu.registry.ModSounds;
 import com.jujutsu.systems.ability.core.AbilityComponent;
 import com.jujutsu.systems.ability.core.AbilityType;
 import com.jujutsu.systems.ability.passive.PassiveAbility;
@@ -16,6 +17,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -59,6 +61,9 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
         }
 
         ServerPlayNetworking.send((ServerPlayerEntity) user, new AbilitiesAcquiredPayload(component.abilities().values().stream().toList()));
+
+        user.playSoundToPlayer(ModSounds.TECHNIQUE_SCROLL_USED, SoundCategory.MASTER, 1, 1);
+        world.playSound(user, user.getX(), user.getY(), user.getZ(), ModSounds.TECHNIQUE_SCROLL_USED, SoundCategory.MASTER, 1, 1);
 
         stack.decrement(1);
         return TypedActionResult.success(stack);

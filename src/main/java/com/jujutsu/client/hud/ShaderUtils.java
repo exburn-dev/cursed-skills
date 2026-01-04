@@ -180,7 +180,6 @@ public class ShaderUtils {
 
         RenderSystem.setShaderTexture(0, effectFramebuffer.getColorAttachment());
         RenderSystem.setShader(() -> stunShader);
-        //stunShader.addSampler("Sampler0", texture);
 
         stunShader.getUniform("Time").set(time);
 //        stunShader.getUniform("CurrentTime").set((float) effectInstance.getDuration());

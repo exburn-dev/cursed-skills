@@ -1,9 +1,9 @@
 package com.jujutsu.client.particle;
 
-import net.minecraft.particle.ParticleEffect;
-import org.joml.Vector3f;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.phys.Vec3;
 
-public interface IVelocityParticleEffect extends ParticleEffect {
-    Vector3f getVelocity();
-    void setVelocity(Vector3f velocity);
+public interface IVelocityParticleEffect extends ParticleOptions {
+    Vec3 getVelocity();
+    void setVelocity(Vec3 velocity);
 }

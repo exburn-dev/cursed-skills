@@ -2,16 +2,18 @@ package com.jujutsu.registry;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.component.TechniqueComponent;
-import net.minecraft.component.ComponentType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 public class ModDataComponents {
-    public static final ComponentType<TechniqueComponent> TECHNIQUE_COMPONENT = registerComponent("technique",
-            new ComponentType.Builder<TechniqueComponent>().codec(TechniqueComponent.CODEC).packetCodec(TechniqueComponent.PACKET_CODEC));
+    public static final DataComponentType<TechniqueComponent> TECHNIQUE_COMPONENT = registerComponent("technique",
+            new DataComponentType.Builder<TechniqueComponent>()
+                    .persistent(TechniqueComponent.CODEC)
+                    .networkSynchronized(TechniqueComponent.STREAM_CODEC));
 
-    private static <T> ComponentType<T> registerComponent(String name, ComponentType.Builder<T> builder) {
-        return Registry.register(Registries.DATA_COMPONENT_TYPE, Jujutsu.id(name), builder.build());
+    private static <T> DataComponentType<T> registerComponent(String name, DataComponentType.Builder<T> builder) {
+        return Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Jujutsu.id(name), builder.build());
     }
 
     public static void register() {

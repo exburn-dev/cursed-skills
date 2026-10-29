@@ -19,7 +19,7 @@ import com.jujutsu.network.payload.talents.TalentDataSyncS2CPayload;
 import com.jujutsu.network.payload.talents.TalentPurchasedC2SPayload;
 import com.jujutsu.network.payload.talents.TalentResourcesSyncS2CPayload;
 import com.jujutsu.screen.HandTransformSettingScreen;
-import com.jujutsu.systems.animation.AnimationData;
+import com.jujutsu.api.animation.AnimationData;
 import dev.kosmx.playerAnim.api.IPlayable;
 import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
@@ -27,24 +27,22 @@ import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
+@Deprecated
 public class ModNetworkConstants {
 
     public static final Identifier OPEN_HAND_SETTING_SCREEN_ID = Jujutsu.id("open_hand_setting_screen");
     public static final Identifier ABILITIES_ACQUIRED_ID = Jujutsu.id("abilities_acquired");
     public static final Identifier PLAY_CLIENT_SOUND_ID = Jujutsu.id("play_client_sound");
     public static final Identifier PLAY_ANIMATION_ID = Jujutsu.id("play_animation");
-    public static final Identifier SHOW_SCREEN_FLASH_ID = Jujutsu.id("show_screen_flash");
-    public static final Identifier SHOW_CROSSHAIR_MARK_ID = Jujutsu.id("show_crosshair_mark");
-    public static final Identifier SHOW_SCREEN_COLOR_MODIFIER_ID = Jujutsu.id("show_screen_color_modifier");
     public static final Identifier SPAWN_PARTICLES_ID = Jujutsu.id("spawn_particles");
 
     public static void registerPackets() {
         PayloadTypeRegistry.playC2S().register(RunAbilityC2SPayload.ID, RunAbilityC2SPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(RequestedInputPressedC2SPayload.ID, RequestedInputPressedC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(TalentPurchasedC2SPayload.ID, TalentPurchasedC2SPayload.CODEC);
 
         PayloadTypeRegistry.playS2C().register(AbilitiesSyncS2CPayload.ID, AbilitiesSyncS2CPayload.CODEC);
@@ -53,10 +51,6 @@ public class ModNetworkConstants {
         PayloadTypeRegistry.playS2C().register(PlayClientSoundPayload.ID, PlayClientSoundPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(PlayAnimationPayload.ID, PlayAnimationPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(BuffDataSyncS2CPayload.ID, BuffDataSyncS2CPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(ShowScreenFlashPayload.ID, ShowScreenFlashPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(ShowCrosshairMarkPayload.ID, ShowCrosshairMarkPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(ShowScreenColorModifierPayload.ID, ShowScreenColorModifierPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(RequestInputS2CPayload.ID, RequestInputS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(TalentResourcesSyncS2CPayload.ID, TalentResourcesSyncS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SpawnParticlesPayload.ID, SpawnParticlesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(AbilityRuntimeDataSyncS2CPayload.ID, AbilityRuntimeDataSyncS2CPayload.CODEC);
@@ -68,7 +62,6 @@ public class ModNetworkConstants {
     public static void registerServerReceivers() {
         RunAbilityC2SPayload.registerServerReceiver();
 
-        RequestedInputPressedC2SPayload.registerServerReceiver();
 
         TalentPurchasedC2SPayload.registerServerReceiver();
     }
@@ -104,19 +97,6 @@ public class ModNetworkConstants {
 
         BuffDataSyncS2CPayload.registerClientReceiver();
 
-        ClientPlayNetworking.registerGlobalReceiver(ShowScreenFlashPayload.ID, (payload, context) -> {
-            FlashSystemHudRenderer.addFlashData(payload.flashData());
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(ShowCrosshairMarkPayload.ID, (payload, context) -> {
-            CrosshairMarkRenderer.addMarkData(payload.markData());
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(ShowScreenColorModifierPayload.ID, (payload, context) -> {
-            ColorModifierHudRenderer.addColorModifier(payload.colorModifier());
-        });
-
-        RequestInputS2CPayload.registerClientReceiver();
 
         ClientPlayNetworking.registerGlobalReceiver(SpawnParticlesPayload.ID, SpawnParticlesPayload::receiveOnClient);
 

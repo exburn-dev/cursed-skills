@@ -1,13 +1,13 @@
 package com.jujutsu.item;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public interface IBorderTooltipItem {
     TooltipBorderData getBorderData();
     int getOffset();
-    default void render(DrawContext context, int x, int y, int width, int height) {}
+    default void render(GuiGraphics context, int x, int y, int width, int height) {}
 
     record TooltipBorderData(@Nullable Identifier mainBorder, @Nullable Identifier upperTile, @Nullable Identifier upperDecorTile,
                              @Nullable Identifier bottomTile, @Nullable Identifier bottomDecorTile,

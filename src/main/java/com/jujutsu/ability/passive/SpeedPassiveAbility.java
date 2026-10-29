@@ -2,9 +2,9 @@ package com.jujutsu.ability.passive;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.network.payload.PlayClientSoundPayload;
-import com.jujutsu.registry.ModAbilities;
-import com.jujutsu.systems.ability.passive.PassiveAbility;
-import com.jujutsu.systems.ability.passive.PassiveAbilityType;
+import com.jujutsu.registry.custom.Abilities;
+import com.jujutsu.api.ability.passive.PassiveAbility;
+import com.jujutsu.api.ability.passive.PassiveAbilityType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -107,7 +107,7 @@ public class SpeedPassiveAbility extends PassiveAbility {
 
     @Override
     public PassiveAbilityType<?> getType() {
-        return ModAbilities.SPEED_PASSIVE_ABILITY;
+        return Abilities.SPEED_PASSIVE_ABILITY;
     }
 
     public int getPunchCooldown() {

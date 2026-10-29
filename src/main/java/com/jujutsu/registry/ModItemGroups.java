@@ -3,60 +3,70 @@ package com.jujutsu.registry;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.passive.FierySoulPassiveAbility;
 import com.jujutsu.ability.passive.SpeedPassiveAbility;
-import com.jujutsu.systems.ability.core.AbilitySlot;
-import com.jujutsu.component.TechniqueComponent.ItemStackBuilder;
+import com.jujutsu.api.ability.core.AbilitySlot;
+import com.jujutsu.item.TechniqueScrollItem;
+import com.jujutsu.registry.custom.Abilities;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.text.Text;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 
 public class ModItemGroups {
-    public static final RegistryKey<ItemGroup> MAIN_GROUP_KEY = RegistryKey.of(RegistryKeys.ITEM_GROUP, Jujutsu.id("jujutsu_main"));
-    public static final ItemGroup MAIN_GROUP = Registry.register(Registries.ITEM_GROUP, Jujutsu.id("jujutsu_main"), FabricItemGroup.builder()
-            .displayName(Text.translatable("itemGroup.jujutsu.main"))
-            .icon(ModItems.TECHNIQUE_SCROLL::getDefaultStack)
-            .build());
+    public static final ResourceKey<CreativeModeTab> MAIN_GROUP_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, Jujutsu.id("jujutsu_main"));
+    public static final CreativeModeTab MAIN_GROUP = register(MAIN_GROUP_KEY, FabricItemGroup.builder()
+            .icon(ModItems.TECHNIQUE_SCROLL::getDefaultInstance)
+            .title(Component.translatable("itemGroup.jujutsu.main"))
+    );
 
-    public static void register() {
-        Jujutsu.LOGGER.info("Registering item groups for " + Jujutsu.MODID);
-        ItemGroupEvents.modifyEntriesEvent(MAIN_GROUP_KEY).register((itemGroup) -> {
-            itemGroup.add(ModItems.REARM);
+    private static CreativeModeTab register(ResourceKey<CreativeModeTab> key, CreativeModeTab.Builder builder) {
+        return Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, key, builder.build());
+    }
 
-            ItemStack godjoScroll = new ItemStackBuilder(Jujutsu.id("gojo"))
-                    .addAbility(AbilitySlot.ABILITY_SLOT_1, ModAbilities.HOLLOW_PURPLE)
-                    .addAbility(AbilitySlot.ABILITY_SLOT_2, ModAbilities.INFINITY)
-                    .addAbility(AbilitySlot.ABILITY_SLOT_3, ModAbilities.LAPSE_BLUE)
-                    .addAbility(AbilitySlot.ABILITY_SLOT_4, ModAbilities.REVERSAL_RED)
+    private static void subscribeMainGroup() {
+        ItemGroupEvents.modifyEntriesEvent(MAIN_GROUP_KEY).register((builder) -> {
+            builder.accept(ModItems.REARM);
+
+            ItemStack godjoScroll = TechniqueScrollItem.createStack(Jujutsu.id("gojo"))
+                    .addAbility(AbilitySlot.ABILITY_SLOT_1, Abilities.HOLLOW_PURPLE)
+                    .addAbility(AbilitySlot.ABILITY_SLOT_2, Abilities.INFINITY)
+                    .addAbility(AbilitySlot.ABILITY_SLOT_3, Abilities.LAPSE_BLUE)
+                    .addAbility(AbilitySlot.ABILITY_SLOT_4, Abilities.REVERSAL_RED)
                     .build();
 
-            itemGroup.add(godjoScroll);
+            builder.accept(godjoScroll);
 
 
-            ItemStack speedScroll = new ItemStackBuilder(Jujutsu.id("speedster"))
-                    .addAbility(AbilitySlot.ABILITY_SLOT_1, ModAbilities.SHADOW_STEP)
-                    .addAbility(AbilitySlot.ABILITY_SLOT_2, ModAbilities.SONIC_RIFT)
-                    .addAbility(AbilitySlot.ABILITY_SLOT_3, ModAbilities.SUPERSONIC)
+            ItemStack speedScroll = TechniqueScrollItem.createStack(Jujutsu.id("speedster"))
+                    .addAbility(AbilitySlot.ABILITY_SLOT_1, Abilities.SHADOW_STEP)
+                    .addAbility(AbilitySlot.ABILITY_SLOT_2, Abilities.SONIC_RIFT)
+                    .addAbility(AbilitySlot.ABILITY_SLOT_3, Abilities.SUPERSONIC)
                     .addPassiveAbility(new SpeedPassiveAbility())
                     .build();
 
-            itemGroup.add(speedScroll);
+            builder.accept(speedScroll);
 
 
-            ItemStack fireScroll = new ItemStackBuilder(Jujutsu.id("phoenix"))
-                    .addAbility(AbilitySlot.ABILITY_SLOT_1, ModAbilities.PHOENIX_FIREBALL)
-                    .addAbility(AbilitySlot.ABILITY_SLOT_2, ModAbilities.FIERY_SOUL_SWITCH)
-                    .addAbility(AbilitySlot.ABILITY_SLOT_ON_DEATH, ModAbilities.PHOENIX_ASH)
+            ItemStack fireScroll = TechniqueScrollItem.createStack(Jujutsu.id("phoenix"))
+                    .addAbility(AbilitySlot.ABILITY_SLOT_1, Abilities.PHOENIX_FIREBALL)
+                    .addAbility(AbilitySlot.ABILITY_SLOT_2, Abilities.FIERY_SOUL_SWITCH)
+                    .addAbility(AbilitySlot.ABILITY_SLOT_ON_DEATH, Abilities.PHOENIX_ASH)
                     .addPassiveAbility(new FierySoulPassiveAbility())
                     .build();
 
-            itemGroup.add(fireScroll);
+            builder.accept(fireScroll);
 
-            itemGroup.add(ModItems.UPGRADE_RESET_SCROLL);
+            builder.accept(ModItems.UPGRADE_RESET_SCROLL);
         });
+    }
+
+    public static void register() {
+        Jujutsu.LOGGER.info("Registering item groups for " + Jujutsu.MODID);
+
+        subscribeMainGroup();
     }
 }

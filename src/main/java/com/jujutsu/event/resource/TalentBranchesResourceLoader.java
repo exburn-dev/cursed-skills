@@ -1,12 +1,10 @@
 package com.jujutsu.event.resource;
 
 import com.google.gson.JsonElement;
-import com.jujutsu.systems.talent.AbilityTalent;
-import com.jujutsu.systems.talent.TalentBranch;
+import com.jujutsu.api.talent.TalentBranch;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;

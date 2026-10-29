@@ -1,14 +1,14 @@
 package com.jujutsu.ability.active;
 
-import com.jujutsu.registry.ModAbilityAttributes;
+import com.jujutsu.registry.custom.AbilityAttributes;
 import com.jujutsu.entity.ReversalRedEntity;
-import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.core.AbilityInstanceData;
-import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.data.InputRequest;
-import com.jujutsu.systems.ability.data.ClientData;
-import com.jujutsu.systems.ability.data.IntAbilityProperty;
+import com.jujutsu.api.ability.attribute.AbilityAttributeContainer;
+import com.jujutsu.api.ability.core.AbilityInstance;
+import com.jujutsu.api.ability.core.AbilityInstanceData;
+import com.jujutsu.api.ability.core.AbilityType;
+import com.jujutsu.api.ability.data.InputRequest;
+import com.jujutsu.api.ability.data.ClientData;
+import com.jujutsu.api.ability.data.IntAbilityProperty;
 import com.jujutsu.util.HandAnimationUtils;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -38,7 +38,7 @@ public class ReversalRedAbility extends AbilityType {
         entity.setPosition(player.getPos());
         player.getWorld().spawnEntity(entity);
 
-        int chargeTime = (int) Math.floor(getAttributeValue(player, ModAbilityAttributes.REVERSAL_RED_CHARGE_TIME)) * 20;
+        int chargeTime = (int) Math.floor(getAttributeValue(player, AbilityAttributes.REVERSAL_RED_CHARGE_TIME)) * 20;
         setData(instance, entity.getId(), chargeTime);
     }
 
@@ -72,9 +72,9 @@ public class ReversalRedAbility extends AbilityType {
         entity.setPitch(player.getPitch());
         entity.setYaw(player.getYaw());
 
-        entity.setExplosionPower((float) getAttributeValue(player, ModAbilityAttributes.REVERSAL_RED_EXPLOSION_POWER));
-        entity.setDamageMultiplier((float) getAttributeValue(player, ModAbilityAttributes.REVERSAL_RED_DAMAGE_MULTIPLIER));
-        entity.setStunSeconds((float) getAttributeValue(player, ModAbilityAttributes.REVERSAL_RED_STUN));
+        entity.setExplosionPower((float) getAttributeValue(player, AbilityAttributes.REVERSAL_RED_EXPLOSION_POWER));
+        entity.setDamageMultiplier((float) getAttributeValue(player, AbilityAttributes.REVERSAL_RED_DAMAGE_MULTIPLIER));
+        entity.setStunSeconds((float) getAttributeValue(player, AbilityAttributes.REVERSAL_RED_STUN));
 
         entity.addVelocity(entity.getRotationVector().multiply( 0.8f + 0.016 * entity.getChargeTime() ));
     }
@@ -91,12 +91,12 @@ public class ReversalRedAbility extends AbilityType {
     }
 
     @Override
-    public SimpleAbilityAttributeContainer getDefaultAttributes() {
-        return SimpleAbilityAttributeContainer.builder()
-                .addBaseModifier(ModAbilityAttributes.REVERSAL_RED_EXPLOSION_POWER, 2)
-                .addBaseModifier(ModAbilityAttributes.REVERSAL_RED_DAMAGE_MULTIPLIER, 1)
-                .addBaseModifier(ModAbilityAttributes.REVERSAL_RED_STUN, 0)
-                .addBaseModifier(ModAbilityAttributes.REVERSAL_RED_CHARGE_TIME, 3)
+    public AbilityAttributeContainer getDefaultAttributes() {
+        return AbilityAttributeContainer.builder()
+                .addBaseModifier(AbilityAttributes.REVERSAL_RED_EXPLOSION_POWER, 2)
+                .addBaseModifier(AbilityAttributes.REVERSAL_RED_DAMAGE_MULTIPLIER, 1)
+                .addBaseModifier(AbilityAttributes.REVERSAL_RED_STUN, 0)
+                .addBaseModifier(AbilityAttributes.REVERSAL_RED_CHARGE_TIME, 3)
                 .build();
     }
 

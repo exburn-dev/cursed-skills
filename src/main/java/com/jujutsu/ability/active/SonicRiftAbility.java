@@ -4,20 +4,20 @@ import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.mixin.LivingEntityAccessor;
-import com.jujutsu.registry.ModAbilities;
-import com.jujutsu.registry.ModAbilityAttributes;
+import com.jujutsu.registry.custom.Abilities;
+import com.jujutsu.registry.custom.AbilityAttributes;
 import com.jujutsu.registry.ModSounds;
-import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
-import com.jujutsu.systems.ability.client.ClientComponentContainer;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.core.AbilityInstanceData;
-import com.jujutsu.systems.ability.data.*;
-import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
-import com.jujutsu.systems.buff.Buff;
-import com.jujutsu.systems.buff.BuffComponent;
-import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
-import com.jujutsu.systems.buff.type.AttributeBuff;
+import com.jujutsu.api.ability.attribute.AbilityAttributeContainer;
+import com.jujutsu.api.ability.client.ClientComponentContainer;
+import com.jujutsu.api.ability.core.AbilityInstance;
+import com.jujutsu.api.ability.core.AbilityInstanceData;
+import com.jujutsu.api.ability.data.*;
+import com.jujutsu.api.ability.core.AbilityType;
+import com.jujutsu.api.ability.passive.PassiveAbilityComponent;
+import com.jujutsu.api.buff.Buff;
+import com.jujutsu.api.buff.BuffComponent;
+import com.jujutsu.api.buff.conditions.TimerBuffCondition;
+import com.jujutsu.api.buff.type.AttributeBuff;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -60,7 +60,7 @@ public class SonicRiftAbility extends AbilityType {
     @Override
     public void start(PlayerEntity player, AbilityInstance instance) {
         PassiveAbilityComponent component = PassiveAbilityComponent.get(player);
-        Optional<SpeedPassiveAbility> optional = component.find(ModAbilities.SPEED_PASSIVE_ABILITY);
+        Optional<SpeedPassiveAbility> optional = component.find(Abilities.SPEED_PASSIVE_ABILITY);
 
         double speed = 0;
         int dashes = 0;
@@ -71,7 +71,7 @@ public class SonicRiftAbility extends AbilityType {
             float strength = getAbilityStrength(speed);
 
             dashes = (int) Math.floor(clampValue(strength, 1, 3));
-            dashes += (int) getAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_ADDITIONAL_DASHES);
+            dashes += (int) getAttributeValue(player, AbilityAttributes.SONIC_RIFT_ADDITIONAL_DASHES);
         }
 
         instance.set(DASHES_ON_START, dashes);
@@ -138,7 +138,7 @@ public class SonicRiftAbility extends AbilityType {
     }
 
     private void initialJump(PlayerEntity player, AbilityInstance instance) {
-        double startJumpMultiplier = getAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_START_JUMP_POWER);
+        double startJumpMultiplier = getAttributeValue(player, AbilityAttributes.SONIC_RIFT_START_JUMP_POWER);
         Vec3d vec = new Vec3d(0f, 0.5f + 1.5f * getAbilityStrength(instance.get(SPEED_ON_START)), 0f).multiply(startJumpMultiplier);
         player.addVelocity(vec);
         player.velocityModified = true;
@@ -161,7 +161,7 @@ public class SonicRiftAbility extends AbilityType {
     private void onEntityHit(Entity entity, PlayerEntity player, AbilityInstance instance) {
         instance.addPropertyValue(ENTITY_HITS, 1);
 
-        double damage = getAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_DAMAGE);
+        double damage = getAttributeValue(player, AbilityAttributes.SONIC_RIFT_DAMAGE);
         entity.damage(player.getDamageSources().magic(), (float) (damage * getAbilityStrength(instance.get(SPEED_ON_START))));
 
         Vec3d playerVelocity = player.getVelocity();
@@ -251,7 +251,7 @@ public class SonicRiftAbility extends AbilityType {
 
     private void launch(PlayerEntity player, AbilityInstance instance) {
         if(instance.get(DASHES_LEFT) > 0) {
-            double dashVelocityMultiplier = getAttributeValue(player, ModAbilityAttributes.SONIC_RIFT_DASH_POWER);
+            double dashVelocityMultiplier = getAttributeValue(player, AbilityAttributes.SONIC_RIFT_DASH_POWER);
 
             player.requestTeleport(player.getX(), player.getY() + 1, player.getZ());
             Vec3d vec = player.getRotationVector().normalize()
@@ -280,7 +280,7 @@ public class SonicRiftAbility extends AbilityType {
 
         if(isDashing) {
             AttributeBuff buff = new AttributeBuff(EntityAttributes.GENERIC_GRAVITY, -0.85, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-            Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(25)),
+            Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffCondition(25)),
                     false, Jujutsu.id("sonicrift_gravity"));
         }
         else {
@@ -315,12 +315,12 @@ public class SonicRiftAbility extends AbilityType {
     }
 
     @Override
-    public SimpleAbilityAttributeContainer getDefaultAttributes() {
-        return SimpleAbilityAttributeContainer.builder()
-                .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_DASH_POWER, 1)
-                .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_START_JUMP_POWER, 1)
-                .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_ADDITIONAL_DASHES, 0)
-                .addBaseModifier(ModAbilityAttributes.SONIC_RIFT_DAMAGE, 50)
+    public AbilityAttributeContainer getDefaultAttributes() {
+        return AbilityAttributeContainer.builder()
+                .addBaseModifier(AbilityAttributes.SONIC_RIFT_DASH_POWER, 1)
+                .addBaseModifier(AbilityAttributes.SONIC_RIFT_START_JUMP_POWER, 1)
+                .addBaseModifier(AbilityAttributes.SONIC_RIFT_ADDITIONAL_DASHES, 0)
+                .addBaseModifier(AbilityAttributes.SONIC_RIFT_DAMAGE, 50)
                 .build();
     }
 

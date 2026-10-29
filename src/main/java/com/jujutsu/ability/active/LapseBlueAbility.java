@@ -1,13 +1,13 @@
 package com.jujutsu.ability.active;
 
-import com.jujutsu.registry.ModAbilityAttributes;
-import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.core.AbilityInstanceData;
-import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.data.ClientData;
+import com.jujutsu.registry.custom.AbilityAttributes;
+import com.jujutsu.api.ability.attribute.AbilityAttributeContainer;
+import com.jujutsu.api.ability.core.AbilityInstance;
+import com.jujutsu.api.ability.core.AbilityInstanceData;
+import com.jujutsu.api.ability.core.AbilityType;
+import com.jujutsu.api.ability.data.ClientData;
 import com.jujutsu.entity.LapseBlueEntity;
-import com.jujutsu.systems.ability.data.IntAbilityProperty;
+import com.jujutsu.api.ability.data.IntAbilityProperty;
 import com.jujutsu.util.HandAnimationUtils;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -57,8 +57,8 @@ public class LapseBlueAbility extends AbilityType {
         entity.setPitch(player.getPitch());
         entity.setYaw(player.getYaw());
 
-        entity.setDamageMultiplier((float) getAttributeValue(player, ModAbilityAttributes.LAPSE_BLUE_DAMAGE_MULTIPLIER));
-        entity.setStunSeconds((float) getAttributeValue(player, ModAbilityAttributes.LAPSE_BLUE_STUN));
+        entity.setDamageMultiplier((float) getAttributeValue(player, AbilityAttributes.LAPSE_BLUE_DAMAGE_MULTIPLIER));
+        entity.setStunSeconds((float) getAttributeValue(player, AbilityAttributes.LAPSE_BLUE_STUN));
 
         entity.addVelocity(entity.getRotationVector().multiply( 0.4f + (2f - 0.4f) / 100 * entity.getChargeTime() ));
     }
@@ -92,10 +92,10 @@ public class LapseBlueAbility extends AbilityType {
     }
 
     @Override
-    public SimpleAbilityAttributeContainer getDefaultAttributes() {
-        return SimpleAbilityAttributeContainer.builder()
-                .addBaseModifier(ModAbilityAttributes.LAPSE_BLUE_DAMAGE_MULTIPLIER, 1)
-                .addBaseModifier(ModAbilityAttributes.LAPSE_BLUE_STUN, 0)
+    public AbilityAttributeContainer getDefaultAttributes() {
+        return AbilityAttributeContainer.builder()
+                .addBaseModifier(AbilityAttributes.LAPSE_BLUE_DAMAGE_MULTIPLIER, 1)
+                .addBaseModifier(AbilityAttributes.LAPSE_BLUE_STUN, 0)
                 .build();
     }
 }

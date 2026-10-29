@@ -4,17 +4,15 @@ import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.registry.ModEffects;
 import com.jujutsu.registry.ModEntityTypes;
 import com.jujutsu.util.ParticleUtils;
-import net.minecraft.entity.*;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.util.TypeFilter;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.joml.Vector3f;
 
 import java.util.*;
@@ -24,20 +22,30 @@ public class LapseBlueEntity extends Entity {
     public final AnimationState defaultAnimationState = new AnimationState();
     private int defaultAnimationTimeout = 0;
 
-    private static final TrackedData<Optional<UUID>> OWNER_UUID;
-    private static final TrackedData<Integer> AGE;
-    private static final TrackedData<Integer> CHARGE_TIME;
-    private static final TrackedData<Boolean> IS_CHARGING;
-    private static final TrackedData<Float> DAMAGE_MULTIPLIER;
-    private static final TrackedData<Float> STUN_SECONDS;
+    private static final EntityDataAccessor<Optional<UUID>> OWNER_UUID;
+    private static final EntityDataAccessor<Integer> AGE;
+    private static final EntityDataAccessor<Integer> CHARGE_TIME;
+    private static final EntityDataAccessor<Boolean> IS_CHARGING;
+    private static final EntityDataAccessor<Float> DAMAGE_MULTIPLIER;
+    private static final EntityDataAccessor<Float> STUN_SECONDS;
 
-    public LapseBlueEntity(EntityType<?> type, World world) {
-        super(type, world);
+    public LapseBlueEntity(EntityType<?> type, Level level) {
+        super(type, level);
     }
 
-    public LapseBlueEntity(World world, UUID ownerUuid) {
-        super(ModEntityTypes.LAPSE_BLUE, world);
-        this.dataTracker.set(OWNER_UUID, Optional.of(ownerUuid));
+    public LapseBlueEntity(Level level, UUID ownerUuid) {
+        super(ModEntityTypes.LAPSE_BLUE, level);
+        entityData.set(OWNER_UUID, Optional.of(ownerUuid));
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(OWNER_UUID, Optional.empty());
+        builder.define(AGE, 0);
+        builder.define(CHARGE_TIME, 0);
+        builder.define(IS_CHARGING, true);
+        builder.define(DAMAGE_MULTIPLIER, 1f);
+        builder.define(STUN_SECONDS, 0f);
     }
 
     @Override
@@ -92,6 +100,21 @@ public class LapseBlueEntity extends Entity {
                 entity.addStatusEffect(new StatusEffectInstance(ModEffects.STUN, stunSeconds, 0, true, false, false));
             }
         }
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float f) {
+        return false;
+    }
+
+    @Override
+    protected void readAdditionalSaveData(ValueInput valueInput) {
+
+    }
+
+    @Override
+    protected void addAdditionalSaveData(ValueOutput valueOutput) {
+
     }
 
     public void setCharging(boolean charging) {
@@ -150,16 +173,6 @@ public class LapseBlueEntity extends Entity {
         ParticleUtils.createBallSurface(particle, getPos(), getWorld(), 40, 0.75f / 70f * getChargeTime(), 0);
     }
 
-    @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
-        builder.add(OWNER_UUID, Optional.empty());
-        builder.add(AGE, 0);
-        builder.add(CHARGE_TIME, 0);
-        builder.add(IS_CHARGING, true);
-        builder.add(DAMAGE_MULTIPLIER, 1f);
-        builder.add(STUN_SECONDS, 0f);
-    }
-
     public Optional<UUID> getOwnerUuid() {
         return this.dataTracker.get(OWNER_UUID);
     }
@@ -167,16 +180,6 @@ public class LapseBlueEntity extends Entity {
     @Override
     public boolean hasNoGravity() {
         return true;
-    }
-
-    @Override
-    protected void readCustomDataFromNbt(NbtCompound nbt) {
-
-    }
-
-    @Override
-    protected void writeCustomDataToNbt(NbtCompound nbt) {
-
     }
 
     @Override

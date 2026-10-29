@@ -2,17 +2,17 @@ package com.jujutsu.ability.active;
 
 import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
-import com.jujutsu.registry.ModAbilityAttributes;
+import com.jujutsu.registry.custom.AbilityAttributes;
 import com.jujutsu.registry.ModEffects;
-import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.data.BoolAbilityProperty;
-import com.jujutsu.systems.ability.data.DoubleAbilityProperty;
-import com.jujutsu.systems.ability.data.IntAbilityProperty;
-import com.jujutsu.systems.buff.Buff;
-import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
-import com.jujutsu.systems.buff.type.AttributeBuff;
+import com.jujutsu.api.ability.attribute.AbilityAttributeContainer;
+import com.jujutsu.api.ability.core.AbilityInstance;
+import com.jujutsu.api.ability.core.AbilityType;
+import com.jujutsu.api.ability.data.BoolAbilityProperty;
+import com.jujutsu.api.ability.data.DoubleAbilityProperty;
+import com.jujutsu.api.ability.data.IntAbilityProperty;
+import com.jujutsu.api.buff.Buff;
+import com.jujutsu.api.buff.conditions.TimerBuffCondition;
+import com.jujutsu.api.buff.type.AttributeBuff;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -36,11 +36,11 @@ public class SupersonicAbility extends AbilityType {
     public void start(PlayerEntity player, AbilityInstance instance) {
         double startDistance = player.distanceTraveled;
 
-        int duration = 20 * (int) getAttributeValue(player, ModAbilityAttributes.SUPERSONIC_DURATION);
+        int duration = 20 * (int) getAttributeValue(player, AbilityAttributes.SUPERSONIC_DURATION);
         setData(instance, startDistance, 0, duration, false);
 
         AttributeBuff buff = new AttributeBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.5, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-        Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(duration)),
+        Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffCondition(duration)),
                 false, Jujutsu.id("supersonic"));
     }
 
@@ -78,10 +78,10 @@ public class SupersonicAbility extends AbilityType {
     }
 
     @Override
-    public SimpleAbilityAttributeContainer getDefaultAttributes() {
-        return SimpleAbilityAttributeContainer.builder()
-                .addBaseModifier(ModAbilityAttributes.SUPERSONIC_SPEED, 0.0625)
-                .addBaseModifier(ModAbilityAttributes.SUPERSONIC_DURATION, 10)
+    public AbilityAttributeContainer getDefaultAttributes() {
+        return AbilityAttributeContainer.builder()
+                .addBaseModifier(AbilityAttributes.SUPERSONIC_SPEED, 0.0625)
+                .addBaseModifier(AbilityAttributes.SUPERSONIC_DURATION, 10)
                 .build();
     }
 

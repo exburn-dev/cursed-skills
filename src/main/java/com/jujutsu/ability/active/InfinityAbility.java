@@ -2,41 +2,25 @@ package com.jujutsu.ability.active;
 
 import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
-import com.jujutsu.registry.ModAbilityAttributes;
+import com.jujutsu.registry.custom.AbilityAttributes;
 import com.jujutsu.registry.ModAttributes;
-import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
-import com.jujutsu.systems.ability.client.ClientComponentContainer;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.core.AbilityInstanceData;
-import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.data.ClientData;
-import com.jujutsu.systems.ability.data.IntAbilityProperty;
-import com.jujutsu.systems.animation.PlayerAnimations;
-import com.jujutsu.systems.buff.Buff;
-import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
-import com.jujutsu.systems.buff.type.AttributeBuff;
+import com.jujutsu.api.ability.attribute.AbilityAttributesContainer;
+import com.jujutsu.api.ability.client.ClientComponentContainer;
+import com.jujutsu.api.ability.core.AbilityInstance;
+import com.jujutsu.api.ability.core.AbilityInstanceData;
+import com.jujutsu.api.ability.core.AbilityType;
+import com.jujutsu.api.ability.data.ClientData;
+import com.jujutsu.api.ability.data.IntAbilityProperty;
+import com.jujutsu.api.animation.PlayerAnimations;
+import com.jujutsu.api.buff.Buff;
+import com.jujutsu.api.buff.conditions.TimerBuffCondition;
+import com.jujutsu.api.buff.type.AttributeBuff;
 import com.jujutsu.util.HandAnimationUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.block.Block;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Style;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.TypeFilter;
-import net.minecraft.util.Util;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.*;
-import net.minecraft.world.RaycastContext;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
 
@@ -48,13 +32,13 @@ public class InfinityAbility extends AbilityType {
     }
 
     @Override
-    public void start(PlayerEntity player, AbilityInstance instance) {
-        int duration = (int) Math.floor(getAttributeValue(player, ModAbilityAttributes.INFINITY_DURATION)) * 20;
+    public void start(Player player, AbilityInstance instance) {
+        int duration = (int) Math.floor(getAttributeValue(player, AbilityAttributes.INFINITY_DURATION)) * 20;
         instance.set(DURATION, duration);
 
-        AttributeBuff buff = new AttributeBuff(ModAttributes.INVINCIBLE,0.5, EntityAttributeModifier.Operation.ADD_VALUE);
+        AttributeBuff buff = new AttributeBuff(ModAttributes.INVINCIBLE,0.5, AttributeModifier.Operation.ADD_VALUE);
 
-        Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffPredicate(duration)),
+        Buff.createBuff(player, buff, ImmutableList.of(new TimerBuffCondition(duration)),
                 false, Jujutsu.id("infinity"));
 
         if(player.getWorld().isClient()) return;
@@ -63,7 +47,7 @@ public class InfinityAbility extends AbilityType {
     }
 
     @Override
-    public void tick(PlayerEntity player, AbilityInstance instance) {
+    public void tick(Player player, AbilityInstance instance) {
         if(player.getWorld().isClient()) return;
         Vec3d pos = player.getPos();
         List<Entity> entities = player.getWorld().getEntitiesByType(TypeFilter.instanceOf(Entity.class), new Box(pos.add(-2, -2, -2), pos.add(2, player.getHeight() + 2, 2)),
@@ -93,24 +77,24 @@ public class InfinityAbility extends AbilityType {
     }
 
     @Override
-    public SimpleAbilityAttributeContainer getDefaultAttributes() {
-        return SimpleAbilityAttributeContainer.builder()
-                .addBaseModifier(ModAbilityAttributes.INFINITY_DURATION, 8)
+    public AbilityAttributesContainer getDefaultAttributes() {
+        return AbilityAttributesContainer.builder()
+                .addBase(AbilityAttributes.INFINITY_DURATION, 8)
                 .build();
     }
 
     @Override
-    public void end(PlayerEntity player, AbilityInstance instance) {}
+    public void end(Player player, AbilityInstance instance) {}
 
     @Override
-    public boolean isFinished(PlayerEntity player, AbilityInstance instance) {
+    public boolean isFinished(Player player, AbilityInstance instance) {
         int abilityDuration = instance.get(DURATION);
         return instance.useTime() >= abilityDuration;
     }
 
     @Override
     public Style getStyle() {
-        return Style.EMPTY.withColor(Formatting.LIGHT_PURPLE);
+        return Style.EMPTY.withColor(ChatFormatting.LIGHT_PURPLE);
     }
 
     public static boolean renderHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstanceData instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light) {

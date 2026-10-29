@@ -1,49 +1,57 @@
 package com.jujutsu.item;
 
 import com.jujutsu.Jujutsu;
+import com.jujutsu.api.ability.core.AbilitySlot;
 import com.jujutsu.component.TechniqueComponent;
 import com.jujutsu.network.payload.AbilitiesAcquiredPayload;
 import com.jujutsu.registry.ModDataComponents;
+import com.jujutsu.registry.ModItems;
 import com.jujutsu.registry.ModSounds;
-import com.jujutsu.systems.ability.core.AbilityComponent;
-import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.passive.PassiveAbility;
-import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
-import com.jujutsu.systems.talent.TalentComponent;
+import com.jujutsu.api.ability.core.AbilityComponent;
+import com.jujutsu.api.ability.core.AbilityType;
+import com.jujutsu.api.ability.passive.PassiveAbility;
+import com.jujutsu.api.ability.passive.PassiveAbilityComponent;
+import com.jujutsu.api.talent.TalentComponent;
+import com.mojang.datafixers.util.Pair;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.level.Level;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class TechniqueScrollItem extends Item implements IBorderTooltipItem, ModelWithIcon{
-    public TechniqueScrollItem(Settings settings) {
-        super(settings);
+    public TechniqueScrollItem(Item.Properties properties) {
+        super(properties);
     }
 
     @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        ItemStack stack = user.getStackInHand(hand);
-        if(world.isClient()) return TypedActionResult.pass(stack);
+    public InteractionResult use(Level level, Player user, InteractionHand hand) {
+        ItemStack stack = user.getItemInHand(hand);
+        if(level.isClientSide()) return InteractionResult.PASS;
 
         TechniqueComponent component = stack.get(ModDataComponents.TECHNIQUE_COMPONENT);
         AbilityComponent abilityComponent = AbilityComponent.get(user);
         PassiveAbilityComponent passiveAbilityComponent = PassiveAbilityComponent.get(user);
         TalentComponent talentComponent = TalentComponent.get(user);
 
-        if(component == null) return TypedActionResult.pass(stack);
+        if(component == null) return InteractionResult.PASS;
 
         abilityComponent.clearInstances();
         passiveAbilityComponent.removePassiveAbilities();
@@ -60,40 +68,46 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
             passiveAbilityComponent.addPassiveAbility(ability);
         }
 
-        ServerPlayNetworking.send((ServerPlayerEntity) user, new AbilitiesAcquiredPayload(component.abilities().values().stream().toList()));
+        ServerPlayNetworking.send(
+                (ServerPlayer) user,
+                new AbilitiesAcquiredPayload(component.abilities().values().stream().toList()));
 
-        user.playSoundToPlayer(ModSounds.TECHNIQUE_SCROLL_USED, SoundCategory.MASTER, 1, 1);
-        world.playSound(user, user.getX(), user.getY(), user.getZ(), ModSounds.TECHNIQUE_SCROLL_USED, SoundCategory.MASTER, 1, 1);
+        level.playSound(null, user.blockPosition(), ModSounds.TECHNIQUE_SCROLL_USED, SoundSource.MASTER, 1.0f, 1.0f);
 
-        stack.decrement(1);
-        return TypedActionResult.success(stack);
+        stack.shrink(1);
+
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
+    public void appendHoverText(ItemStack stack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay,
+                                Consumer<Component> builder, TooltipFlag tooltipFlag) {
         TechniqueComponent component = stack.get(ModDataComponents.TECHNIQUE_COMPONENT);
         if(component != null) {
-            if(!Screen.hasShiftDown()) {
-                tooltip.add(
-                        Text.translatable("item.jujutsu.technique_scroll.press_for_info", Text.literal("<SHIFT>").formatted(Formatting.YELLOW))
-                        .formatted(Formatting.GRAY));
+            if(!Minecraft.getInstance().hasShiftDown()) {
+                builder.accept(Component.translatable("item.jujutsu.technique_scroll.press_for_info",
+                                Component.literal("<SHIFT>").withStyle(ChatFormatting.YELLOW))
+                                .withStyle(ChatFormatting.GRAY));
                 return;
             }
-            tooltip.add(Text.translatable("item.jujutsu.technique_scroll.stored_abilities").setStyle(Style.EMPTY.withColor(0xfcaf68).withUnderline(true)));
+            builder.accept(Component.translatable("item.jujutsu.technique_scroll.stored_abilities")
+                    .setStyle(Style.EMPTY.withColor(0xfcaf68).withUnderlined(true)));
             for(AbilityType ability: component.abilities().values()) {
-                tooltip.add(Text.literal("- ").append(ability.getName().copy().setStyle(ability.getStyle())));
+                builder.accept(Component.literal("- ").append(ability.getName().copy().setStyle(ability.getStyle())));
             }
 
             if(component.passiveAbilities().isEmpty()) return;
 
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.translatable("item.jujutsu.technique_scroll.stored_passive_abilities").setStyle(Style.EMPTY.withColor(0xfcaf68).withUnderline(true)));
+            builder.accept(Component.literal(""));
+            builder.accept(Component.translatable("item.jujutsu.technique_scroll.stored_passive_abilities")
+                    .setStyle(Style.EMPTY.withColor(0xfcaf68).withUnderlined(true)));
+
             for(PassiveAbility passiveAbility: component.passiveAbilities()) {
-                tooltip.add(Text.literal("- ").append(passiveAbility.getName().copy().setStyle(passiveAbility.getStyle())));
+                builder.accept(Component.literal("- ").append(passiveAbility.getName().copy().withStyle(passiveAbility.getStyle())));
             }
         }
 
-        super.appendTooltip(stack, context, tooltip, type);
+        super.appendHoverText(stack, tooltipContext, tooltipDisplay, builder, tooltipFlag);
     }
 
     @Override
@@ -114,5 +128,39 @@ public class TechniqueScrollItem extends Item implements IBorderTooltipItem, Mod
     @Override
     public Identifier getModel() {
         return Jujutsu.id("technique_scroll_3d");
+    }
+
+    public static Builder createStack(Identifier talentTreeId) {
+        return new Builder(talentTreeId);
+    }
+
+    public static class Builder {
+        private final List<Pair<AbilitySlot, AbilityType>> abilities = new ArrayList<>();
+        private final List<PassiveAbility> passiveAbilities = new ArrayList<>();
+        private final Identifier talentTreeId;
+
+        public Builder(Identifier talentTreeId) {
+            this.talentTreeId = talentTreeId;
+        }
+
+        public Builder addAbility(AbilitySlot slot, AbilityType type) {
+            abilities.add(new Pair<>(slot, type));
+            return this;
+        }
+
+        public Builder addPassiveAbility(PassiveAbility ability) {
+            passiveAbilities.add(ability);
+            return this;
+        }
+
+        public ItemStack build() {
+            ItemStack stack = ModItems.TECHNIQUE_SCROLL.getDefaultInstance();
+            Map<AbilitySlot, AbilityType> map = new HashMap<>();
+            for(Pair<AbilitySlot, AbilityType> pair: abilities) {
+                map.put(pair.getFirst(), pair.getSecond());
+            }
+            stack.set(ModDataComponents.TECHNIQUE_COMPONENT, new TechniqueComponent(map, passiveAbilities, talentTreeId));
+            return stack;
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.jujutsu;
 
 import com.jujutsu.client.hud.*;
-import com.jujutsu.client.keybind.InputRequestSystem;
+import com.jujutsu.client.input.InputRequestSystem;
 import com.jujutsu.client.particle.*;
 import com.jujutsu.entity.model.BlinkMarkerModel;
 import com.jujutsu.entity.model.PhoenixFireballModel;
@@ -9,7 +9,7 @@ import com.jujutsu.entity.renderer.*;
 import com.jujutsu.event.ClientEventListeners;
 import com.jujutsu.network.ModNetworkConstants;
 import com.jujutsu.registry.ModEntityTypes;
-import com.jujutsu.client.keybind.ModKeybindings;
+import com.jujutsu.client.input.ModKeybindings;
 import com.jujutsu.registry.ModParticleTypes;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;

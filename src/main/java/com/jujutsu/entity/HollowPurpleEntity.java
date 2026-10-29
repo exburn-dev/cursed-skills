@@ -1,24 +1,17 @@
 package com.jujutsu.entity;
 
-import com.jujutsu.Jujutsu;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.registry.ModDamageTypes;
 import com.jujutsu.registry.ModEntityTypes;
 import com.jujutsu.util.ParticleUtils;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.TypeFilter;
-import net.minecraft.util.math.*;
-import net.minecraft.world.World;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.joml.Vector3f;
 
 import java.util.*;
@@ -32,12 +25,17 @@ public class HollowPurpleEntity extends Entity {
     private static final TrackedData<Float> BLOCK_BREAK_RADIUS;
     private static final TrackedData<Float> SPEED;
 
-    public HollowPurpleEntity(EntityType<?> type, World world) {
-        super(type, world);
+    public HollowPurpleEntity(EntityType<?> type, Level level) {
+        super(type, level);
     }
 
-    public HollowPurpleEntity(World world, UUID ownerUUID) {
-        super(ModEntityTypes.HOLLOW_PURPLE, world);
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+
+    }
+
+    public HollowPurpleEntity(Level level, UUID ownerUUID) {
+        super(ModEntityTypes.HOLLOW_PURPLE, level);
         this.dataTracker.set(OWNER_UUID, Optional.of(ownerUUID));
     }
 
@@ -148,21 +146,26 @@ public class HollowPurpleEntity extends Entity {
     }
 
     @Override
+    public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float f) {
+        return false;
+    }
+
+    @Override
+    protected void readAdditionalSaveData(ValueInput valueInput) {
+
+    }
+
+    @Override
+    protected void addAdditionalSaveData(ValueOutput valueOutput) {
+
+    }
+
+    @Override
     protected void initDataTracker(DataTracker.Builder builder) {
         builder.add(AGE, 0);
         builder.add(OWNER_UUID, Optional.empty());
         builder.add(BLOCK_BREAK_RADIUS, 0f);
         builder.add(SPEED, 0f);
-    }
-
-    @Override
-    protected void readCustomDataFromNbt(NbtCompound nbt) {
-
-    }
-
-    @Override
-    protected void writeCustomDataToNbt(NbtCompound nbt) {
-
     }
 
     @Override

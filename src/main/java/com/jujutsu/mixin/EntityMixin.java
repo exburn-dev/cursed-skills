@@ -1,9 +1,9 @@
 package com.jujutsu.mixin;
 
-import com.jujutsu.systems.ability.client.ClientComponentContainer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.World;
+import com.jujutsu.api.ability.client.ClientComponentContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -12,14 +12,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
-
-    @Shadow public abstract boolean isPlayer();
-
-    @Shadow public abstract World getWorld();
+    @Shadow
+    public abstract Level level();
 
     @Inject(method = "isInvisibleTo", at = @At("HEAD"), cancellable = true)
-    private void isInvisibleTo(PlayerEntity player, CallbackInfoReturnable<Boolean> cir) {
-        if(isPlayer() && getWorld().isClient()) {
+    private void isInvisibleTo(Player player, CallbackInfoReturnable<Boolean> cir) {
+        Entity entity = (Entity) (Object) this;
+        if(entity instanceof Player && level().isClientSide()) {
             if(ClientComponentContainer.abilityComponent.isTranslucent()) {
                 cir.setReturnValue(false);
             }

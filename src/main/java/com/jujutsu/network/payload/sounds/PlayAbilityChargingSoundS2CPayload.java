@@ -2,7 +2,7 @@ package com.jujutsu.network.payload.sounds;
 
 import com.jujutsu.Jujutsu;
 import com.jujutsu.client.sound.HollowPurpleChargingSoundInstance;
-import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.api.ability.core.AbilitySlot;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.RegistryByteBuf;

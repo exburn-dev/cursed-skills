@@ -2,16 +2,14 @@ package com.jujutsu.event.resource;
 
 import com.google.gson.JsonElement;
 import com.jujutsu.network.payload.talents.TalentResourcesSyncS2CPayload;
-import com.jujutsu.systems.talent.AbilityTalent;
+import com.jujutsu.api.talent.AbilityTalent;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;

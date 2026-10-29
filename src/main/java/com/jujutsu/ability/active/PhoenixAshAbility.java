@@ -5,11 +5,11 @@ import com.jujutsu.Jujutsu;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.buff.Buff;
-import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
-import com.jujutsu.systems.buff.type.AttributeBuff;
+import com.jujutsu.api.ability.core.AbilityInstance;
+import com.jujutsu.api.ability.core.AbilityType;
+import com.jujutsu.api.buff.Buff;
+import com.jujutsu.api.buff.conditions.TimerBuffCondition;
+import com.jujutsu.api.buff.type.AttributeBuff;
 import com.jujutsu.util.ParticleUtils;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -38,10 +38,10 @@ public class PhoenixAshAbility extends AbilityType {
         AttributeBuff invincibilityBuff = new AttributeBuff(ModAttributes.INVINCIBLE, 1, EntityAttributeModifier.Operation.ADD_VALUE);
         AttributeBuff speedBuff = new AttributeBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
-        Buff.createBuff(player, invincibilityBuff, ImmutableList.of(new TimerBuffPredicate(60)),
+        Buff.createBuff(player, invincibilityBuff, ImmutableList.of(new TimerBuffCondition(60)),
                 false, Jujutsu.id("phoenix_invincible"));
 
-        Buff.createBuff(player, speedBuff, ImmutableList.of(new TimerBuffPredicate(200)),
+        Buff.createBuff(player, speedBuff, ImmutableList.of(new TimerBuffCondition(200)),
                 false, Jujutsu.id("phoenix_speed"));
 
         List<LivingEntity> entities = player.getWorld().getEntitiesByClass(LivingEntity.class, Box.of(player.getPos(), 16, 16, 16), entity -> !entity.getUuid().equals(player.getUuid()));
@@ -53,7 +53,7 @@ public class PhoenixAshAbility extends AbilityType {
 
             AttributeBuff slownessBuff = new AttributeBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
-            Buff.createBuff(entity, slownessBuff, ImmutableList.of(new TimerBuffPredicate(200)),
+            Buff.createBuff(entity, slownessBuff, ImmutableList.of(new TimerBuffCondition(200)),
                     false, Jujutsu.id("phoenix_slowness"));
         }
     }

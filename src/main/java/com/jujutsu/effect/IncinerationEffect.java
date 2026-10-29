@@ -1,10 +1,10 @@
 package com.jujutsu.effect;
 
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 
-public class IncinerationEffect extends StatusEffect {
-    public IncinerationEffect(StatusEffectCategory category, int color) {
+public class IncinerationEffect extends MobEffect {
+    public IncinerationEffect(MobEffectCategory category, int color) {
         super(category, color);
     }
 }

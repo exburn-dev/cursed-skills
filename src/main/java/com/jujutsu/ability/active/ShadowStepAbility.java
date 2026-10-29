@@ -4,13 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModSounds;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.core.AbilityInstanceData;
-import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.data.ClientData;
-import com.jujutsu.systems.buff.Buff;
-import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
-import com.jujutsu.systems.buff.type.AttributeBuff;
+import com.jujutsu.api.ability.core.AbilityInstance;
+import com.jujutsu.api.ability.core.AbilityInstanceData;
+import com.jujutsu.api.ability.core.AbilityType;
+import com.jujutsu.api.ability.data.ClientData;
+import com.jujutsu.api.buff.Buff;
+import com.jujutsu.api.buff.conditions.TimerBuffCondition;
+import com.jujutsu.api.buff.type.AttributeBuff;
 import com.jujutsu.util.VisualEffectUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -38,13 +38,13 @@ public class ShadowStepAbility extends AbilityType {
         AttributeBuff invincibilityBuff = new AttributeBuff(ModAttributes.INVINCIBLE, 1, EntityAttributeModifier.Operation.ADD_VALUE);
         AttributeBuff speedBuff = new AttributeBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, 2.5, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
-        Buff.createBuff(player, damageBuff, ImmutableList.of(new TimerBuffPredicate(30)),
+        Buff.createBuff(player, damageBuff, ImmutableList.of(new TimerBuffCondition(30)),
                 false, Jujutsu.id("shadow_step_damage"));
 
-        Buff.createBuff(player, invincibilityBuff, ImmutableList.of(new TimerBuffPredicate(30)),
+        Buff.createBuff(player, invincibilityBuff, ImmutableList.of(new TimerBuffCondition(30)),
                 false, Jujutsu.id("shadow_step_invincible"));
 
-        Buff.createBuff(player, speedBuff, ImmutableList.of(new TimerBuffPredicate(30)),
+        Buff.createBuff(player, speedBuff, ImmutableList.of(new TimerBuffCondition(30)),
                 false, Jujutsu.id("shadow_step_speed"));
 
         player.playSoundToPlayer(ModSounds.SHADOW_STEP_CAST, SoundCategory.MASTER, 2, 1.1f);

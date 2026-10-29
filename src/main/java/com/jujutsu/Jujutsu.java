@@ -6,12 +6,16 @@ import com.jujutsu.event.resource.TalentBranchesResourceLoader;
 import com.jujutsu.event.resource.TalentResourceLoader;
 import com.jujutsu.event.resource.TalentTreeResourceLoader;
 import com.jujutsu.network.ModNetworkConstants;
+import com.jujutsu.network.ModPackets;
 import com.jujutsu.registry.*;
 import com.jujutsu.event.server.DelayedTasks;
-import com.jujutsu.systems.buff.BuffPredicates;
+import com.jujutsu.registry.custom.BuffConditions;
+import com.jujutsu.registry.custom.Abilities;
+import com.jujutsu.registry.custom.AbilityAttributes;
+import com.jujutsu.registry.custom.AbilityUpgradeRewardTypes;
 import net.fabricmc.api.ModInitializer;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +36,16 @@ public class Jujutsu implements ModInitializer {
 		ModEntityTypes.register();
 		ModParticleTypes.register();
 
+		ModPackets.registerPackets();
 		ModNetworkConstants.registerPackets();
 		ModNetworkConstants.registerServerReceivers();
 
 		JujutsuCommand.register();
 		ServerEventListeners.register();
 
-		ModAbilities.register();
-		BuffPredicates.register();
-		ModAbilityAttributes.register();
+		Abilities.register();
+		BuffConditions.register();
+		AbilityAttributes.register();
 		AbilityUpgradeRewardTypes.register();
 
 		TalentResourceLoader.register();
@@ -51,6 +56,6 @@ public class Jujutsu implements ModInitializer {
 	}
 
 	public static Identifier id(String id) {
-		return Identifier.of(MODID, id);
+		return Identifier.fromNamespaceAndPath(MODID, id);
 	}
 }

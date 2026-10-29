@@ -1,12 +1,12 @@
 package com.jujutsu.screen;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.client.keybind.AbilityKeyBinding;
-import com.jujutsu.client.keybind.ModKeybindings;
-import com.jujutsu.systems.ability.client.AbilityClientComponent;
-import com.jujutsu.systems.ability.client.ClientComponentContainer;
-import com.jujutsu.systems.ability.core.AbilityInstanceData;
-import com.jujutsu.systems.ability.core.AbilityType;
+import com.jujutsu.client.input.AbilityKeyBinding;
+import com.jujutsu.client.input.ModKeybindings;
+import com.jujutsu.api.ability.client.AbilityClientComponent;
+import com.jujutsu.api.ability.client.ClientComponentContainer;
+import com.jujutsu.api.ability.core.AbilityInstanceData;
+import com.jujutsu.api.ability.core.AbilityType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;

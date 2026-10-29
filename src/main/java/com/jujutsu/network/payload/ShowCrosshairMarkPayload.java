@@ -1,27 +1,36 @@
 package com.jujutsu.network.payload;
 
+import com.jujutsu.Jujutsu;
 import com.jujutsu.client.hud.CrosshairMarkRenderer;
 import com.jujutsu.client.hud.CrosshairMarkRenderer.CrosshairMarkData;
-import com.jujutsu.network.ModNetworkConstants;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
+import com.jujutsu.client.hud.FlashSystemHudRenderer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
-public record ShowCrosshairMarkPayload(CrosshairMarkData markData) implements CustomPayload {
-    public static final Id<ShowCrosshairMarkPayload> ID = new Id<>(ModNetworkConstants.SHOW_CROSSHAIR_MARK_ID);
-    public static final PacketCodec<RegistryByteBuf, ShowCrosshairMarkPayload> CODEC = PacketCodec.tuple(
-            PacketCodec.tuple(
-                    PacketCodecs.INTEGER, CrosshairMarkData::fadeIn,
-                    PacketCodecs.INTEGER, CrosshairMarkData::hold,
-                    PacketCodecs.INTEGER, CrosshairMarkData::fadeOut,
-                    PacketCodecs.INTEGER, CrosshairMarkData::color,
+public record ShowCrosshairMarkPayload(CrosshairMarkData markData) implements CustomPacketPayload {
+    public static final Identifier ID = Jujutsu.id("show_crosshair_mark");
+    public static final Type<ShowCrosshairMarkPayload> TYPE = new Type<>(ID);
+    public static final StreamCodec<FriendlyByteBuf, ShowCrosshairMarkPayload> CODEC = StreamCodec.composite(
+            StreamCodec.composite(
+                    ByteBufCodecs.INT, CrosshairMarkData::fadeIn,
+                    ByteBufCodecs.INT, CrosshairMarkData::hold,
+                    ByteBufCodecs.INT, CrosshairMarkData::fadeOut,
+                    ByteBufCodecs.INT, CrosshairMarkData::color,
                     CrosshairMarkData::new
             ), ShowCrosshairMarkPayload::markData, ShowCrosshairMarkPayload::new);
 
+    public static void registerClientReceiver() {
+        ClientPlayNetworking.registerGlobalReceiver(TYPE, (payload, context) -> {
+            CrosshairMarkRenderer.addMarkData(payload.markData());
+        });
+    }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
-        return ID;
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

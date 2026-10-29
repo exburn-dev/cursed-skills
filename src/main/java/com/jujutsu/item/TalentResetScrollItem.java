@@ -1,30 +1,31 @@
 package com.jujutsu.item;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.talent.TalentComponent;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.World;
+import com.jujutsu.api.talent.TalentComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.level.Level;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 public class TalentResetScrollItem extends Item implements IBorderTooltipItem, ModelWithIcon {
-    public TalentResetScrollItem(Settings settings) {
-        super(settings);
+    public TalentResetScrollItem(Item.Properties properties) {
+        super(properties);
     }
 
     @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        ItemStack stack = user.getStackInHand(hand);
-        if(world.isClient()) return TypedActionResult.pass(stack);
+    public InteractionResult use(Level level, Player user, InteractionHand hand) {
+        ItemStack stack = user.getItemInHand(hand);
+        if(level.isClientSide()) return InteractionResult.PASS;
 
         TalentComponent component = TalentComponent.get(user);
 
@@ -33,27 +34,28 @@ public class TalentResetScrollItem extends Item implements IBorderTooltipItem, M
         component.addPoints(points);
         component.removePurchasedTalents();
 
-        user.getItemCooldownManager().set(this, 20);
-        user.sendMessage(Text.literal("Refunded points: " + points));
+        user.getCooldowns().addCooldown(stack, 20);
+        user.displayClientMessage(Component.literal("Refunded points: " + points), false);
 
-        stack.decrement(1);
+        stack.shrink(1);
 
-        return TypedActionResult.success(stack);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        if(!Screen.hasShiftDown()) {
-            tooltip.add(
-                    Text.translatable("item.jujutsu.technique_scroll.press_for_info", Text.literal("<SHIFT>").formatted(Formatting.YELLOW))
-                            .formatted(Formatting.GRAY));
+    public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay,
+                                Consumer<Component> builder, TooltipFlag tooltipFlag) {
+        if(!(Minecraft.getInstance().hasShiftDown())) {
+            builder.accept(Component.translatable("item.jujutsu.technique_scroll.press_for_info",
+                            Component.literal("<SHIFT>").withStyle(ChatFormatting.YELLOW))
+                            .withStyle(ChatFormatting.GRAY));
             return;
         }
 
-        tooltip.add(Text.translatable("item.jujutsu.upgrade_reset_scroll.resets_upgrades").formatted(Formatting.YELLOW));
-        tooltip.add(Text.translatable("item.jujutsu.upgrade_reset_scroll.returns_points", "50%").formatted(Formatting.YELLOW));
+        builder.accept(Component.translatable("item.jujutsu.upgrade_reset_scroll.resets_upgrades").withStyle(ChatFormatting.YELLOW));
+        builder.accept(Component.translatable("item.jujutsu.upgrade_reset_scroll.returns_points", "50%").withStyle(ChatFormatting.YELLOW));
 
-        super.appendTooltip(stack, context, tooltip, type);
+        super.appendHoverText(itemStack, tooltipContext, tooltipDisplay, builder, tooltipFlag);
     }
 
     @Override

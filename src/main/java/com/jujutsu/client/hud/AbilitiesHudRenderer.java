@@ -1,12 +1,12 @@
 package com.jujutsu.client.hud;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.client.keybind.InputRequestSystem;
-import com.jujutsu.systems.ability.client.AbilityClientComponent;
-import com.jujutsu.systems.ability.client.ClientComponentContainer;
-import com.jujutsu.systems.ability.core.AbilityInstanceData;
-import com.jujutsu.systems.ability.data.RequestedInputKey;
-import com.jujutsu.systems.ability.data.ClientData;
+import com.jujutsu.client.input.InputRequestSystem;
+import com.jujutsu.api.ability.client.AbilityClientComponent;
+import com.jujutsu.api.ability.client.ClientComponentContainer;
+import com.jujutsu.api.ability.core.AbilityInstanceData;
+import com.jujutsu.api.ability.data.RequestedInputKey;
+import com.jujutsu.api.ability.data.ClientData;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;

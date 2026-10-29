@@ -1,8 +1,8 @@
 package com.jujutsu.network.payload.abilities;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.ability.core.AbilityComponent;
-import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.api.ability.core.AbilityComponent;
+import com.jujutsu.api.ability.core.AbilitySlot;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;

@@ -1,46 +1,36 @@
 package com.jujutsu.entity;
 
-import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModEffects;
 import com.jujutsu.registry.ModEntityTypes;
 import com.jujutsu.registry.ModSounds;
 import com.jujutsu.util.VisualEffectUtils;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileUtil;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
-import net.minecraft.world.World;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public class PhoenixFireballEntity extends Entity {
-    private static final TrackedData<Optional<UUID>> OWNER_UUID;
+    private static final EntityDataAccessor<Optional<EntityReference<LivingEntity>>> OWNER;
 
-    public PhoenixFireballEntity(EntityType<?> type, World world) {
-        super(type, world);
+    public PhoenixFireballEntity(EntityType<?> type, Level level) {
+        super(type, level);
     }
 
-    public PhoenixFireballEntity(World world, UUID ownerUuid) {
-        super(ModEntityTypes.PHOENIX_FIREBALL, world);
-        this.dataTracker.set(OWNER_UUID, Optional.of(ownerUuid));
+    public PhoenixFireballEntity(Level level, LivingEntity owner) {
+        super(ModEntityTypes.PHOENIX_FIREBALL, level);
+        entityData.set(OWNER, Optional.of(EntityReference.of(owner)));
     }
 
     @Override
@@ -166,21 +156,26 @@ public class PhoenixFireballEntity extends Entity {
     }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
-        builder.add(OWNER_UUID, Optional.empty());
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(OWNER, Optional.empty());
     }
 
     @Override
-    protected void readCustomDataFromNbt(NbtCompound nbt) {
+    public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float f) {
+        return false;
+    }
+
+    @Override
+    protected void readAdditionalSaveData(ValueInput valueInput) {
 
     }
 
     @Override
-    protected void writeCustomDataToNbt(NbtCompound nbt) {
+    protected void addAdditionalSaveData(ValueOutput valueOutput) {
 
     }
 
     static {
-        OWNER_UUID = DataTracker.registerData(PhoenixFireballEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+        OWNER = SynchedEntityData.defineId(PhoenixFireballEntity.class, EntityDataSerializers.OPTIONAL_LIVING_ENTITY_REFERENCE);
     }
 }

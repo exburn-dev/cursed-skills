@@ -6,20 +6,18 @@ import com.jujutsu.ability.passive.SpeedPassiveAbility;
 import com.jujutsu.event.server.AbilityEvents;
 import com.jujutsu.event.server.PlayerBonusEvents;
 import com.jujutsu.mixinterface.EntityComponentsAccessor;
-import com.jujutsu.registry.ModAbilities;
+import com.jujutsu.registry.custom.Abilities;
 import com.jujutsu.registry.ModAttributes;
-import com.jujutsu.systems.ability.attribute.AbilityAttributeComponent;
-import com.jujutsu.systems.ability.attribute.AbilityAttributesContainer;
-import com.jujutsu.systems.ability.core.AbilityComponent;
-import com.jujutsu.systems.ability.passive.PassiveAbility;
-import com.jujutsu.systems.ability.passive.PassiveAbilityComponent;
-import com.jujutsu.systems.buff.*;
-import com.jujutsu.systems.buff.conditions.TimerBuffPredicate;
-import com.jujutsu.systems.buff.type.AttributeBuff;
-import com.jujutsu.systems.buff.type.SupersonicBuff;
-import com.jujutsu.systems.entitydata.EntityComponent;
-import com.jujutsu.systems.entitydata.EntityComponentContainer;
-import com.jujutsu.systems.talent.TalentComponent;
+import com.jujutsu.api.ability.attribute.AbilityAttributeComponent;
+import com.jujutsu.api.ability.core.AbilityComponent;
+import com.jujutsu.api.ability.passive.PassiveAbilityComponent;
+import com.jujutsu.api.buff.*;
+import com.jujutsu.api.buff.conditions.TimerBuffCondition;
+import com.jujutsu.api.buff.type.AttributeBuff;
+import com.jujutsu.api.buff.type.SupersonicBuff;
+import com.jujutsu.api.component.EntityComponent;
+import com.jujutsu.api.component.EntityComponentContainer;
+import com.jujutsu.api.talent.TalentComponent;
 import com.jujutsu.util.AttributeUtils;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
@@ -63,7 +61,7 @@ public class ServerEventListeners {
             PassiveAbilityComponent component = PassiveAbilityComponent.get(player);
             if(!component.hasAbilities()) return new Pair<>(ActionResult.PASS, bonus);
 
-            Optional<SpeedPassiveAbility> optional = component.find(ModAbilities.SPEED_PASSIVE_ABILITY);
+            Optional<SpeedPassiveAbility> optional = component.find(Abilities.SPEED_PASSIVE_ABILITY);
             if(optional.isEmpty()) return new Pair<>(ActionResult.PASS, bonus);
 
             SpeedPassiveAbility speedAbility = optional.get();
@@ -88,7 +86,7 @@ public class ServerEventListeners {
             PassiveAbilityComponent component = PassiveAbilityComponent.get(player);
             if(!component.hasAbilities()) return new Pair<>(ActionResult.PASS, bonus);
 
-            Optional<SpeedPassiveAbility> optional = component.find(ModAbilities.SPEED_PASSIVE_ABILITY);
+            Optional<SpeedPassiveAbility> optional = component.find(Abilities.SPEED_PASSIVE_ABILITY);
             if(optional.isEmpty()) return new Pair<>(ActionResult.PASS, bonus);
 
             SpeedPassiveAbility speedAbility = optional.get();
@@ -104,7 +102,7 @@ public class ServerEventListeners {
 
                 AttributeBuff buff = new AttributeBuff(EntityAttributes.GENERIC_MOVEMENT_SPEED, -0.25, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
-                Buff.createBuff(entity, buff, ImmutableList.of(new TimerBuffPredicate(20)),false,
+                Buff.createBuff(entity, buff, ImmutableList.of(new TimerBuffCondition(20)),false,
                         Jujutsu.id("wither_momentum"));
             }
 
@@ -139,7 +137,7 @@ public class ServerEventListeners {
 
             if(!component.hasAbilities()) return new Pair<>(ActionResult.PASS, bonus);
 
-            Optional<SpeedPassiveAbility> optional = component.find(ModAbilities.SPEED_PASSIVE_ABILITY);
+            Optional<SpeedPassiveAbility> optional = component.find(Abilities.SPEED_PASSIVE_ABILITY);
             if(optional.isEmpty()) return new Pair<>(ActionResult.PASS, bonus);
 
             double dynamicSpeed = ((PlayerDynamicAttributesAccessor) player).getDynamicSpeed();

@@ -5,9 +5,9 @@ import com.jujutsu.mixinterface.EntityComponentsAccessor;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
 import com.jujutsu.registry.tag.ModDamageTypeTags;
-import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
-import com.jujutsu.systems.entitydata.EntityComponentContainer;
-import com.jujutsu.systems.entitydata.EntityComponentRegistry;
+import com.jujutsu.api.buff.PlayerDynamicAttributesAccessor;
+import com.jujutsu.api.component.EntityComponentContainer;
+import com.jujutsu.api.component.EntityComponentRegistry;
 import com.jujutsu.util.IOldPosHolder;
 import net.minecraft.entity.Attackable;
 import net.minecraft.entity.Entity;
@@ -26,6 +26,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -52,9 +53,9 @@ public abstract class LivingEntityMixin extends Entity implements EntityComponen
     @Shadow public abstract boolean damage(DamageSource source, float amount);
 
     @Unique
-    private Vec3d oldPos = Vec3d.ZERO;
+    private Vec3 oldPos = Vec3.ZERO;
     @Unique
-    private Vec3d posTracker = Vec3d.ZERO;
+    private Vec3 posTracker = Vec3.ZERO;
 
     private EntityComponentContainer jujutsu$components = new EntityComponentContainer();
 

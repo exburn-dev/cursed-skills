@@ -1,7 +1,7 @@
 package com.jujutsu.network.payload;
 
 import com.jujutsu.network.ModNetworkConstants;
-import com.jujutsu.systems.animation.AnimationData;
+import com.jujutsu.api.animation.AnimationData;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;

@@ -1,8 +1,8 @@
 package com.jujutsu.network.payload.input_requests;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.client.keybind.InputRequestSystem;
-import com.jujutsu.systems.ability.core.AbilitySlot;
+import com.jujutsu.client.input.InputRequestSystem;
+import com.jujutsu.api.ability.core.AbilitySlot;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;

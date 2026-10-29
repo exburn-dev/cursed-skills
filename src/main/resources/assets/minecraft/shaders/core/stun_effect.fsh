@@ -33,7 +33,7 @@ float noise(vec2 uv) {
 
 // Вычисление силы эффекта (fade in/out)
 float computeFade() {
-    return 1;
+    return 1.0;
 }
 
 void main() {

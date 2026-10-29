@@ -1,35 +1,35 @@
 package com.jujutsu.item;
 
-import com.jujutsu.systems.ability.core.AbilityComponent;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.core.AbilitySlot;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.World;
+import com.jujutsu.api.ability.core.AbilityComponent;
+import com.jujutsu.api.ability.core.AbilityInstance;
+import com.jujutsu.api.ability.core.AbilitySlot;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class RearmItem extends Item {
-    public RearmItem(Settings settings) {
-        super(settings);
+    public RearmItem(Item.Properties properties) {
+        super(properties);
     }
 
     @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        ItemStack stack = user.getStackInHand(hand);
-        if(world.isClient()) return TypedActionResult.pass(stack);
+    public InteractionResult use(Level level, Player user, InteractionHand hand) {
+        ItemStack stack = user.getItemInHand(hand);
+        if(level.isClientSide()) return InteractionResult.PASS;
 
         AbilityComponent component = AbilityComponent.get(user);
 
-        if (component.slots().isEmpty()) return TypedActionResult.pass(stack);
+        if (component.slots().isEmpty()) return InteractionResult.PASS;
         for(AbilitySlot slot: component.slots()) {
             AbilityInstance instance = component.getInstance(slot);
             instance.endCooldown();
         }
 
-        user.getItemCooldownManager().set(this, 10);
+        user.getCooldowns().addCooldown(stack, 10);
 
-        return super.use(world, user, hand);
+        return InteractionResult.SUCCESS;
     }
 }

@@ -1,34 +1,34 @@
 package com.jujutsu.entity;
 
-import com.jujutsu.Jujutsu;
 import com.jujutsu.registry.ModEntityTypes;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Uuids;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public class BlinkMarkerEntity extends Entity {
-    private static final TrackedData<Optional<UUID>> OWNER_UUID;
+    private static final EntityDataAccessor<Optional<EntityReference<LivingEntity>>> OWNER;
 
-    public BlinkMarkerEntity(EntityType<?> type, World world) {
-        super(type, world);
-        setOwnerUUID(Optional.empty());
+    public BlinkMarkerEntity(EntityType<?> type, Level level) {
+        super(type, level);
+        setOwnerUUID(null);
     }
 
-    public BlinkMarkerEntity(World world, UUID owner) {
-        super(ModEntityTypes.BLINK_MARKER, world);
-        setOwnerUUID(Optional.of(owner));
+    public BlinkMarkerEntity(Level level, LivingEntity owner) {
+        super(ModEntityTypes.BLINK_MARKER, level);
+        setOwnerUUID(EntityReference.of(owner));
     }
 
     @Override
@@ -50,8 +50,8 @@ public class BlinkMarkerEntity extends Entity {
         return this.dataTracker.get(OWNER_UUID);
     }
 
-    private void setOwnerUUID(Optional<UUID> uuid) {
-        this.dataTracker.set(OWNER_UUID, uuid);
+    private void setOwnerUUID(@Nullable EntityReference<LivingEntity> entity) {
+        entityData.set(OWNER, Optional.ofNullable(entity));
     }
 
     @Override
@@ -65,25 +65,26 @@ public class BlinkMarkerEntity extends Entity {
     }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
-        builder.add(OWNER_UUID, Optional.empty());
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(OWNER, Optional.empty());
     }
 
     @Override
-    protected void readCustomDataFromNbt(NbtCompound nbt) {
-        if(nbt.contains("ownerUUID")) {
-            setOwnerUUID(Optional.of(nbt.getUuid("ownerUUID")));
-        }
+    public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float f) {
+        return false;
     }
 
     @Override
-    protected void writeCustomDataToNbt(NbtCompound nbt) {
-        if(getOwnerUUID().isPresent()) {
-            nbt.putUuid("ownerUUID", getOwnerUUID().get());
-        }
+    protected void readAdditionalSaveData(ValueInput data) {
+        entityData.set(OWNER, Optional.ofNullable(EntityReference.read(data, "owner")));
+    }
+
+    @Override
+    protected void addAdditionalSaveData(ValueOutput data) {
+        EntityReference.store(entityData.get(OWNER).orElse(null), data, "owner");
     }
 
     static {
-        OWNER_UUID = DataTracker.registerData(BlinkMarkerEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+        OWNER = SynchedEntityData.defineId(BlinkMarkerEntity.class, EntityDataSerializers.OPTIONAL_LIVING_ENTITY_REFERENCE);
     }
 }

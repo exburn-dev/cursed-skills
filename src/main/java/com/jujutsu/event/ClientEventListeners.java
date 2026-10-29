@@ -3,11 +3,11 @@ package com.jujutsu.event;
 import com.jujutsu.event.client.CameraEvents;
 import com.jujutsu.event.client.HandRenderingEvents;
 import com.jujutsu.event.client.TooltipRenderingEvents;
-import com.jujutsu.registry.ModAbilities;
-import com.jujutsu.systems.ability.client.AbilityClientComponent;
-import com.jujutsu.systems.ability.client.ClientComponentContainer;
-import com.jujutsu.systems.ability.core.AbilityInstanceData;
-import com.jujutsu.systems.ability.data.ClientData;
+import com.jujutsu.registry.custom.Abilities;
+import com.jujutsu.api.ability.client.AbilityClientComponent;
+import com.jujutsu.api.ability.client.ClientComponentContainer;
+import com.jujutsu.api.ability.core.AbilityInstanceData;
+import com.jujutsu.api.ability.data.ClientData;
 import com.jujutsu.item.IBorderTooltipItem;
 import com.jujutsu.screen.HandTransformSettingScreen;
 import com.jujutsu.util.HandAnimationUtils;
@@ -94,7 +94,7 @@ public class ClientEventListeners {
             float cameraSpeed = 0;
 
             AbilityClientComponent component = ClientComponentContainer.abilityComponent;
-            if(component.isRunning(ModAbilities.HOLLOW_PURPLE) || component.isRunning(ModAbilities.REVERSAL_RED) || component.isRunning(ModAbilities.LAPSE_BLUE)) {
+            if(component.isRunning(Abilities.HOLLOW_PURPLE) || component.isRunning(Abilities.REVERSAL_RED) || component.isRunning(Abilities.LAPSE_BLUE)) {
                 cameraRestriction -= 350;
                 cameraSpeed -= 0.75f;
             }

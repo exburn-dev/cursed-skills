@@ -3,15 +3,14 @@ package com.jujutsu.command;
 import com.jujutsu.Jujutsu;
 import com.jujutsu.command.argument.AbilitySlotArgument;
 import com.jujutsu.registry.JujutsuRegistries;
-import com.jujutsu.systems.ability.core.AbilityComponent;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.core.AbilitySlot;
-import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.attribute.AbilityAttribute;
+import com.jujutsu.api.ability.core.AbilityComponent;
+import com.jujutsu.api.ability.core.AbilityInstance;
+import com.jujutsu.api.ability.core.AbilitySlot;
+import com.jujutsu.api.ability.core.AbilityType;
+import com.jujutsu.api.ability.attribute.AbilityAttribute;
 import com.jujutsu.network.payload.OpenHandSettingScreenPayload;
-import com.jujutsu.systems.ability.upgrade.TalentsData;
-import com.jujutsu.systems.animation.PlayerAnimations;
-import com.jujutsu.systems.talent.TalentComponent;
+import com.jujutsu.api.animation.PlayerAnimations;
+import com.jujutsu.api.talent.TalentComponent;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -45,12 +44,12 @@ public class JujutsuCommand {
                             .then(CommandManager.literal("set")
                                     .then(CommandManager.argument("ability_slot", new AbilitySlotArgument() )
                                             .then(CommandManager.argument("ability",
-                                                    RegistryEntryReferenceArgumentType.registryEntry(registryAccess, JujutsuRegistries.ABILITY_TYPE_REGISTRY_KEY) )
+                                                    RegistryEntryReferenceArgumentType.registryEntry(registryAccess, JujutsuRegistries.ABILITY_TYPE_KEY) )
                                                     .executes(JujutsuCommand::setAbility) )))
 
                             .then(CommandManager.literal("attribute")
                                     .then(CommandManager.literal("set")
-                                            .then(CommandManager.argument( "attribute", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, JujutsuRegistries.ABILITY_ATTRIBUTE_REGISTRY_KEY))
+                                            .then(CommandManager.argument( "attribute", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, JujutsuRegistries.ABILITY_ATTRIBUTE_KEY))
                                                     .then(CommandManager.argument("id", IdentifierArgumentType.identifier())
                                                             .then(CommandManager.argument("value", DoubleArgumentType.doubleArg())
                                                                     .executes(JujutsuCommand::setAttribute))))) )
@@ -92,7 +91,7 @@ public class JujutsuCommand {
     }
 
     private static int setAttribute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        AbilityAttribute attribute = RegistryEntryReferenceArgumentType.getRegistryEntry(context, "attribute", JujutsuRegistries.ABILITY_ATTRIBUTE_REGISTRY_KEY).value();
+        AbilityAttribute attribute = RegistryEntryReferenceArgumentType.getRegistryEntry(context, "attribute", JujutsuRegistries.ABILITY_ATTRIBUTE_KEY).value();
         Identifier id = IdentifierArgumentType.getIdentifier(context, "id");
         double value = DoubleArgumentType.getDouble(context, "value");
 
@@ -164,7 +163,7 @@ public class JujutsuCommand {
 
     private static int setAbility(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         AbilitySlot slot = context.getArgument("ability_slot", AbilitySlot.class);
-        RegistryEntry.Reference<AbilityType> ability = RegistryEntryReferenceArgumentType.getRegistryEntry(context, "ability", JujutsuRegistries.ABILITY_TYPE_REGISTRY_KEY);
+        RegistryEntry.Reference<AbilityType> ability = RegistryEntryReferenceArgumentType.getRegistryEntry(context, "ability", JujutsuRegistries.ABILITY_TYPE_KEY);
 
         ServerPlayerEntity player = context.getSource().getPlayer();
         AbilityComponent component = AbilityComponent.get(player);

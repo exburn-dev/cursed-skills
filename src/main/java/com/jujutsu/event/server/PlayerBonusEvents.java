@@ -1,6 +1,6 @@
 package com.jujutsu.event.server;
 
-import com.jujutsu.systems.buff.PlayerDynamicAttributesAccessor;
+import com.jujutsu.api.buff.PlayerDynamicAttributesAccessor;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.LivingEntity;

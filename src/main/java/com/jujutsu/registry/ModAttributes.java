@@ -1,25 +1,41 @@
 package com.jujutsu.registry;
 
 import com.jujutsu.Jujutsu;
-import net.minecraft.entity.attribute.ClampedEntityAttribute;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 public class ModAttributes {
-    public static final RegistryEntry<EntityAttribute> INVINCIBLE = registerAttribute("invincible", new ClampedEntityAttribute("attribute.jujutsu.invisible", 0, 0, 1));
-    public static final RegistryEntry<EntityAttribute> FIRE_RESISTANCE = registerAttribute("fire_resistance", new ClampedEntityAttribute("attribute.jujutsu.fire_resistance", 0, 0, 1));
-    public static final RegistryEntry<EntityAttribute> BLAST_RESISTANCE = registerAttribute("blast_resistance", new ClampedEntityAttribute("attribute.jujutsu.blast_resistance", 0, 0, 1));
-    public static final RegistryEntry<EntityAttribute> ROTATION_RESTRICTION = registerAttribute("rotation_restriction", new ClampedEntityAttribute("attribute.jujutsu.rotation_restriction", 360, 0, 360).setTracked(true));
-    public static final RegistryEntry<EntityAttribute> ROTATION_SPEED = registerAttribute("rotation_speed", new ClampedEntityAttribute("attribute.jujutsu.rotation_speed", 1, 0, 2).setTracked(true));
-    public static final RegistryEntry<EntityAttribute> JUMP_VELOCITY_MULTIPLIER = registerAttribute("jump_velocity_multiplier", new ClampedEntityAttribute("attribute.jujutsu.jump_velocity_multiplier", 1, 0, 10).setTracked(true));
+    public static final Holder<Attribute> INVINCIBLE = registerRanged(
+            "invincible", "attribute.jujutsu.invisible",
+            0, 0, 1, false);
+    public static final Holder<Attribute> FIRE_RESISTANCE = registerRanged(
+            "fire_resistance", "attribute.jujutsu.fire_resistance",
+            0, 0, 1, false);
+    public static final Holder<Attribute> BLAST_RESISTANCE = registerRanged(
+            "blast_resistance", "attribute.jujutsu.blast_resistance",
+            0, 0, 1, false);
+    public static final Holder<Attribute> ROTATION_RESTRICTION = registerRanged(
+            "rotation_restriction", "attribute.jujutsu.rotation_restriction",
+            360, 0, 360, true);
+    public static final Holder<Attribute> ROTATION_SPEED = registerRanged("rotation_speed", "attribute.jujutsu.rotation_speed",
+            1, 0, 2, true);
+    public static final Holder<Attribute> JUMP_VELOCITY_MULTIPLIER = registerRanged(
+            "jump_velocity_multiplier", "attribute.jujutsu.jump_velocity_multiplier",
+            1, 0, 10, true);
 
-    private static RegistryEntry<EntityAttribute> registerAttribute(String name, EntityAttribute attribute) {
-        return Registry.registerReference(Registries.ATTRIBUTE, Jujutsu.id(name), attribute);
+    private static Holder<Attribute> registerRanged(String name, String translationKey,
+                                                    double defaultValue, double min, double max, boolean isSynced) {
+        return register(name, new RangedAttribute(translationKey, defaultValue, min, max).setSyncable(isSynced));
+    }
+
+    private static Holder<Attribute> register(String name, Attribute attribute) {
+        return Registry.registerForHolder(BuiltInRegistries.ATTRIBUTE, Jujutsu.id(name), attribute);
     }
 
     public static void register() {
-        Jujutsu.LOGGER.info("Registering attributes for " + Jujutsu.MODID);
+        Jujutsu.LOGGER.info("Registering modifiers for " + Jujutsu.MODID);
     }
 }

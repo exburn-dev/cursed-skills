@@ -1,12 +1,10 @@
 package com.jujutsu.network.payload.talents;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.event.resource.TalentBranchesResourceLoader;
 import com.jujutsu.event.resource.TalentResourceLoader;
-import com.jujutsu.systems.talent.AbilityTalent;
-import com.jujutsu.systems.talent.TalentTreeValidator;
-import com.jujutsu.systems.talent.TalentComponent;
-import com.jujutsu.systems.talent.TalentTree;
+import com.jujutsu.api.talent.AbilityTalent;
+import com.jujutsu.api.talent.TalentTreeValidator;
+import com.jujutsu.api.talent.TalentComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;

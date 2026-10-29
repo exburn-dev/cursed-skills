@@ -1,23 +1,19 @@
 package com.jujutsu.util;
 
-import com.jujutsu.Jujutsu;
 import com.jujutsu.event.server.DelayedTasks;
-import com.jujutsu.mixin.FallingBlockAccessor;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,54 +22,44 @@ import java.util.function.Predicate;
 public class BlockExplosions {
     public static final Map<Block, List<Block>> EXPLOSION_CONSEQUENCES = new HashMap<>();
 
-    private static void createBlockExplosion(World world, Iterable<BlockPos> blocks, BlockPos center, double radius, Predicate<BlockState> predicate) {
+    private static void createBlockExplosion(ServerLevel level, Iterable<BlockPos> blocks, BlockPos center, double radius, Predicate<BlockState> predicate) {
         for (BlockPos pos : blocks) {
-            if(!pos.isWithinDistance(center, radius)) continue;
+            if(!pos.closerThan(center, radius)) continue;
 
-            BlockState state = world.getBlockState(pos);
+            BlockState state = level.getBlockState(pos);
             if(!state.isAir() && predicate.test(state)) {
-                Vec3d posVec = pos.toCenterPos();
-                Vec3d velocity = posVec.subtract(center.toCenterPos()).multiply(0.1).add(0, 1, 0);
+                Vec3 posVec = pos.getCenter();
+                Vec3 velocity = posVec.subtract(center.getCenter()).scale(0.1).add(0, 1, 0);
 
-                FallingBlockEntity fb = new FallingBlockEntity(EntityType.FALLING_BLOCK, world);
-                fb.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-                ((FallingBlockAccessor) fb).setBlock(state);
-                world.setBlockState(pos, state.getFluidState().getBlockState(), Block.NOTIFY_ALL);
-                world.spawnEntity(fb);
+                FallingBlockEntity fb = FallingBlockEntity.fall(level, pos, state);
 
-                ServerWorld serverWorld = (ServerWorld) world;
-
-                DelayedTasks.runDelayedTask(serverWorld.getServer(), 1,() -> {
-                    fb.setVelocity(velocity.x, velocity.y, velocity.z);
-                    EntityVelocityUpdateS2CPacket pkt = new EntityVelocityUpdateS2CPacket(fb);
-                    for (ServerPlayerEntity pl : PlayerLookup.tracking(fb)) {
-                        pl.networkHandler.sendPacket(pkt);
+                DelayedTasks.runDelayedTask(level.getServer(), 1,() -> {
+                    fb.setDeltaMovement(velocity.x, velocity.y, velocity.z);
+                    ClientboundSetEntityMotionPacket pkt = new ClientboundSetEntityMotionPacket(fb);
+                    for (ServerPlayer pl : PlayerLookup.tracking(fb)) {
+                        pl.connection.send(pkt);
                     }
                 });
             }
         }
     }
 
-    public static void createBlockExplosion(World world, BlockPos center, double radius, Predicate<BlockState> predicate) {
-        if(world.isClient()) return;
-        Box box = Box.of(center.toCenterPos(), radius * 2, radius * 2, radius * 2);
-        BlockPos startPos = BlockPos.ofFloored(box.minX, box.minY, box.minZ);
-        BlockPos endPos = BlockPos.ofFloored(box.maxX, box.maxY, box.maxZ);
+    public static void createBlockExplosion(Level level, BlockPos center, double radius, Predicate<BlockState> predicate) {
+        if(level.isClientSide()) return;
 
-        createBlockExplosion(world, BlockPos.iterate(startPos, endPos), center, radius, predicate);
+        AABB box = AABB.ofSize(center.getCenter(), radius * 2, radius * 2, radius * 2);
+        createBlockExplosion((ServerLevel) level, BlockPos.betweenClosed(box), center, radius, predicate);
     }
 
-    public static void applyExplosionConsequences(Vec3d pos, double radius, World world) {
-        Box box = Box.of(pos, radius * 2, radius * 2, radius * 2);
-        BlockPos startPos = BlockPos.ofFloored(box.minX, box.minY, box.minZ);
-        BlockPos endPos = BlockPos.ofFloored(box.maxX, box.maxY, box.maxZ);
+    public static void applyExplosionConsequences(Vec3 pos, double radius, Level level) {
+        AABB box = AABB.ofSize(pos, radius * 2, radius * 2, radius * 2);
 
         double fadeRadius = 5;
-        for(BlockPos blockPos: BlockPos.iterate(startPos, endPos)) {
-            BlockState currentState = world.getBlockState(blockPos);
+        for(BlockPos blockPos: BlockPos.betweenClosed(box)) {
+            BlockState currentState = level.getBlockState(blockPos);
             if(!EXPLOSION_CONSEQUENCES.containsKey(currentState.getBlock())) continue;
 
-            double distance = Math.sqrt(blockPos.getSquaredDistance(pos));
+            double distance = Math.sqrt(blockPos.distToCenterSqr(pos));
             if(distance > radius + fadeRadius) continue;
 
             double chance = 0.5;
@@ -81,11 +67,11 @@ public class BlockExplosions {
                 chance -= ((distance - radius) / fadeRadius) * chance;
             }
 
-            if(chance >= world.getRandom().nextDouble()) {
+            if(chance >= level.getRandom().nextDouble()) {
                 List<Block> possibleBlocks = EXPLOSION_CONSEQUENCES.get(currentState.getBlock());
-                Block block = possibleBlocks.get(world.getRandom().nextInt(possibleBlocks.size()));
+                Block block = possibleBlocks.get(level.getRandom().nextInt(possibleBlocks.size()));
 
-                world.setBlockState(blockPos, block.getDefaultState());
+                level.setBlock(blockPos, block.defaultBlockState(), 5);
             }
         }
     }

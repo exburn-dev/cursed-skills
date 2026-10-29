@@ -1,11 +1,11 @@
 package com.jujutsu.ability.passive;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.registry.ModAbilities;
+import com.jujutsu.registry.custom.Abilities;
 import com.jujutsu.registry.ModAttributes;
 import com.jujutsu.registry.ModEffects;
-import com.jujutsu.systems.ability.passive.PassiveAbility;
-import com.jujutsu.systems.ability.passive.PassiveAbilityType;
+import com.jujutsu.api.ability.passive.PassiveAbility;
+import com.jujutsu.api.ability.passive.PassiveAbilityType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -88,6 +88,6 @@ public class FierySoulPassiveAbility extends PassiveAbility {
 
     @Override
     public PassiveAbilityType<?> getType() {
-        return ModAbilities.FIERY_SOUL;
+        return Abilities.FIERY_SOUL;
     }
 }

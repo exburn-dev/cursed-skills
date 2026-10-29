@@ -1,10 +1,10 @@
 package com.jujutsu.network.payload.abilities;
 
 import com.jujutsu.Jujutsu;
-import com.jujutsu.systems.ability.client.ClientComponentContainer;
-import com.jujutsu.systems.ability.core.AbilitySlot;
-import com.jujutsu.systems.ability.data.AbilityPropertiesContainer;
-import com.jujutsu.systems.ability.data.AbilityProperty;
+import com.jujutsu.api.ability.client.ClientComponentContainer;
+import com.jujutsu.api.ability.core.AbilitySlot;
+import com.jujutsu.api.ability.data.AbilityPropertiesContainer;
+import com.jujutsu.api.ability.data.AbilityProperty;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;

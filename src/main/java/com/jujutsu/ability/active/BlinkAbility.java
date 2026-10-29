@@ -1,9 +1,9 @@
 package com.jujutsu.ability.active;
 
 import com.jujutsu.entity.BlinkMarkerEntity;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.data.AbilityData;
-import com.jujutsu.systems.ability.core.AbilityType;
+import com.jujutsu.api.ability.core.AbilityInstance;
+import com.jujutsu.api.ability.data.AbilityData;
+import com.jujutsu.api.ability.core.AbilityType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.player.PlayerEntity;

@@ -1,21 +1,15 @@
 package com.jujutsu.effect;
 
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.particle.ParticleEffect;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 
-public class StunEffect extends StatusEffect {
-    public StunEffect(StatusEffectCategory category, int color) {
+public class StunEffect extends MobEffect {
+    public StunEffect(MobEffectCategory category, int color) {
         super(category, color);
     }
 
-    protected StunEffect(StatusEffectCategory category, int color, ParticleEffect particleEffect) {
-        super(category, color, particleEffect);
-    }
-
-
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int i, int j) {
         return true;
     }
 }

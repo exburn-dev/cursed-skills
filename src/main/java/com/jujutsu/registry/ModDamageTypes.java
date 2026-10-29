@@ -1,10 +1,10 @@
 package com.jujutsu.registry;
 
 import com.jujutsu.Jujutsu;
-import net.minecraft.entity.damage.DamageType;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.damagesource.DamageType;
 
 public class ModDamageTypes {
-    public static final RegistryKey<DamageType> HOLLOW_PURPLE = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, Jujutsu.id("hollow_purple"));
+    public static final ResourceKey<DamageType> HOLLOW_PURPLE = ResourceKey.create(Registries.DAMAGE_TYPE, Jujutsu.id("hollow_purple"));
 }

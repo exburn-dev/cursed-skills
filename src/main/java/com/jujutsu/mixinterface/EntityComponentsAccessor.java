@@ -1,6 +1,6 @@
 package com.jujutsu.mixinterface;
 
-import com.jujutsu.systems.entitydata.EntityComponentContainer;
+import com.jujutsu.api.component.EntityComponentContainer;
 
 public interface EntityComponentsAccessor {
     EntityComponentContainer jujutsu$getContainer();

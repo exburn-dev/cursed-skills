@@ -5,15 +5,15 @@ import com.jujutsu.client.hud.FlashSystemHudRenderer;
 import com.jujutsu.client.particle.ColoredSparkParticleEffect;
 import com.jujutsu.network.payload.ShowScreenFlashPayload;
 import com.jujutsu.network.payload.sounds.PlayAbilityChargingSoundS2CPayload;
-import com.jujutsu.registry.ModAbilityAttributes;
+import com.jujutsu.registry.custom.AbilityAttributes;
 import com.jujutsu.registry.ModSounds;
-import com.jujutsu.systems.ability.attribute.SimpleAbilityAttributeContainer;
-import com.jujutsu.systems.ability.core.AbilityInstance;
-import com.jujutsu.systems.ability.core.AbilityInstanceData;
-import com.jujutsu.systems.ability.core.AbilityType;
-import com.jujutsu.systems.ability.data.ClientData;
+import com.jujutsu.api.ability.attribute.AbilityAttributeContainer;
+import com.jujutsu.api.ability.core.AbilityInstance;
+import com.jujutsu.api.ability.core.AbilityInstanceData;
+import com.jujutsu.api.ability.core.AbilityType;
+import com.jujutsu.api.ability.data.ClientData;
 import com.jujutsu.entity.HollowPurpleEntity;
-import com.jujutsu.systems.animation.PlayerAnimations;
+import com.jujutsu.api.animation.PlayerAnimations;
 import com.jujutsu.util.HandAnimationUtils;
 import com.jujutsu.util.ParticleUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -57,8 +57,8 @@ public class HollowPurpleAbility extends AbilityType {
             entity.setPitch(player.getPitch());
             entity.setPosition(player.getEyePos().add(0, 0.5, 0).add(player.getRotationVector().multiply(5)));
 
-            entity.setBlockBreakRadius((float) getAttributeValue(player, ModAbilityAttributes.HOLLOW_PURPLE_RADIUS));
-            entity.setSpeed((float) getAttributeValue(player, ModAbilityAttributes.HOLLOW_PURPLE_SPEED));
+            entity.setBlockBreakRadius((float) getAttributeValue(player, AbilityAttributes.HOLLOW_PURPLE_RADIUS));
+            entity.setSpeed((float) getAttributeValue(player, AbilityAttributes.HOLLOW_PURPLE_SPEED));
 
             player.getWorld().spawnEntity(entity);
         }
@@ -107,10 +107,10 @@ public class HollowPurpleAbility extends AbilityType {
     }
 
     @Override
-    public SimpleAbilityAttributeContainer getDefaultAttributes() {
-        return SimpleAbilityAttributeContainer.builder()
-                .addBaseModifier(ModAbilityAttributes.HOLLOW_PURPLE_RADIUS, 3)
-                .addBaseModifier(ModAbilityAttributes.HOLLOW_PURPLE_SPEED, 0.75)
+    public AbilityAttributeContainer getDefaultAttributes() {
+        return AbilityAttributeContainer.builder()
+                .addBaseModifier(AbilityAttributes.HOLLOW_PURPLE_RADIUS, 3)
+                .addBaseModifier(AbilityAttributes.HOLLOW_PURPLE_SPEED, 0.75)
                 .build();
     }
 

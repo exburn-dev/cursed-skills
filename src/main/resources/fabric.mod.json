@@ -3,9 +3,9 @@
 	"id": "jujutsu",
 	"version": "${version}",
 	"name": "Jujutsu",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Abilities mod",
 	"authors": [
-		"Me!"
+		"cinder"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
@@ -29,8 +29,8 @@
 		"jujutsu.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.16.10",
-		"minecraft": "~1.21.1",
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~1.21.11",
 		"java": ">=21",
 		"fabric-api": "*"
 	},

@@ -1,54 +1,57 @@
 package com.jujutsu.client.hud;
 
-import com.jujutsu.Jujutsu;
+import com.jujutsu.api.ability.client.render.AbilityClientRenderers;
+import com.jujutsu.api.ability.core.AbilityInstance;
 import com.jujutsu.client.input.InputRequestSystem;
 import com.jujutsu.api.ability.client.AbilityClientComponent;
 import com.jujutsu.api.ability.client.ClientComponentContainer;
-import com.jujutsu.api.ability.core.AbilityInstanceData;
 import com.jujutsu.api.ability.data.RequestedInputKey;
-import com.jujutsu.api.ability.data.ClientData;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
+import org.joml.Matrix3x2fStack;
 
 public class AbilitiesHudRenderer {
-    public static void render(DrawContext context, RenderTickCounter counter) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if(client == null || client.player == null) return;
+    public static void extract(GuiGraphics graphics, DeltaTracker tickCounter) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null) return;
 
         AbilityClientComponent component = ClientComponentContainer.abilityComponent;
 
-        MatrixStack matrices = context.getMatrices();
-        matrices.push();
+        Matrix3x2fStack matrices = graphics.pose();
+        matrices.pushMatrix();
 
-        for(AbilityInstanceData instanceData: component.all()) {
-            renderHud(instanceData, context, counter);
+        for (AbilityInstance instance : component.all()) {
+            renderAbilityHud(graphics, tickCounter, instance);
         }
-        renderAdditionalInput(context, counter);
-        matrices.pop();
+        renderInputRequestHud(graphics, tickCounter);
+
+        matrices.popMatrix();
     }
 
-    private static void renderHud(AbilityInstanceData instance, DrawContext context, RenderTickCounter counter) {
-        if(!instance.status().isRunning() && !instance.status().isWaiting()) return;
+    private static void renderAbilityHud(GuiGraphics graphics, DeltaTracker tickCounter, AbilityInstance instance) {
+        if (!instance.isExecuted()) return;
 
-        ClientData clientData = instance.type().getClientData();
-        if(clientData != null && clientData.overlay() != null) {
-            clientData.overlay().render(context, counter, instance);
+        AbilityClientRenderers renderers = AbilityClientComponent.getRenderers(instance.type());
+        if (renderers != null && renderers.hasOverlay()) {
+            renderers.overlay().render(graphics, tickCounter, instance);
         }
     }
 
-    private static void renderAdditionalInput(DrawContext context, RenderTickCounter counter) {
-        if(InputRequestSystem.getAdditionalInput().isEmpty()) return;
+    private static void renderInputRequestHud(GuiGraphics graphics, DeltaTracker tickCounter) {
+        if(InputRequestSystem.isEmpty()) return;
 
-        for(RequestedInputKey input: InputRequestSystem.getAdditionalInput()) {
-            if (input.mouseButton() >= 0) {
-                int x = context.getScaledWindowWidth() / 2 - 8;
-                int y = context.getScaledWindowHeight() / 2 - 8;
-                Identifier texture = input.mouseButton() == 0 ? Jujutsu.id("additional_input/mouse_left")
-                        : Jujutsu.id("additional_input/mouse_right");
-                context.drawGuiTexture(texture, x, y, 16, 16);
+        for(RequestedInputKey input : InputRequestSystem.getAdditionalInput()) {
+            if(input.mouseButton() >= 0) {
+                int x = graphics.guiWidth() / 2 - 8;
+                int y = graphics.guiHeight() / 2 - 8;
+                Identifier texture = input.mouseButton() == 0
+                        ? InputRequestSystem.LMB_ICON_TEXTURE
+                        : InputRequestSystem.RMB_ICON_TEXTURE;
+
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, texture, x, y, 16, 16);
             }
         }
     }

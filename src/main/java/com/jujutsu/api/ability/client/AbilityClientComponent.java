@@ -1,8 +1,8 @@
 package com.jujutsu.api.ability.client;
 
-import com.jujutsu.client.hud.AbilityCooldownRenderer;
+import com.jujutsu.api.ability.client.render.AbilityClientRenderers;
+import com.jujutsu.api.ability.core.AbilityInstance;
 import com.jujutsu.registry.custom.Abilities;
-import com.jujutsu.api.ability.core.AbilityInstanceData;
 import com.jujutsu.api.ability.core.AbilitySlot;
 import com.jujutsu.api.ability.core.AbilityType;
 import com.jujutsu.api.ability.data.AbilityPropertiesContainer;
@@ -13,15 +13,16 @@ import java.util.List;
 import java.util.Map;
 
 public class AbilityClientComponent {
+    private static final Map<AbilityType, AbilityClientRenderers> renderers = new HashMap<>();
 
-    private Map<AbilitySlot, AbilityInstanceData> abilities = new HashMap<>();
+    private Map<AbilitySlot, AbilityInstance> abilities = new HashMap<>();
     private Map<AbilitySlot, AbilityPropertiesContainer> abilitiesData = new HashMap<>();
 
     private boolean isTranslucent;
 
-    public void apply(List<AbilityInstanceData> data) {
+    public void apply(List<AbilityInstance> data) {
         abilities.clear();
-        for(AbilityInstanceData instanceData : data) {
+        for(AbilityInstance instanceData : data) {
             abilities.put(instanceData.slot(), instanceData);
 
             if(instanceData.type().equals(Abilities.SHADOW_STEP)) {
@@ -36,11 +37,11 @@ public class AbilityClientComponent {
         abilitiesData.put(slot, container);
     }
 
-    public Collection<AbilityInstanceData> all() {
+    public Collection<AbilityInstance> all() {
         return abilities.values();
     }
 
-    public AbilityInstanceData get(AbilitySlot slot) {
+    public AbilityInstance get(AbilitySlot slot) {
         return abilities.get(slot);
     }
 
@@ -53,7 +54,7 @@ public class AbilityClientComponent {
     }
 
     public boolean isRunning(AbilityType type) {
-        for(AbilityInstanceData instance : all()) {
+        for(AbilityInstance instance : all()) {
             if(instance.type().equals(type) && instance.status().isRunning()) {
                 return true;
             }
@@ -63,5 +64,13 @@ public class AbilityClientComponent {
 
     public boolean isTranslucent() {
         return isTranslucent;
+    }
+
+    public static AbilityClientRenderers getRenderers(AbilityType type) {
+        return renderers.get(type);
+    }
+
+    public static void registerRenderers(AbilityType type, AbilityClientRenderers abilityRenderers) {
+        renderers.put(type, abilityRenderers);
     }
 }

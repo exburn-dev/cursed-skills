@@ -202,6 +202,10 @@ public class AbilityInstance {
         return maxCooldownTime;
     }
 
+    public boolean isExecuted() {
+        return status.isRunning() || status.isWaiting();
+    }
+
     @Override
     public void sendToClient() {
         ServerPlayNetworking.send((ServerPlayerEntity) player, new AbilityRuntimeDataSyncS2CPayload(slot, runtimeData.properties()));

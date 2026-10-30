@@ -1,14 +1,11 @@
 package com.jujutsu.api.ability.data;
 
+import com.jujutsu.api.ability.core.AbilityInstance;
 import com.jujutsu.api.ability.core.AbilityInstanceData;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.renderer.MultiBufferSource;
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated
 public record ClientData(@Nullable AbilityHandAnimation animation, @Nullable AbilityHudOverlay overlay) {
     public static class Builder {
         private AbilityHandAnimation animation = null;
@@ -29,13 +26,17 @@ public record ClientData(@Nullable AbilityHandAnimation animation, @Nullable Abi
         }
     }
 
+    @Deprecated
     @FunctionalInterface
     public interface AbilityHandAnimation {
-        boolean render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, AbilityInstanceData instance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light);
+        void render();
+        //boolean render(MatrixStack matrices, MultiBufferSource bufferSource, AbilityInstance clientInstance, ClientPlayerEntity player, PlayerEntityRenderer playerEntityRenderer, float equipProgress, float swingProgress, int light);
     }
 
+    @Deprecated
     @FunctionalInterface
     public interface AbilityHudOverlay {
-        void render(DrawContext context, RenderTickCounter counter, AbilityInstanceData instance);
+        void render();
+        //void render(DrawContext context, RenderTickCounter counter, AbilityInstanceData instance);
     }
 }

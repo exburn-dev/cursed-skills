@@ -1,15 +1,19 @@
 package com.jujutsu.client.input;
 
+import com.jujutsu.Jujutsu;
 import com.jujutsu.event.client.KeyEvents;
 import com.jujutsu.network.payload.input_requests.RequestedInputPressedC2SPayload;
 import com.jujutsu.api.ability.core.AbilitySlot;
 import com.jujutsu.api.ability.data.RequestedInputKey;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.util.ActionResult;
+import net.minecraft.resources.Identifier;
 
 import java.util.*;
 
 public class InputRequestSystem {
+    public static final Identifier LMB_ICON_TEXTURE = Jujutsu.id("additional_input/mouse_left");
+    public static final Identifier RMB_ICON_TEXTURE = Jujutsu.id("additional_input/mouse_right");
+
     private static final Map<AbilitySlot, RequestedInputKey> requests = new HashMap<>();
 
     public static void register() {

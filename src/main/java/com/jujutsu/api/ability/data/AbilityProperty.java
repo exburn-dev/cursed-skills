@@ -1,11 +1,12 @@
 package com.jujutsu.api.ability.data;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 
-public abstract class AbilityProperty<T extends Comparable<T>> implements StringIdentifiable {
+public abstract class AbilityProperty<T extends Comparable<T>> implements StringRepresentable {
     private final String name;
 
     protected AbilityProperty(String name) {
@@ -23,8 +24,8 @@ public abstract class AbilityProperty<T extends Comparable<T>> implements String
     }
 
     @Override
-    public String asString() {
-        return type();
+    public @NonNull String getSerializedName() {
+        return name();
     }
 
     @Override

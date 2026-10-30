@@ -53,6 +53,14 @@ public abstract class AbilityType {
     public abstract void end(Player player, AbilityInstance instance);
     public abstract boolean isFinished(Player player, AbilityInstance instance);
 
+    public float getProgress(Player player, AbilityInstance instance) {
+        return switch (instance.status()) {
+            case RUNNING -> 0.5f;
+            case ON_COOLDOWN -> 1.0f;
+            default -> 0.0f;
+        };
+    }
+
     protected double getAttributeValue(Player player, Holder<AbilityAttribute> attribute) {
         return AbilityAttributeComponent.get(player).getAttributeValue(attribute);
     }
